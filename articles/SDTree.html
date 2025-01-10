@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDTree • SDForest</title>
+<title>SDTree • SDModels</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -37,16 +37,13 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">SDForest</a>
+        <a class="navbar-link" href="../index.html">SDModels</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../articles/SDForest.html">Get started</a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -59,6 +56,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/Runtime.html">Runtime</a>
+    </li>
+    <li>
+      <a href="../articles/SDForest.html">SDForest</a>
     </li>
     <li>
       <a href="../articles/SDTree.html">SDTree</a>
@@ -99,7 +99,7 @@ from a confounded process. We simulate the data similar to
 tree, i.e. step-function for the direct relationship
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(X)</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://markusul.github.io/SDForest/">SDForest</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://markusul.github.io/SDForest/">SDModels</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span>
 <span></span>
@@ -138,8 +138,6 @@ predicts almost the same response as the true underlying function. The
 plain classical regression tree, on the other hand, results in a
 prediction close to the observed
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐘</mi><annotation encoding="application/x-tex">\mathbf{Y}</annotation></semantics></math>.</p>
-<pre><code><span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
-<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span></code></pre>
 <p><img src="SDTree_files/figure-html/pred-1.png" width="700"></p>
 <p>Now, we can directly look at the estimated tree structures. On top is
 the true underlying random regression tree, and below are the two tree
