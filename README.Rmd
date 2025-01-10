@@ -18,7 +18,7 @@ Sys.setenv(OPENSSL_CONF="/dev/null")
 # SDForest
   
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/markusul/SDForest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDForest/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Spectrally Deconfounded Random Forests (SDForest) is a method for estimating non-linear sparse direct effects in the presence of unobserved confounding. SDForest has shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding (@Ulmer, @Guo2022DoublyConfounding, @Cevid2020SpectralModels). Even if the assumptions are violated, there is not much to lose and SDForest will, in general, estimate a function closer to $f^0$ than classical Random Forests.
@@ -31,11 +31,11 @@ You can install the development version of SDForest from [GitHub](https://github
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("markusul/SDForest")
+devtools::install_github("markusul/SDModels")
 
 # or
 # install.packages('pak')
-# pak::pkg_install('markusul/SDForest')
+# pak::pkg_install('markusul/SDModels')
 ```
 
 ## Usage
@@ -43,7 +43,7 @@ devtools::install_github("markusul/SDForest")
 This is a basic example on how to estimate the direct effect of $X$ on $Y$ using SDForest. You can learn more about analyzing sparse direct effects estimated by SDForest in `vignette("SDForest")`.
 
 ```{r SDForest}
-library(SDForest)
+library(SDModels)
 
 set.seed(42)
 # simulation of confounded data

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 In the following, we compare the Spectrally Deconfounded Regression Tree $f^{SDTree}(X)$ to the classical regression tree $f^{Tree}(X)$ [@Breiman2017ClassificationTrees] using simulated data from a confounded process. We simulate the data similar to `simulate_data_nonlinear()` but with a random regression tree, i.e. step-function for the direct relationship $f(X)$.
 
 ```{r sim}
-library(SDForest)
+library(SDModels)
 
 set.seed(99)
 

@@ -20,7 +20,7 @@ Here, we show the functionality of an SDForest and how you can use it to screen 
 We show the functionalities with simulated data from a confounded model with one true causal parents of $Y$, see `simulate_data_nonlinear()`.
 
 ```{r sim}
-library(SDForest)
+library(SDModels)
 set.seed(42)
 # simulation of confounded data
 q <- 2    # dimension of confounding

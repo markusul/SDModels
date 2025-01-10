@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/markusul/SDForest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDForest/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Spectrally Deconfounded Random Forests (SDForest) is a method for
@@ -27,11 +27,11 @@ You can install the development version of SDForest from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("markusul/SDForest")
+devtools::install_github("markusul/SDModels")
 
 # or
 # install.packages('pak')
-# pak::pkg_install('markusul/SDForest')
+# pak::pkg_install('markusul/SDModels')
 ```
 
 ## Usage
@@ -41,7 +41,7 @@ $Y$ using SDForest. You can learn more about analyzing sparse direct
 effects estimated by SDForest in `vignette("SDForest")`.
 
 ``` r
-library(SDForest)
+library(SDModels)
 
 set.seed(42)
 # simulation of confounded data
@@ -59,7 +59,7 @@ fit
 #> 
 #> Number of trees:  100 
 #> Number of covariates:  50 
-#> OOB loss:  0.16 
+#> OOB loss:  0.17 
 #> OOB spectral loss:  0.05
 ```
 
@@ -73,12 +73,12 @@ Tree <- SDTree(Y ~ ., train_data, cp = 0.03)
 Tree
 #>   levelName     value          s  j        label decision n_samples
 #> 1 1         0.8295434  0.5186858 24  X24 <= 0.52                100
-#> 2  ¦--1     0.6425567 -2.0062213 25 X25 <= -2.01       no        63
-#> 3  ¦   ¦--1 0.1525245         NA NA          0.2       no         9
-#> 4  ¦   °--3 0.6613778         NA NA          0.7      yes        54
-#> 5  °--2     1.1811389  1.5229617 24  X24 <= 1.52      yes        37
-#> 6      ¦--2 1.0361679         NA NA            1       no        19
-#> 7      °--4 1.4544461         NA NA          1.5      yes        18
+#> 2  ¦--1     0.6418912 -2.0062213 25 X25 <= -2.01       no        63
+#> 3  ¦   ¦--1 0.1522660         NA NA          0.2       no         9
+#> 4  ¦   °--3 0.6609876         NA NA          0.7      yes        54
+#> 5  °--2     1.1821439  1.5229617 24  X24 <= 1.52      yes        37
+#> 6      ¦--2 1.0367566         NA NA            1       no        19
+#> 7      °--4 1.4551242         NA NA          1.5      yes        18
 plot(Tree)
 ```
 
