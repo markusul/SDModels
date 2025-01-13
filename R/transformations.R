@@ -8,9 +8,9 @@
 #' @author Markus Ulmer
 #' @param X Numerical covariates of class \code{matrix}.
 #' @param type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
-#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDForest} 
-#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDForest}, 
-#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDForest} 
+#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels} 
 #' and 'no_deconfounding' to the Identity.
 #' @param trim_quantile Quantile for Trim transform, only needed for trim.
 #' @param q_hat Assumed confounding dimension, only needed for pca.
@@ -92,7 +92,7 @@ get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling 
 #' For \eqn{\gamma = 0} this corresponds to residuals after orthogonal projecting onto A.
 #' For large \eqn{\gamma} this is close to the orthogonal projection onto A, scaled by \eqn{\gamma}.
 #' The estimator \eqn{\text{argmin}_f ||W(Y - f(X))||^2} corresponds to the Anchor-Regression Estimator 
-#' \insertCite{Rothenhausler2021AnchorCausality}{SDForest}, \insertCite{Buhlmann2020InvarianceRobustness}{SDForest}.
+#' \insertCite{Rothenhausler2021AnchorCausality}{SDModels}, \insertCite{Buhlmann2020InvarianceRobustness}{SDModels}.
 #' @importFrom Rdpack reprompt
 #' @references
 #'   \insertAllCited{}

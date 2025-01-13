@@ -7,7 +7,7 @@ fromList <- function(object, ...) UseMethod('fromList')
 #' SDTree toList method
 #' 
 #' Converts the tree in an SDTree object from 
-#' class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDForest} to class \code{list}.
+#' class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels} to class \code{list}.
 #' This makes it substantially easier to save the tree to disk.
 #' @author Markus Ulmer
 #' @references
@@ -25,7 +25,7 @@ toList.SDTree <- function(object, ...){
 #' SDTree fromList method
 #' 
 #' Converts the tree in an SDTree object from
-#' class \code{list} to class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDForest}.
+#' class \code{list} to class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels}.
 #' @author Markus Ulmer
 #' @references
 #'  \insertAllCited{}
@@ -42,7 +42,7 @@ fromList.SDTree <- function(object, ...){
 #' SDForest toList method
 #' 
 #' Converts the trees in an SDForest object from
-#' class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDForest} to class \code{list}.
+#' class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels} to class \code{list}.
 #' This makes it substantially easier to save the forest to disk.
 #' @author Markus Ulmer
 #' @references
@@ -61,7 +61,7 @@ toList.SDForest <- function(object, ...){
 #' SDForest fromList method
 #' 
 #' Converts the trees in an SDForest object from
-#' class \code{list} to class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDForest}.
+#' class \code{list} to class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels}.
 #' @author Markus Ulmer
 #' @references
 #'  \insertAllCited{}

@@ -25,9 +25,9 @@
 #' evaluated and the previously optimal splits and their potential loss-decrease are reused. 
 #' If \code{FALSE} all possible splits in all the leaves are reevaluated after every split.
 #' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
-#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDForest} 
-#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDForest}, 
-#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDForest}. 
+#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels}. 
 #' See \code{\link{get_Q}}.
 #' @param trim_quantile Quantile for Trim transform, 
 #' only needed for trim and DDL_trim, see \code{\link{get_Q}}.

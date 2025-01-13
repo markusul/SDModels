@@ -1,28 +1,32 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SDForest
+# SDModels
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Spectrally Deconfounded Random Forests (SDForest) is a method for
+Spectrally Deconfounded Models (SDModels) is a package with methods for
 estimating non-linear sparse direct effects in the presence of
-unobserved confounding. SDForest has shown to be a good estimate for the
+unobserved confounding using the spectral deconfounding techniques
+(Ćevid, Bühlmann, and Meinshausen (2020), Guo, Ćevid, and Bühlmann
+(2022)). These methods have been shown to be a good estimate for the
 true direct effect, if we observe many covariates, e.g. high-dimensional
-setting, and we have fairly dense confounding ((**Ulmer?**), Guo, Ćevid,
-and Bühlmann (2022), Ćevid, Bühlmann, and Meinshausen (2020)). Even if
-the assumptions are violated, there is not much to lose and SDForest
+setting, and we have fairly dense confounding. Even if the assumptions
+are violated, it seems like there is not much to lose and the SDModels
 will, in general, estimate a function closer to $f^0$ than classical
-Random Forests.
+least squares optimization. SDModels provides software for Spectrally
+Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann
+(2023)) and Spectrally Deconfounded Random Forests
+(SDForest)((**Ulmer?**)).
 
 ![](man/figures/confModel.png)
 
 ## Installation
 
-You can install the development version of SDForest from
+You can install the development version of SDModels from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -100,6 +104,14 @@ Guo, Zijian, Domagoj Ćevid, and Peter Bühlmann. 2022.
 “<span class="nocase">Doubly debiased lasso: High-dimensional inference
 under hidden confounding</span>.” *The Annals of Statistics* 50 (3).
 <https://doi.org/10.1214/21-AOS2152>.
+
+</div>
+
+<div id="ref-scheidegger2023spectral" class="csl-entry">
+
+Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2023. “Spectral
+Deconfounding for High-Dimensional Sparse Additive Models.” *ACM/JMS
+Journal of Data Science*.
 
 </div>
 

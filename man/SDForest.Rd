@@ -61,9 +61,9 @@ if \code{NULL} half of the covariates are available for each split.
 if \code{mc.cores > 1} the trees are estimated in parallel.}
 
 \item{Q_type}{Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
-'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDForest} 
-as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDForest}, 
-'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDForest}. 
+'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels}. 
 See \code{\link{get_Q}}.}
 
 \item{trim_quantile}{Quantile for Trim transform, 
@@ -144,12 +144,12 @@ or the same environment.}
 \description{
 Estimate regression Random Forest using spectral deconfounding.
 The spectrally deconfounded Random Forest (SDForest) combines SDTrees in the same way, 
-as in the original Random Forest \insertCite{Breiman2001RandomForests}{SDForest}.
+as in the original Random Forest \insertCite{Breiman2001RandomForests}{SDModels}.
 The idea is to combine multiple regression trees into an ensemble in order to 
 decrease variance and get a smooth function. Ensembles work best if the different 
 models are independent of each other. To decorrelate the regression trees as much 
 as possible from each other, we have two mechanisms. The first one is bagging 
-\insertCite{Breiman1996BaggingPredictors}{SDForest}, where we train each regression 
+\insertCite{Breiman1996BaggingPredictors}{SDModels}, where we train each regression 
 tree on an independent bootstrap sample of the observations, e.g., we draw a 
 random sample of size \eqn{n} with replacement from the observations. 
 The second mechanic to decrease the correlation is that only a random subset 

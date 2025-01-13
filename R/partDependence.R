@@ -3,7 +3,7 @@
 #' This function calculates the partial dependence of a model on a single variable.
 #' For that predictions are made for all observations in the dataset while varying 
 #' the value of the variable of interest. The overall partial effect is the average
-#' of all predictions. \insertCite{Friedman2001GreedyMachine}{SDForest}
+#' of all predictions. \insertCite{Friedman2001GreedyMachine}{SDModels}
 #' @importFrom Rdpack reprompt
 #' @references
 #'   \insertAllCited{}

@@ -1,0 +1,21 @@
+---
+title: "SDAM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SDAM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Not yet supported
+
+```{r setup}
+library(SDModels)
+```

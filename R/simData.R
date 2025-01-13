@@ -152,7 +152,7 @@ f_four <- function(x, beta, js){
 #' \item{f_X}{a \code{vector} of the true function f(X)}
 #' \item{j}{the indices of the causal covariates in X}
 #' \item{tree}{If \code{make_tree}, the random regression tree of class 
-#' \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDForest}}
+#' \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}}
 #' @seealso \code{\link{simulate_data_nonlinear}}
 #' @export 
 simulate_data_step <- function(q, p, n, m, make_tree = FALSE){

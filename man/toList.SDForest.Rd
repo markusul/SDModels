@@ -17,7 +17,7 @@ an SDForest object with the trees in list format
 }
 \description{
 Converts the trees in an SDForest object from
-class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDForest} to class \code{list}.
+class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels} to class \code{list}.
 This makes it substantially easier to save the forest to disk.
 }
 \references{

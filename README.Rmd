@@ -15,19 +15,19 @@ knitr::opts_chunk$set(
 Sys.setenv(OPENSSL_CONF="/dev/null")
 ```
 
-# SDForest
+# SDModels
   
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Spectrally Deconfounded Random Forests (SDForest) is a method for estimating non-linear sparse direct effects in the presence of unobserved confounding. SDForest has shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding (@Ulmer, @Guo2022DoublyConfounding, @Cevid2020SpectralModels). Even if the assumptions are violated, there is not much to lose and SDForest will, in general, estimate a function closer to $f^0$ than classical Random Forests.
+Spectrally Deconfounded Models (SDModels) is a package with methods for estimating non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (@Cevid2020SpectralModels, @Guo2022DoublyConfounding). These methods have been shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose and the SDModels will, in general, estimate a function closer to $f^0$ than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (@scheidegger2023spectral) and Spectrally Deconfounded Random Forests (SDForest)(@Ulmer).
 
 ![](man/figures/confModel.png)
 
 ## Installation
 
-You can install the development version of SDForest from [GitHub](https://github.com/) with:
+You can install the development version of SDModels from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")

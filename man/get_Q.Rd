@@ -10,9 +10,9 @@ get_Q(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling = TRUE)
 \item{X}{Numerical covariates of class \code{matrix}.}
 
 \item{type}{Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
-'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDForest} 
-as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDForest}, 
-'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDForest} 
+'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels} 
 and 'no_deconfounding' to the Identity.}
 
 \item{trim_quantile}{Quantile for Trim transform, only needed for trim.}
