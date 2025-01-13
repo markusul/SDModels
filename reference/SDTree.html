@@ -10,7 +10,7 @@ to which region an observation belongs and \(c \in \mathbb{R}^M\) is a vector
 containing the levels corresponding to the different regions. This function then minimizes
 $$(\hat{\mathcal{P}}, \hat{c}) = \text{argmin}_{\mathcal{P}' \in \{0, 1\}^{n \times M}, c' \in \mathbb{R}^ {M}} \frac{||Q(\mathbf{Y} - \mathcal{P'} c')||_2^2}{n}$$
 We find \(\hat{\mathcal{P}}\) by using the tree structure and repeated splitting of the leaves,
-similar to the original cart algorithm Breiman2017ClassificationTreesSDForest.
+similar to the original cart algorithm Breiman2017ClassificationTreesSDModel.
 Since comparing all possibilities for \(\mathcal{P}\) is impossible, we let a tree grow greedily.
 Given the current tree, we iterate over all leaves and all possible splits.
 We choose the one that reduces the spectral loss the most and estimate after each split
@@ -57,6 +57,9 @@ and acts as a regularization parameter."><meta property="og:image" content="http
       <a href="../articles/Runtime.html">Runtime</a>
     </li>
     <li>
+      <a href="../articles/SDAM.html">SDAM</a>
+    </li>
+    <li>
       <a href="../articles/SDForest.html">SDForest</a>
     </li>
     <li>
@@ -89,7 +92,7 @@ to which region an observation belongs and \(c \in \mathbb{R}^M\) is a vector
 containing the levels corresponding to the different regions. This function then minimizes
 $$(\hat{\mathcal{P}}, \hat{c}) = \text{argmin}_{\mathcal{P}' \in \{0, 1\}^{n \times M}, c' \in \mathbb{R}^ {M}} \frac{||Q(\mathbf{Y} - \mathcal{P'} c')||_2^2}{n}$$
 We find \(\hat{\mathcal{P}}\) by using the tree structure and repeated splitting of the leaves,
-similar to the original cart algorithm Breiman2017ClassificationTreesSDForest.
+similar to the original cart algorithm Breiman2017ClassificationTreesSDModel.
 Since comparing all possibilities for \(\mathcal{P}\) is impossible, we let a tree grow greedily.
 Given the current tree, we iterate over all leaves and all possible splits.
 We choose the one that reduces the spectral loss the most and estimate after each split
@@ -178,9 +181,9 @@ If <code>FALSE</code> all possible splits in all the leaves are reevaluated afte
 
 <dt id="arg-q-type">Q_type<a class="anchor" aria-label="anchor" href="#arg-q-type"></a></dt>
 <dd><p>Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'.
-'trim' corresponds to the Trim transform Cevid2020SpectralModelsSDForest
-as implemented in the Doubly debiased lasso Guo2022DoublyConfoundingSDForest,
-'pca' to the PCA transformationPaul2008PreconditioningProblemsSDForest.
+'trim' corresponds to the Trim transform Cevid2020SpectralModelsSDModel
+as implemented in the Doubly debiased lasso Guo2022DoublyConfoundingSDModel,
+'pca' to the PCA transformationPaul2008PreconditioningProblemsSDModel.
 See <code><a href="get_Q.html">get_Q</a></code>.</p></dd>
 
 
@@ -237,7 +240,7 @@ and we do not know of a scenario where this hurts.</p></dd>
 <dd><p>Predictions for the training set.</p></dd>
 
 <dt>tree</dt>
-<dd><p>The estimated tree of class <code>Node</code> from Glur2023Data.tree:StructureSDForest.
+<dd><p>The estimated tree of class <code>Node</code> from Glur2023Data.tree:StructureSDModel.
 The tree contains the information about all the splits and the resulting estimates.</p></dd>
 
 <dt>var_names</dt>

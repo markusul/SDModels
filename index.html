@@ -60,6 +60,9 @@
       <a href="articles/Runtime.html">Runtime</a>
     </li>
     <li>
+      <a href="articles/SDAM.html">SDAM</a>
+    </li>
+    <li>
       <a href="articles/SDForest.html">SDForest</a>
     </li>
     <li>
@@ -81,16 +84,16 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="sdforest">SDForest<a class="anchor" aria-label="anchor" href="#sdforest"></a>
+<div class="page-header"><h1 id="sdmodels">SDModels<a class="anchor" aria-label="anchor" href="#sdmodels"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>Spectrally Deconfounded Random Forests (SDForest) is a method for estimating non-linear sparse direct effects in the presence of unobserved confounding. SDForest has shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding ((<strong>Ulmer?</strong>), Guo, Ćevid, and Bühlmann (2022), Ćevid, Bühlmann, and Meinshausen (2020)). Even if the assumptions are violated, there is not much to lose and SDForest will, in general, estimate a function closer to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mn>0</mn></msup><annotation encoding="application/x-tex">f^0</annotation></semantics></math> than classical Random Forests.</p>
+<p>Spectrally Deconfounded Models (SDModels) is a package with methods for estimating non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (Ćevid, Bühlmann, and Meinshausen (2020), Guo, Ćevid, and Bühlmann (2022)). These methods have been shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose and the SDModels will, in general, estimate a function closer to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mn>0</mn></msup><annotation encoding="application/x-tex">f^0</annotation></semantics></math> than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann (2023)) and Spectrally Deconfounded Random Forests (SDForest)((<strong>Ulmer?</strong>)).</p>
 <p><img src="reference/figures/confModel.png"></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of SDForest from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of SDModels from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"markusul/SDModels"</span><span class="op">)</span></span>
@@ -146,6 +149,9 @@
 </div>
 <div id="ref-Guo2022DoublyConfounding" class="csl-entry">
 Guo, Zijian, Domagoj Ćevid, and Peter Bühlmann. 2022. “<span class="nocase">Doubly debiased lasso: High-dimensional inference under hidden confounding</span>.” <em>The Annals of Statistics</em> 50 (3). <a href="https://doi.org/10.1214/21-AOS2152" class="external-link uri">https://doi.org/10.1214/21-AOS2152</a>.
+</div>
+<div id="ref-scheidegger2023spectral" class="csl-entry">
+Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2023. “Spectral Deconfounding for High-Dimensional Sparse Additive Models.” <em>ACM/JMS Journal of Data Science</em>.
 </div>
 </div>
 </div>
