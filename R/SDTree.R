@@ -11,7 +11,7 @@
 #' containing the levels corresponding to the different regions. This function then minimizes
 #' \deqn{(\hat{\mathcal{P}}, \hat{c}) = \text{argmin}_{\mathcal{P}' \in \{0, 1\}^{n \times M}, c' \in \mathbb{R}^ {M}} \frac{||Q(\mathbf{Y} - \mathcal{P'} c')||_2^2}{n}}
 #' We find \eqn{\hat{\mathcal{P}}} by using the tree structure and repeated splitting of the leaves, 
-#' similar to the original cart algorithm \insertCite{Breiman2017ClassificationTrees}{SDModel}.
+#' similar to the original cart algorithm \insertCite{Breiman2017ClassificationTrees}{SDModels}.
 #' Since comparing all possibilities for \eqn{\mathcal{P}} is impossible, we let a tree grow greedily. 
 #' Given the current tree, we iterate over all leaves and all possible splits. 
 #' We choose the one that reduces the spectral loss the most and estimate after each split 
@@ -45,9 +45,9 @@
 #' evaluated and the previously optimal splits and their potential loss-decrease are reused. 
 #' If \code{FALSE} all possible splits in all the leaves are reevaluated after every split.
 #' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
-#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModel} 
-#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModel}, 
-#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModel}. 
+#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels}. 
 #' See \code{\link{get_Q}}.
 #' @param trim_quantile Quantile for Trim transform, 
 #' only needed for trim, see \code{\link{get_Q}}.
@@ -70,7 +70,7 @@
 #' and we do not know of a scenario where this hurts.
 #' @return Object of class \code{SDTree} containing
 #' \item{predictions}{Predictions for the training set.}
-#' \item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModel}. 
+#' \item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}. 
 #' The tree contains the information about all the splits and the resulting estimates.}
 #' \item{var_names}{Names of the covariates in the training data.}
 #' \item{var_importance}{Variable importance of the covariates. 
