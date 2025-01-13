@@ -31,7 +31,8 @@ Suggests:
     ranger,
     qpdf,
     igraph,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    RhpcBLASctl
 RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
