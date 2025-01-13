@@ -35,4 +35,4 @@ RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-URL: https://markusul.github.io/SDForest/
+URL: https://markusul.github.io/SDModels/
