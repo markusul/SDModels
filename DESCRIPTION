@@ -27,12 +27,14 @@ Suggests:
     tinytest,
     rpart,
     knitr,
-    rmarkdown, 
+    rmarkdown,
     ranger,
-    qpdf, 
-    igraph
+    qpdf,
+    igraph,
+    testthat (>= 3.0.0)
 RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://markusul.github.io/SDModels/
+Config/testthat/edition: 3
