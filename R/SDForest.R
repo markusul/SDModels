@@ -274,9 +274,9 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       cl <- parallel::makeCluster(mc.cores)
       doParallel::registerDoParallel(cl)
       parallel::clusterExport(cl = cl, 
-                              unclass(lsf.str(envir = asNamespace("SDForest"), 
+                              unclass(lsf.str(envir = asNamespace("SDModels"), 
                                               all = TRUE)),
-                              envir = as.environment(asNamespace("SDForest")))
+                              envir = as.environment(asNamespace("SDModels")))
       res <- parallel::clusterApplyLB(cl = cl, ind, fun = function(i)
         SDTree(x = X[i, ], y = Y[i], cp = cp, min_sample = min_sample, 
                Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
