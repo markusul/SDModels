@@ -10,9 +10,7 @@
 #' @author Cyrill Scheidegger
 #'
 #' @references Please cite the following paper.
-#' Cyrill Scheidegger, Zijian Guo, Peter B\"uhlmann (2023).
-#' Spectral Deconfounding for High-Dimensional Sparse Additive Models
-#' \url{https://arxiv.org/abs/2312.02860}
+#' \insertCite{scheidegger2023spectral}{SDModels} 
 #'
 #' @param X A numeric matrix of size `n x p`, where `n` is the number of observations and `p` is the number of covariates.
 #' @param Y A numeric vector of length `n`, representing the response variable.
@@ -101,7 +99,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     }
     QB <- Qf(B)
     # calculate maximal lambda
-    lambdamax <- lambdamax(QB, QY, index = index, model = LinReg(), center = FALSE, standardize = FALSE)
+    lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = LinReg(), center = FALSE, standardize = FALSE)
     # lambdas for cross validation
     lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
     lmodK[[i]] <- list(Rlist = Rlist, lbreaks = lbreaks, index = index, B = B, QB = QB, lambda = lambda, K = K, K_eff = K_eff)
@@ -116,7 +114,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     QBtrain <- listK$QB[-test, ]
     QBtest <- listK$QB[test, ]
     mod <- grplasso::grplasso(QBtrain, QYtrain, index = listK$index, lambda = listK$lambda, model = LinReg(), center = FALSE, standardize = FALSE)
-    QYpred <- predict(mod, newdata = QBtest)
+    QYpred <- grplasso::predict.grplasso(mod, newdata = QBtest)
     mse <- apply(QYpred, 2, function(y){mean((y-QYtest)^2)})
     return(mse)
   }
@@ -190,6 +188,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
 #' @author Cyrill Scheidegger
 #' @param object Fitted object of class \code{SDAM}.
 #' @param Xnew Matrix of new test data at which to evaluate the fitted function.
+#' @param ... Further arguments passed to or from other methods.
 #' @return A vector of predictions for the new data.
 #' @examples
 #' set.seed(1)
@@ -198,7 +197,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
 #' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 #' predict(object = model, Xnew = X)
 #' @export
-predict.SDAM <- function(object, Xnew){
+predict.SDAM <- function(object, Xnew, ...){
   n <- nrow(Xnew)
   p <- ncol(Xnew)
   if(p != object$p){
