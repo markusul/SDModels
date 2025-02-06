@@ -118,7 +118,10 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     QYtest <- QY[test]
     QBtrain <- listK$QB[-test, ]
     QBtest <- listK$QB[test, ]
-    mod <- grplasso::grplasso(QBtrain, QYtrain, index = listK$index, lambda = listK$lambda, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)
+    # use capture.output to supress the output form grplasso
+    # use suppressWarnings to igrnore the warnings "Penalization not adjusted to non-penalized predictors"
+    # which we are aware of.
+    suppressWarnings(capture.output(mod <- grplasso::grplasso(QBtrain, QYtrain, index = listK$index, lambda = listK$lambda, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)))
     QYpred <- predict(mod, newdata = QBtest)
     mse <- apply(QYpred, 2, function(y){mean((y-QYtest)^2)})
     return(mse)
@@ -151,7 +154,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     lambdastar <- max(modK.min$lambda[which(MSE1.agg <= MSE1.agg[ind.min1]+se.agg[ind.min1])])
   }
   ## fit model on full data with K.min and lambdastar
-  mod <- grplasso::grplasso(modK.min$QB, QY, index = modK.min$index, lambda = lambdastar, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)
+  suppressWarnings(capture.output(mod <- grplasso::grplasso(modK.min$QB, QY, index = modK.min$index, lambda = lambdastar, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)))
   # transform back to original scale
   lcoef <- list()
   active <- numeric()
