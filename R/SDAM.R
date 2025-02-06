@@ -12,22 +12,29 @@
 #' @references Please cite the following paper.
 #' \insertCite{scheidegger2023spectral}{SDModels} 
 #'
-#' @param X A numeric matrix of size `n x p`, where `n` is the number of observations and `p` is the number of covariates.
-#' @param Y A numeric vector of length `n`, representing the response variable.
-#' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. Default is 'trim'.
-#' @param trim_quantile  Quantile for Trim transform, only needed for trim. Default is 0.5.
-#' @param q_hat  Assumed confounding dimension, only needed for Q_type = 'pca'.
+#' @param X A numeric matrix of size \eqn{n\times p}, where \eqn{n} is the number of observations and \eqn{p} is the number of covariates.
+#' @param Y A numeric vector of length \eqn{n}, representing the response variable.
+#' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
+#' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
+#' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
+#' 'pca' to the PCA transformation\insertCite{Paul2008PreconditioningProblems}{SDModels}. 
+#' See \code{\link{get_Q}}.
+#' @param trim_quantile  Quantile for Trim transform, 
+#' only needed for trim, see \code{\link{get_Q}}.
+#' @param q_hat  Assumed confounding dimension, only needed for pca, 
+#' see \code{\link{get_Q}}.
 #' @param cv_k The number of folds for cross-validation. Default is 10.
 #' @param cv_method The method for selecting the regularization parameter during cross-validation.
-#' One of `min` (minimum cv-loss) and `1se` (one-standard-error rule) Default is `1se`.
+#' One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".
 #' @param n_K The number of candidate values for the number of basis functions for B-splines. Default is 4.
 #' @param n_lambda1 The number of candidate values for the regularization parameter in the initial cross-validation step. Default is 15.
 #' @param n_lambda2 The number of candidate values for the regularization parameter in the second stage of cross-validation
 #' (once the optimal number of basis function K is decided, a second stage of cross-validation for the regularization parameter
 #' is performed on a finer grid). Default is 30.
-#' @param Q_scale  Should `X` be scaled to estimate the spectral transformation? Default is \code{TRUE}.
+#' @param Q_scale  Should data be scaled to estimate the spectral transformation? 
+#' Default is \code{TRUE} to not reduce the signal of high variance covariates.
 #' @param ind_lin A vector of indices specifying which covariates to model linearly (i.e. not expanded into basis function).
-#'  Default is \code{NULL}.
+#'  Default is `NULL`.
 #' @param mc.cores  Number of cores to use for parallel processing, if \code{mc.cores > 1}
 #' the cross validation is parallelized. Default is `1`.
 #'
@@ -43,14 +50,12 @@
 #' \item{coefs}{A list of coefficients for the B-spline basis functions for each component.}
 #' \item{active}{A vector of active covariates that contribute to the model.}
 #'
-#'
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(50 * 20), ncol = 20)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(50)
+#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
 #' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 #' print(model)
-#'
 #'
 #' @export
 SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 10, cv_method = "1se", n_K = 4, n_lambda1 = 15, n_lambda2 = 30, Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
@@ -182,131 +187,10 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
 }
 
 
-#' Predictions for SDAM
-#'
-#' Predicts the response for new data using a fitted SDAM.
-#' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDAM}.
-#' @param Xnew Matrix of new test data at which to evaluate the fitted function.
-#' @param ... Further arguments passed to or from other methods.
-#' @return A vector of predictions for the new data.
-#' @examples
-#' set.seed(1)
-#' X <- matrix(rnorm(50 * 20), ncol = 20)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(50)
-#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-#' predict(object = model, Xnew = X)
-#' @export
-predict.SDAM <- function(object, Xnew, ...){
-  n <- nrow(Xnew)
-  p <- ncol(Xnew)
-  if(p != object$p){
-    stop("Xnew must have same number of columns as training data.")
-  }
-  intercept <- object$intercept
-  breaks_list <- object$breaks
-  coefs_list <- object$coefs
-  # Initialize prediction vector
-  y_pred <- rep(intercept, n)
-
-  # Calculate contributions from active variables
-  for (j in object$active) {
-    if (!is.null(breaks_list[[j]])) {
-      Bj <- Bbasis(Xnew[, j], breaks = breaks_list[[j]])
-      y_pred <- y_pred + Bj %*% coefs_list[[j]]
-    } else {
-      y_pred <- y_pred + Xnew[, j] * c(coefs_list[[j]])
-    }
-  }
-  return(y_pred)
-}
-
-
-#' Predictions of individual component functions for SDAM
-#'
-#' Predicts the contribution of an individual component j using fitted SDAM.
-#' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDAM}.
-#' @param Xnewj Vector of new test data at which to evaluate fj, i.e. the contribution
-#' of the j-th component of X.
-#' @param j Which component to evaluate.
-#' @return A vector of predictions for fj evaluated at Xjnew.
-#' @examples
-#' set.seed(1)
-#' X <- matrix(rnorm(50 * 20), ncol = 20)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(50)
-#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-#' predict_individual_fj(object = model, Xjnew = X[, 1], j = 1)
-#' @export
-predict_individual_fj <- function(object, Xjnew, j){
-  if (!(j %in% object$active)) {
-    return(rep(0, length(Xjnew)))
-  }
-  breaks_j <- object$breaks[[j]]
-  coefs_j <- object$coefs[[j]]
-
-  if (!is.null(breaks_j)) {
-    Bj <- Bbasis(Xjnew, breaks = breaks_j)
-    return(Bj %*% coefs_j)
-  } else {
-    return(Xjnew * c(coefs_j))
-  }
-}
-
-#' Variable importance for SDAM
-#'
-#' Vector containing the empirical squared L2 norms of fj, j = 1,...,p, which can be
-#' seen as a measure of variable importance. The measure is not standardized.
-#' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDAM}.
-#' @return A vector of predictions for the new data.
-#' @examples
-#' set.seed(1)
-#' X <- matrix(rnorm(50 * 20), ncol = 20)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(50)
-#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-#' varImp(model)
-#' @export
-varImp.SDAM <- function(object){
-  vIj <- function(j){
-    return(mean(predict_individual_fj(object, object$X[, j], j)^2))
-  }
-  vI <- sapply(1:object$p, vIj)
-  return(vI)
-}
-
-
-#' Print SDAM
-#'
-#' Print number of covariates and number of active covariates for SDAM object.
-#' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDAM}.
-#' @param ... Further arguments passed to or from other methods.
-#' @method print SDAM
-#' @export
-print.SDAM <- function(object, ...){
-  cat("SDAM result\n\n")
-  cat("Number of covariates: ", object$p, "\n")
-  cat("Number of active covariates: ", length(object$active), "\n")
-}
 
 
 
-# Helper function to construct the B spline basis function.
-# Essentially a wrapper for fda::bsplineS(), but extended to enable
-# linear extrapolation outside range(breaks).
-Bbasis <- function(x, breaks){
-  l <- length(breaks)
-  Bx <- matrix(0, nrow = length(x), ncol = l + 2)
-  slope_left <- -3/(breaks[2] - breaks[1])
-  slope_right <- 3/(breaks[l]- breaks[l-1])
-  ind_left <- (x < breaks[1])
-  ind_right <- (x > breaks[l])
-  ind_range <- !(ind_left | ind_right)
-  Bx[ind_range, ] <- fda::bsplineS(x[ind_range], breaks = breaks)
-  Bx[ind_left, 1] <- 1 + (x[ind_left]-breaks[1]) * slope_left
-  Bx[ind_right, l + 2] <- 1 + (x[ind_right]-breaks[l]) * slope_right
-  Bx[ind_left, 2] <- - (x[ind_left]-breaks[1]) * slope_left
-  Bx[ind_right, l + 1] <- - (x[ind_right]-breaks[l]) * slope_right
-  return(Bx)
-}
+
+
+
+

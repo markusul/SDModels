@@ -99,3 +99,76 @@ predictOOB <- function(object, X = NULL){
     mean(predictions)
   })
 }
+
+
+
+#' Predictions for SDAM
+#'
+#' Predicts the response for new data using a fitted SDAM.
+#' @author Cyrill Scheidegger
+#' @param object Fitted object of class \code{SDAM}.
+#' @param Xnew Matrix of new test data at which to evaluate the fitted function.
+#' @param ... Further arguments passed to or from other methods.
+#' @return A vector of predictions for the new data.
+#' @examples
+#' set.seed(1)
+#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' predict(object = model, Xnew = X)
+#' @export
+predict.SDAM <- function(object, Xnew, ...){
+  n <- nrow(Xnew)
+  p <- ncol(Xnew)
+  if(p != object$p){
+    stop("Xnew must have same number of columns as training data.")
+  }
+  intercept <- object$intercept
+  breaks_list <- object$breaks
+  coefs_list <- object$coefs
+  # Initialize prediction vector
+  y_pred <- rep(intercept, n)
+  
+  # Calculate contributions from active variables
+  for (j in object$active) {
+    if (!is.null(breaks_list[[j]])) {
+      Bj <- Bbasis(Xnew[, j], breaks = breaks_list[[j]])
+      y_pred <- y_pred + Bj %*% coefs_list[[j]]
+    } else {
+      y_pred <- y_pred + Xnew[, j] * c(coefs_list[[j]])
+    }
+  }
+  return(y_pred)
+}
+
+
+#' Predictions of individual component functions for SDAM
+#'
+#' Predicts the contribution of an individual component j using fitted SDAM.
+#' @author Cyrill Scheidegger
+#' @param object Fitted object of class \code{SDAM}.
+#' @param Xjnew Vector of new test data at which to evaluate fj, i.e. the contribution
+#' of the j-th component of X.
+#' @param j Which component to evaluate.
+#' @return A vector of predictions for fj evaluated at Xjnew.
+#' @examples
+#' set.seed(1)
+#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' predict_individual_fj(object = model, Xjnew = X[, 1], j = 1)
+#' @export
+predict_individual_fj <- function(object, Xjnew, j){
+  if (!(j %in% object$active)) {
+    return(rep(0, length(Xjnew)))
+  }
+  breaks_j <- object$breaks[[j]]
+  coefs_j <- object$coefs[[j]]
+  
+  if (!is.null(breaks_j)) {
+    Bj <- Bbasis(Xjnew, breaks = breaks_j)
+    return(Bj %*% coefs_j)
+  } else {
+    return(Xjnew * c(coefs_j))
+  }
+}

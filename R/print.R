@@ -30,3 +30,18 @@ print.SDForest <- function(x, ...){
     cat("OOB spectral loss: ", round(x$oob_SDloss, 2), "\n")
   }
 }
+
+
+#' Print SDAM
+#'
+#' Print number of covariates and number of active covariates for SDAM object.
+#' @author Cyrill Scheidegger
+#' @param x Fitted object of class \code{SDAM}.
+#' @param ... Further arguments passed to or from other methods.
+#' @method print SDAM
+#' @export
+print.SDAM <- function(x, ...){
+  cat("SDAM result\n\n")
+  cat("Number of covariates: ", x$p, "\n")
+  cat("Number of active covariates: ", length(x$active), "\n")
+}

@@ -51,3 +51,27 @@ varImp.SDTree <- function(object){
 varImp.SDForest <- function(object){
   rowMeans(sapply(object$forest, varImp))
 }
+
+
+
+#' Variable importance for SDAM
+#'
+#' Vector containing the empirical squared L2 norms of fj, j = 1,...,p, which can be
+#' seen as a measure of variable importance. The measure is not standardized.
+#' @author Cyrill Scheidegger
+#' @param object Fitted object of class \code{SDAM}.
+#' @return A vector of predictions for the new data.
+#' @examples
+#' set.seed(1)
+#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' varImp(model)
+#' @export
+varImp.SDAM <- function(object){
+  vIj <- function(j){
+    return(mean(predict_individual_fj(object, object$X[, j], j)^2))
+  }
+  vI <- sapply(1:object$p, vIj)
+  return(vI)
+}
