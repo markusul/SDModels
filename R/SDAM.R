@@ -27,10 +27,10 @@
 #' @param cv_method The method for selecting the regularization parameter during cross-validation.
 #' One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".
 #' @param n_K The number of candidate values for the number of basis functions for B-splines. Default is 4.
-#' @param n_lambda1 The number of candidate values for the regularization parameter in the initial cross-validation step. Default is 15.
+#' @param n_lambda1 The number of candidate values for the regularization parameter in the initial cross-validation step. Default is 10.
 #' @param n_lambda2 The number of candidate values for the regularization parameter in the second stage of cross-validation
 #' (once the optimal number of basis function K is decided, a second stage of cross-validation for the regularization parameter
-#' is performed on a finer grid). Default is 30.
+#' is performed on a finer grid). Default is 20.
 #' @param Q_scale  Should data be scaled to estimate the spectral transformation? 
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates.
 #' @param ind_lin A vector of indices specifying which covariates to model linearly (i.e. not expanded into basis function).
@@ -58,7 +58,7 @@
 #' print(model)
 #'
 #' @export
-SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 10, cv_method = "1se", n_K = 4, n_lambda1 = 15, n_lambda2 = 30, Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
+SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 10, cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
   n <- NROW(X)
   p <- NCOL(X)
   # create vector of candidate values for K
@@ -131,7 +131,11 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     MSEl <- lapply(lmodK, function(listK){mse_fold_K(l, listK)})
     return(unname(do.call(rbind, MSEl)))
   }
-  MSES <- parallel::mclapply(1:cv_k, mse_fold, mc.cores = mc.cores)
+  if(mc.cores == 1){
+    MSES <- lapply(1:cv_k, mse_fold) 
+  } else {
+    MSES <- parallel::mclapply(1:cv_k, mse_fold, mc.cores = mc.cores)
+  }
   # aggregate MSEs over folds
   MSES.agg <- Reduce("+", MSES) / cv_k
   ind.min <- which(MSES.agg == min(MSES.agg), arr.ind = TRUE)
@@ -140,7 +144,11 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
   # refit model for K.min and find best value for lambda in the neighborhood of lambda.min
   modK.min <- lmodK[[ind.min[1]]]
   modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), length.out = n_lambda2))
-  MSES1 <- parallel::mclapply(1:cv_k, mse_fold_K, listK = modK.min, mc.cores = mc.cores)
+  if(mc.cores == 1){
+    MSES1 <- lapply(1:cv_k, mse_fold_K, listK = modK.min)
+  } else {
+    MSES1 <- parallel::mclapply(1:cv_k, mse_fold_K, listK = modK.min, mc.cores = mc.cores)
+  }
   MSES1 <- do.call(rbind, MSES1)
   MSE1.agg <- apply(MSES1, 2, mean)
   se.agg <- 1/sqrt(cv_k) * apply(MSES1, 2, sd)
