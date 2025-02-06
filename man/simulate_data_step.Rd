@@ -29,8 +29,8 @@ a list containing the simulated data:
 \description{
 Simulation of data from a confounded non-linear model. Where the non-linear function is a random regression tree.
 The data generating process is given by:
-\deqn{Y = f(X) + H \delta + \nu}
-\deqn{X = H \Gamma + E}
+\deqn{Y = f(X) + \delta^T H + \nu}
+\deqn{X = \Gamma^T H + E}
 where \eqn{f(X)} is a random regression tree with \eqn{m} random splits of the data. 
 Resulting in a random step-function with \eqn{m+1} levels, i.e. leaf-levels.
 \deqn{f(x_i) = \sum_{k = 1}^K 1_{\{x_i \in R_k\}} c_k}

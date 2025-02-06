@@ -34,8 +34,8 @@ a list containing the simulated data:
 \description{
 Simulation of data from a confounded non-linear model. 
 The data generating process is given by:
-\deqn{Y = f(X) + H \delta + \nu}
-\deqn{X = H \Gamma + E}
+\deqn{Y = f(X) + \delta^T H  + \nu}
+\deqn{X = \Gamma^T H + E}
 where \eqn{f(X)} is a random function on the fourier basis
 with a subset of size m covariates \eqn{X_j} having a causal effect on \eqn{Y}.
 \deqn{f(x_i) = \sum_{j = 1}^p 1_{j \in js} \sum_{k = 1}^K (\beta_{j, k}^{(1)} \cos(0.2 k x_j) + 
