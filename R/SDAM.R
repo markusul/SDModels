@@ -99,7 +99,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     }
     QB <- Qf(B)
     # calculate maximal lambda
-    lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = LinReg(), center = FALSE, standardize = FALSE)
+    lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)
     # lambdas for cross validation
     lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
     lmodK[[i]] <- list(Rlist = Rlist, lbreaks = lbreaks, index = index, B = B, QB = QB, lambda = lambda, K = K, K_eff = K_eff)
@@ -113,8 +113,8 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     QYtest <- QY[test]
     QBtrain <- listK$QB[-test, ]
     QBtest <- listK$QB[test, ]
-    mod <- grplasso::grplasso(QBtrain, QYtrain, index = listK$index, lambda = listK$lambda, model = LinReg(), center = FALSE, standardize = FALSE)
-    QYpred <- grplasso::predict.grplasso(mod, newdata = QBtest)
+    mod <- grplasso::grplasso(QBtrain, QYtrain, index = listK$index, lambda = listK$lambda, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)
+    QYpred <- predict(mod, newdata = QBtest)
     mse <- apply(QYpred, 2, function(y){mean((y-QYtest)^2)})
     return(mse)
   }
@@ -146,7 +146,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 1
     lambdastar <- max(modK.min$lambda[which(MSE1.agg <= MSE1.agg[ind.min1]+se.agg[ind.min1])])
   }
   ## fit model on full data with K.min and lambdastar
-  mod <- grplasso::grplasso(modK.min$QB, QY, index = modK.min$index, lambda = lambdastar, model = LinReg(), center = FALSE, standardize = FALSE)
+  mod <- grplasso::grplasso(modK.min$QB, QY, index = modK.min$index, lambda = lambdastar, model = grplasso::LinReg(), center = FALSE, standardize = FALSE)
   # transform back to original scale
   lcoef <- list()
   active <- numeric()
@@ -267,7 +267,7 @@ predict_individual_fj <- function(object, Xjnew, j){
 #' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 #' varImp(model)
 #' @export
-varImp <- function(object){
+varImp.SDAM <- function(object){
   vIj <- function(j){
     return(mean(predict_individual_fj(object, object$X[, j], j)^2))
   }
@@ -280,10 +280,11 @@ varImp <- function(object){
 #'
 #' Print number of covariates and number of active covariates for SDAM object.
 #' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDForest}.
-#' @method print SDForest
+#' @param object Fitted object of class \code{SDAM}.
+#' @param ... Further arguments passed to or from other methods.
+#' @method print SDAM
 #' @export
-print.SDAM <- function(object){
+print.SDAM <- function(object, ...){
   cat("SDAM result\n\n")
   cat("Number of covariates: ", object$p, "\n")
   cat("Number of active covariates: ", length(object$active), "\n")
