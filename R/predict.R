@@ -116,6 +116,7 @@ predictOOB <- function(object, X = NULL){
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
 #' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 #' predict(object = model, Xnew = X)
+#' @seealso \code{\link{SDAM}}
 #' @export
 predict.SDAM <- function(object, Xnew, ...){
   n <- nrow(Xnew)
@@ -144,13 +145,13 @@ predict.SDAM <- function(object, Xnew, ...){
 
 #' Predictions of individual component functions for SDAM
 #'
-#' Predicts the contribution of an individual component j using fitted SDAM.
+#' Predicts the contribution of an individual component j using a fitted SDAM.
 #' @author Cyrill Scheidegger
 #' @param object Fitted object of class \code{SDAM}.
-#' @param Xjnew Vector of new test data at which to evaluate fj, i.e. the contribution
-#' of the j-th component of X.
+#' @param Xjnew Vector of new test data at which to evaluate fj.
 #' @param j Which component to evaluate.
 #' @return A vector of predictions for fj evaluated at Xjnew.
+#' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
 #' X <- matrix(rnorm(20 * 15), ncol = 15)

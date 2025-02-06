@@ -38,6 +38,7 @@ print.SDForest <- function(x, ...){
 #' @author Cyrill Scheidegger
 #' @param x Fitted object of class \code{SDAM}.
 #' @param ... Further arguments passed to or from other methods.
+#' @seealso \code{\link{SDAM}}
 #' @method print SDAM
 #' @export
 print.SDAM <- function(x, ...){

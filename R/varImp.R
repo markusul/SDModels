@@ -54,13 +54,15 @@ varImp.SDForest <- function(object){
 
 
 
-#' Variable importance for SDAM
+#' Extract Variable importance for SDAM
 #'
-#' Vector containing the empirical squared L2 norms of fj, j = 1,...,p, which can be
-#' seen as a measure of variable importance. The measure is not standardized.
+#' This function extracts the variable importance of an SDAM.
+#' The variable importance is calculated as the empirical squared L2 norm of fj. 
+#' The measure is not standardized.
 #' @author Cyrill Scheidegger
-#' @param object Fitted object of class \code{SDAM}.
-#' @return A vector of predictions for the new data.
+#' @param object an \code{SDAM} object
+#' @return A vector of variable importance
+#' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
 #' X <- matrix(rnorm(20 * 15), ncol = 15)
