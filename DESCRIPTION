@@ -21,7 +21,8 @@ Imports:
     pbapply,
     Rdpack,
     tidyr,
-    fda
+    fda,
+    grplasso
 Suggests: 
     plotly,
     datasets,
