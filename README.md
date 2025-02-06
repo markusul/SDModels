@@ -26,15 +26,24 @@ Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann
 
 ## Installation
 
+To install the SDModels R package from CRAN, just run
+
+``` r
+install.packages(SDModels)
+```
+
 You can install the development version of SDModels from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("markusul/SDModels")
+```
 
-# or
-# install.packages('pak')
+or
+
+``` r
+install.packages('pak')
 # pak::pkg_install('markusul/SDModels')
 ```
 

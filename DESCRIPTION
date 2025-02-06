@@ -4,8 +4,8 @@ Version: 0.1
 Date: 2024-05-31
 Authors@R: c(
   person("Markus", "Ulmer", email = "markus.ulmer@stat.math.ethz.ch", 
-         role = c("aut", "cre"), comment = c(ORCID = "0000-0001-7783-8475")), 
-  person("Cyrill", "Scheidegger", role = "aut"))
+         role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-7783-8475")), 
+  person("Cyrill", "Scheidegger", role = "aut", comment = c(ORCID = "0009-0005-2851-1384")))
 Description: Estimation and analyzation of sparse non-linear causal
     functions in presence of unobserved confounding.
 License: GPL-3 + file LICENSE
@@ -24,7 +24,6 @@ Imports:
 Suggests: 
     plotly,
     datasets,
-    tinytest,
     rpart,
     knitr,
     rmarkdown,
