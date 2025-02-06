@@ -161,7 +161,7 @@ that reduces the loss the most only from those.
 \examples{
 set.seed(42)
 # simulation of confounded data
-sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
+sim_data <- simulate_data_nonlinear(q = 2, p = 15, n = 100, m = 2)
 X <- sim_data$X
 Y <- sim_data$Y
 train_data <- data.frame(X, Y)
@@ -172,7 +172,7 @@ sim_data$j
 fit_ranger <- ranger::ranger(Y ~ ., train_data, importance = 'impurity')
 
 fit <- SDForest(x = X, y = Y, nTree = 10, Q_type = 'pca', q_hat = 2)
-fit <- SDForest(Y ~ ., train_data)
+fit <- SDForest(Y ~ ., nTree = 10, train_data)
 fit
 
 # comparison of variable importance
