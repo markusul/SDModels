@@ -4,9 +4,9 @@ pkgdown_sha: ~
 articles:
   Runtime: Runtime.html
   SDAM: SDAM.html
-  SDForest: SDForest.html
-  SDTree: SDTree.html
-last_built: 2025-02-06T14:28Z
+  articles/SDForest: SDForest.html
+  articles/SDTree: SDTree.html
+last_built: 2025-02-06T16:45Z
 urls:
   reference: https://markusul.github.io/SDModels/reference
   article: https://markusul.github.io/SDModels/articles
