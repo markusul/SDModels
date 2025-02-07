@@ -155,8 +155,8 @@ variable importance.</p>
 <p><img src="SDAM_files/figure-html/plotImp-1.png" width="700"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/varImp.SDForest.html">varImp</a></span><span class="op">(</span><span class="va">fit_trim</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Deconfounded Additive Model"</span>, xlab <span class="op">=</span> <span class="st">"j"</span>, ylab <span class="op">=</span> <span class="st">"variable importance"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="SDAM_files/figure-html/plotImp-2.png" width="700">
-We see that both methods can capture the effect of the four active
+<p><img src="SDAM_files/figure-html/plotImp-2.png" width="700"></p>
+<p>We see that both methods can capture the effect of the four active
 variables. However, when using deconfounding, there is much less signal
 that is captured from other covariates, whereas a plain additive model
 also attributes significant influence to the non-influential covariates.
@@ -190,9 +190,9 @@ They can be displayed using the function.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"true function"</span>, <span class="st">"standard"</span>, <span class="st">"deconfounded"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; Warning in rug(X[, j]): some values will be clipped</span></span></code></pre></div>
-<p><img src="SDAM_files/figure-html/components-1.png" width="700"><img src="SDAM_files/figure-html/components-2.png" width="700"><img src="SDAM_files/figure-html/components-3.png" width="700"><img src="SDAM_files/figure-html/components-4.png" width="700">
-We see that on the true active set, the difference in fitted function is
-not very large, at least in the regions, where there are many
+<p><img src="SDAM_files/figure-html/components-1.png" width="700"><img src="SDAM_files/figure-html/components-2.png" width="700"><img src="SDAM_files/figure-html/components-3.png" width="700"><img src="SDAM_files/figure-html/components-4.png" width="700"></p>
+<p>We see that on the true active set, the difference in fitted function
+is not very large, at least in the regions, where there are many
 observations of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>j</mi></msub><annotation encoding="application/x-tex">X_j</annotation></semantics></math>.
 This means that the difference in mean squared error is mostly due to
