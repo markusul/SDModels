@@ -57,7 +57,7 @@ Default is \code{TRUE} to not reduce the signal of high variance covariates.}
 Default is `NULL`.}
 
 \item{mc.cores}{Number of cores to use for parallel processing, if \code{mc.cores > 1}
-the cross validation is parallelized. Default is `1`.}
+the cross validation is parallelized. Default is `1`. (only supported for unix)}
 }
 \value{
 An object of class `SDAM` containing the following elements:
@@ -73,7 +73,7 @@ X contains only few unique values.}
 \item{active}{A vector of active covariates that contribute to the model.}
 }
 \description{
-Estimate high-dimensional additive models using spectral deconfounding.
+Estimate high-dimensional additive models using spectral deconfounding \insertCite{scheidegger2023spectral}{SDModels}.
 The covariates are expanded into B-spline basis functions. A spectral
 transformation is used to remove bias arising from hidden confounding and
 a group lasso objective is minimized to enforce component-wise sparsity.
@@ -89,8 +89,7 @@ print(model)
 
 }
 \references{
-Please cite the following paper.
-\insertCite{scheidegger2023spectral}{SDModels}
+\insertAllCited{}
 }
 \author{
 Cyrill Scheidegger
