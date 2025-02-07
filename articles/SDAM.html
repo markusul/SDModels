@@ -98,8 +98,8 @@
 <p>In the following, we show the functionality of SDAM and show how it
 can be used to fit a high-dimensional additive model in the presence of
 hidden confounding and how to analyze the fitted model. SDAM is an
-implementation of the algorithm described in <span class="citation">[@scheidegger2023spectral]</span>, where also a
-systematic simulation study can be found.</p>
+implementation of the algorithm described in <span class="citation">(Scheidegger, Guo, and Bühlmann 2025)</span>, where
+also a systematic simulation study can be found.</p>
 <p>We first simulate some data that is confounded. We assume the data
 generating process
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msup><mi>δ</mi><mi>T</mi></msup><mi>H</mi><mo>+</mo><mi>ν</mi><mo>,</mo><mspace width="1.0em"></mspace><mi>X</mi><mo>=</mo><msup><mi>Γ</mi><mi>T</mi></msup><mi>H</mi><mo>+</mo><mi>E</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">Y= f(X) + \delta^T H + \nu, \quad X = \Gamma^TH + E,</annotation></semantics></math>
@@ -198,6 +198,13 @@ observations of
 This means that the difference in mean squared error is mostly due to
 overestimation of the effect of the fitted functions outside the active
 set.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-scheidegger2023spectral" class="csl-entry">
+Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2025.
+<span>“Spectral Deconfounding for High-Dimensional Sparse Additive
+Models.”</span> <em>ACM / IMS J. Data Sci.</em> <a href="https://doi.org/10.1145/3711116" class="external-link">https://doi.org/10.1145/3711116</a>.
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
