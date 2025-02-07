@@ -1,0 +1,26 @@
+citHeader("To cite package ‘SDModels’ in publications use Ulmer, Scheidegger, and Bühlmann (2025) for Spectrally Deconfounded Random Forests (SDForest) and Scheidegger, Guo, and Bühlmann (2025) for Spectrally Deconfounded Additive Models (SDAMs).")
+
+bibentry(
+  bibtype="Article",
+  title="Spectrally Deconfounded Random Forests", 
+  author="Markus Ulmer and Cyrill Scheidegger and Peter B{\"u}hlmann",
+  year="2025",
+  eprint="2502.03969",
+  journal="arXiv",
+  primaryClass="stat.CO",
+  url="https://arxiv.org/abs/2502.03969",
+  textVersion = "Ulmer, Scheidegger, and Bühlmann (2025) Spectrally Deconfounded Random Forests. arXiv preprint."
+)
+
+bibentry(
+  bibtype= "Article",
+  author = "Scheidegger, Cyrill and Guo, Zijian and B\"{u}hlmann, Peter",
+  title = "Spectral Deconfounding for High-Dimensional Sparse Additive Models",
+  year = "2025",
+  publisher = "Association for Computing Machinery",
+  address = "New York, NY, USA",
+  url = "https://doi.org/10.1145/3711116",
+  doi = "10.1145/3711116",
+  journal = "ACM / IMS J. Data Sci.",
+  textVersion = "Scheidegger, Guo, and Bühlmann (2025) Spectral deconfounding for high-dimensional sparse additive models. ACM/JMS Journal of Data Science."
+)
