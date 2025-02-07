@@ -1,6 +1,7 @@
 ---
 title: "SDAM"
 output: rmarkdown::html_vignette
+bibliography: '`r system.file("REFERENCES.bib", package="SDModels")`'
 vignette: >
   %\VignetteIndexEntry{SDAM}
   %\VignetteEngine{knitr::rmarkdown}
