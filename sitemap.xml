@@ -9,6 +9,7 @@
 <url><loc>https://markusul.github.io/SDModels/authors.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/index.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/news/index.html</loc></url>
+<url><loc>https://markusul.github.io/SDModels/reference/SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/copy.SDForest.html</loc></url>
@@ -28,9 +29,12 @@
 <url><loc>https://markusul.github.io/SDModels/reference/plot.partDependence.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/plot.paths.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/plotOOB.html</loc></url>
+<url><loc>https://markusul.github.io/SDModels/reference/predict.SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/predict.SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/predict.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/predictOOB.html</loc></url>
+<url><loc>https://markusul.github.io/SDModels/reference/predict_individual_fj.html</loc></url>
+<url><loc>https://markusul.github.io/SDModels/reference/print.SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/print.SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/print.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/prune.SDForest.html</loc></url>
