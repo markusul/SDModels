@@ -52,6 +52,7 @@ fit_trim <- SDAM(X = X, Y = Y, Q_type = "trim")
 ```
 
 For both models, we compare the predicted values to the true function $f$ by calculating the mean squared error on the training data.
+
 ```{r pred}
 pred_standard <- predict(fit_standard, Xnew = X)
 pred_trim <- predict(fit_trim, Xnew = X)
@@ -59,13 +60,17 @@ pred_trim <- predict(fit_trim, Xnew = X)
 (MSE_standard <- mean((f(X) - pred_standard)^2))
 (MSE_trim <- mean((f(X) - pred_trim)^2))
 ```
+
 We see that the mean squared error when using the deconfounding is smaller than using no spectral transformation. Let us have a look at the variable importance.
+
 ```{r plotImp}
 #par(mfrow = c(2,1))
 plot(varImp(fit_standard), main = "Standard Additive Model", xlab = "j", ylab = "variable importance")
 plot(varImp(fit_trim), main = "Deconfounded Additive Model", xlab = "j", ylab = "variable importance")
 ```
+
 We see that both methods can capture the effect of the four active variables. However, when using deconfounding, there is much less signal that is captured from other covariates, whereas a plain additive model also attributes significant influence to the non-influential covariates. We can get the size of the active set by using the \texttt{print()} function and see that when using deconfounding, we get a smaller set of active variables.
+
 ```{r print}
 print(fit_standard)
 print(fit_trim)
@@ -88,4 +93,5 @@ for(j in 1:4){
 }
 
 ```
+
 We see that on the true active set, the difference in fitted function is not very large, at least in the regions, where there are many observations of $X_j$. This means that the difference in mean squared error is mostly due to overestimation of the effect of the fitted functions outside the active set.
