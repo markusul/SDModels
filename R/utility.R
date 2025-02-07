@@ -11,6 +11,7 @@
 #' @importFrom stats runif
 #' @importFrom stats sd
 #' @importFrom utils lsf.str
+#' @importFrom utils capture.output
 #' @importFrom stats rbeta
 
 
