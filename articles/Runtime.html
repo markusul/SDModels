@@ -120,7 +120,10 @@ choosing more than one core to run on might not be that large. Be aware
 of potential RAM-overflows.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fits the individual SDTrees in parallel on 22 cores</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDForest.html">SDForest</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, mc.cores <span class="op">=</span> <span class="fl">22</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDForest.html">SDForest</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, mc.cores <span class="op">=</span> <span class="fl">22</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># performs cross validation in parallel</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, cv_k <span class="op">=</span> <span class="fl">5</span>, mc.cores <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="gpu">GPU<a class="anchor" aria-label="anchor" href="#gpu"></a>
