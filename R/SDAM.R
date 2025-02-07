@@ -23,7 +23,7 @@
 #' only needed for trim, see \code{\link{get_Q}}.
 #' @param q_hat  Assumed confounding dimension, only needed for pca, 
 #' see \code{\link{get_Q}}.
-#' @param cv_k The number of folds for cross-validation. Default is 10.
+#' @param cv_k The number of folds for cross-validation. Default is 5.
 #' @param cv_method The method for selecting the regularization parameter during cross-validation.
 #' One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".
 #' @param n_K The number of candidate values for the number of basis functions for B-splines. Default is 4.
@@ -58,7 +58,7 @@
 #' print(model)
 #'
 #' @export
-SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 10, cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
+SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
   n <- NROW(X)
   p <- NCOL(X)
   # create vector of candidate values for K
