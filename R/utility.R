@@ -250,3 +250,26 @@ Qf_temp <- function(v, Ue, Qf){
   Qfv <- Qf(v)
   Qfv - Ue %*% crossprod(Ue, Qfv)
 }
+
+
+
+
+# Helper function to construct the B spline basis function.
+# Essentially a wrapper for fda::bsplineS(), but extended to enable
+# linear extrapolation outside range(breaks).
+Bbasis <- function(x, breaks){
+  l <- length(breaks)
+  Bx <- matrix(0, nrow = length(x), ncol = l + 2)
+  slope_left <- -3/(breaks[2] - breaks[1])
+  slope_right <- 3/(breaks[l]- breaks[l-1])
+  ind_left <- (x < breaks[1])
+  ind_right <- (x > breaks[l])
+  ind_range <- !(ind_left | ind_right)
+  Bx[ind_range, ] <- fda::bsplineS(x[ind_range], breaks = breaks)
+  Bx[ind_left, 1] <- 1 + (x[ind_left]-breaks[1]) * slope_left
+  Bx[ind_right, l + 2] <- 1 + (x[ind_right]-breaks[l]) * slope_right
+  Bx[ind_left, 2] <- - (x[ind_left]-breaks[1]) * slope_left
+  Bx[ind_right, l + 1] <- - (x[ind_right]-breaks[l]) * slope_right
+  return(Bx)
+}
+
