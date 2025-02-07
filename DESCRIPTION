@@ -20,7 +20,9 @@ Imports:
     parallel,
     pbapply,
     Rdpack,
-    tidyr
+    tidyr,
+    fda,
+    grplasso
 Suggests: 
     plotly,
     datasets,
