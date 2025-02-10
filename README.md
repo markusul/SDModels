@@ -19,8 +19,8 @@ are violated, it seems like there is not much to lose and the SDModels
 will, in general, estimate a function closer to $f^0$ than classical
 least squares optimization. SDModels provides software for Spectrally
 Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann
-(2023)) and Spectrally Deconfounded Random Forests
-(SDForest)((**Ulmer?**)).
+(2025)) and Spectrally Deconfounded Random Forests (SDForest)(Ulmer,
+Scheidegger, and Bühlmann (2025)).
 
 ![](man/figures/confModel.png)
 
@@ -43,7 +43,7 @@ devtools::install_github("markusul/SDModels")
 or
 
 ``` r
-install.packages('pak')
+# install.packages('pak')
 # pak::pkg_install('markusul/SDModels')
 ```
 
@@ -118,9 +118,17 @@ under hidden confounding</span>.” *The Annals of Statistics* 50 (3).
 
 <div id="ref-scheidegger2023spectral" class="csl-entry">
 
-Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2023. “Spectral
-Deconfounding for High-Dimensional Sparse Additive Models.” *ACM/JMS
-Journal of Data Science*.
+Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2025. “Spectral
+Deconfounding for High-Dimensional Sparse Additive Models.” *ACM / IMS
+J. Data Sci.* <https://doi.org/10.1145/3711116>.
+
+</div>
+
+<div id="ref-ulmer2025spectrallydeconfoundedrandomforests"
+class="csl-entry">
+
+Ulmer, Markus, Cyrill Scheidegger, and Peter Bühlmann. 2025. “Spectrally
+Deconfounded Random Forests.” <https://arxiv.org/abs/2502.03969>.
 
 </div>
 

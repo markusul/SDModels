@@ -105,7 +105,7 @@
 #' @examples
 #' set.seed(42)
 #' # simulation of confounded data
-#' sim_data <- simulate_data_nonlinear(q = 2, p = 15, n = 100, m = 2)
+#' sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
 #' X <- sim_data$X
 #' Y <- sim_data$Y
 #' train_data <- data.frame(X, Y)

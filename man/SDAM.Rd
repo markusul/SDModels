@@ -10,11 +10,11 @@ SDAM(
   Q_type = "trim",
   trim_quantile = 0.5,
   q_hat = 0,
-  cv_k = 10,
+  cv_k = 5,
   cv_method = "1se",
   n_K = 4,
-  n_lambda1 = 15,
-  n_lambda2 = 30,
+  n_lambda1 = 10,
+  n_lambda2 = 20,
   Q_scale = TRUE,
   ind_lin = NULL,
   mc.cores = 1
@@ -37,18 +37,18 @@ only needed for trim, see \code{\link{get_Q}}.}
 \item{q_hat}{Assumed confounding dimension, only needed for pca, 
 see \code{\link{get_Q}}.}
 
-\item{cv_k}{The number of folds for cross-validation. Default is 10.}
+\item{cv_k}{The number of folds for cross-validation. Default is 5.}
 
 \item{cv_method}{The method for selecting the regularization parameter during cross-validation.
 One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".}
 
 \item{n_K}{The number of candidate values for the number of basis functions for B-splines. Default is 4.}
 
-\item{n_lambda1}{The number of candidate values for the regularization parameter in the initial cross-validation step. Default is 15.}
+\item{n_lambda1}{The number of candidate values for the regularization parameter in the initial cross-validation step. Default is 10.}
 
 \item{n_lambda2}{The number of candidate values for the regularization parameter in the second stage of cross-validation
 (once the optimal number of basis function K is decided, a second stage of cross-validation for the regularization parameter
-is performed on a finer grid). Default is 30.}
+is performed on a finer grid). Default is 20.}
 
 \item{Q_scale}{Should data be scaled to estimate the spectral transformation? 
 Default is \code{TRUE} to not reduce the signal of high variance covariates.}
@@ -57,7 +57,7 @@ Default is \code{TRUE} to not reduce the signal of high variance covariates.}
 Default is `NULL`.}
 
 \item{mc.cores}{Number of cores to use for parallel processing, if \code{mc.cores > 1}
-the cross validation is parallelized. Default is `1`.}
+the cross validation is parallelized. Default is `1`. (only supported for unix)}
 }
 \value{
 An object of class `SDAM` containing the following elements:
@@ -73,7 +73,7 @@ X contains only few unique values.}
 \item{active}{A vector of active covariates that contribute to the model.}
 }
 \description{
-Estimate high-dimensional additive models using spectral deconfounding.
+Estimate high-dimensional additive models using spectral deconfounding \insertCite{scheidegger2023spectral}{SDModels}.
 The covariates are expanded into B-spline basis functions. A spectral
 transformation is used to remove bias arising from hidden confounding and
 a group lasso objective is minimized to enforce component-wise sparsity.
@@ -89,8 +89,7 @@ print(model)
 
 }
 \references{
-Please cite the following paper.
-\insertCite{scheidegger2023spectral}{SDModels}
+\insertAllCited{}
 }
 \author{
 Cyrill Scheidegger

@@ -1,7 +1,7 @@
 ---
 title: "Runtime"
 output: rmarkdown::html_vignette
-bibliography: REFERENCES.bib
+bibliography: '`r system.file("REFERENCES.bib", package="SDModels")`'
 vignette: >
   %\VignetteIndexEntry{Runtime}
   %\VignetteEngine{knitr::rmarkdown}
@@ -31,6 +31,9 @@ When estimating an SDForest, the most obvious way to increase the computations i
 ```{r core, eval=FALSE}
 # fits the individual SDTrees in parallel on 22 cores
 fit <- SDForest(x = X, y = Y, mc.cores = 22)
+
+# performs cross validation in parallel
+model <- SDAM(X, Y, cv_k = 5, mc.cores = 5)
 ```
 
 ### GPU
