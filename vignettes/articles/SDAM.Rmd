@@ -48,7 +48,7 @@ The goal is to estimate the function $f$. We fit both a standard additive model 
 ```{r fit}
 library(SDModels)
 fit_standard <- SDAM(x = X, y = Y, Q_type = "no_deconfounding")
-fit_trim <- SDAM(x = X, Y = y, Q_type = "trim")
+fit_trim <- SDAM(x = X, y = Y, Q_type = "trim")
 ```
 
 For both models, we compare the predicted values to the true function $f$ by calculating the mean squared error on the training data.
