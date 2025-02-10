@@ -58,6 +58,7 @@
 SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
                  Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
+
   n <- NROW(X)
   p <- NCOL(X)
   
@@ -128,19 +129,12 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
   # calculates mse on fold l and for a listK which has the form of a lmodK[[i]]
   mse_fold_K <- function(l, listK){
     test <- ind == l
-    train <- !test
-    
-    #test <- which(ind == l)
-    #QYtrain <- QY[-test]
-    #QYtest <- QY[test]
-    #QBtrain <- listK$QB[-test, ]
-    #QBtest <- listK$QB[test, ]
-    
+
     # use capture.output to supress the output form grplasso
     # use suppressWarnings to igrnore the warnings "Penalization not adjusted to non-penalized predictors"
     # which we are aware of.
     suppressWarnings(
-    mod <- grplasso::grplasso(listK$QB[test, ], QY[test], index = listK$index, 
+    mod <- grplasso::grplasso(listK$QB[!test, ], QY[!test], index = listK$index, 
                               lambda = listK$lambda, model = grplasso::LinReg(), 
                               center = FALSE, standardize = FALSE, 
                               control = gprLassoControl)
@@ -156,6 +150,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
     return(unname(do.call(rbind, MSEl)))
   }
   
+  print("Initial cross-validation")
   if(mc.cores == 1){
     MSES <- pbapply::pblapply(1:cv_k, mse_fold) 
   } else {
@@ -173,8 +168,9 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
   modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
                              length.out = n_lambda2))
   
+  print("Second stage cross-validation")
   if(mc.cores == 1){
-    MSES1 <- lapply(1:cv_k, mse_fold_K, listK = modK.min)
+    MSES1 <- pbapply::pblapply(1:cv_k, mse_fold_K, listK = modK.min)
   } else {
     MSES1 <- parallel::mclapply(1:cv_k, mse_fold_K, listK = modK.min, 
                                 mc.cores = mc.cores)
@@ -183,7 +179,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
   MSES1 <- do.call(rbind, MSES1)
   MSE1.agg <- apply(MSES1, 2, mean)
   se.agg <- 1/sqrt(cv_k) * apply(MSES1, 2, sd)
-  ind.min1 <- which(MSE1.agg == min(MSE1.agg))
+  ind.min1 <- which.min(MSE1.agg)
   
   if(cv_method == "min"){
     lambdastar <- modK.min$lambda[ind.min1]
@@ -191,7 +187,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
     if(cv_method != "1se"){
       warning("CV method not implemented. Taking '1se'.")
     }
-    lambdastar <- max(modK.min$lambda[which(MSE1.agg <= MSE1.agg[ind.min1]+se.agg[ind.min1])])
+    lambdastar <- max(modK.min$lambda[MSE1.agg <= MSE1.agg[ind.min1]+se.agg[ind.min1]])
   }
   
   ## fit model on full data with K.min and lambdastar
@@ -201,7 +197,7 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
                             center = FALSE, standardize = FALSE, 
                             control = gprLassoControl)
   )
-  
+
   # transform back to original scale
   lcoef <- list()
   active <- numeric()
@@ -216,7 +212,6 @@ SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5
       lcoef[[j]] <- Rlist[[j]] %*% cj
     }
   }
-  
   intercept <- mod$coefficients[1]
   lreturn <- list()
   
