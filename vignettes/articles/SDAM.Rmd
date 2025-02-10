@@ -30,8 +30,8 @@ f3 <- function(x){x}
 f4 <- function(x){4/(exp(x)+exp(-x))}
 f <- function(X){f1(X[,1])+f2(X[,2])+f3(X[,3])+f4(X[,4])}
 
-n <- 30
-p <- 20
+n <- 300
+p <- 200
 q <- 5
 
 Gamma <- matrix(runif(q*p, min = -1, max = 1), nrow=q)
@@ -48,7 +48,7 @@ The goal is to estimate the function $f$. We fit both a standard additive model 
 ```{r fit}
 library(SDModels)
 fit_standard <- SDAM(x = X, y = Y, Q_type = "no_deconfounding")
-fit_trim <- SDAM(x = X, Y = y, Q_type = "trim")
+fit_trim <- SDAM(x = X, y = Y, Q_type = "trim")
 ```
 
 For both models, we compare the predicted values to the true function $f$ by calculating the mean squared error on the training data.
@@ -69,17 +69,16 @@ plot(varImp(fit_standard), main = "Standard Additive Model", xlab = "j", ylab = 
 plot(varImp(fit_trim), main = "Deconfounded Additive Model", xlab = "j", ylab = "variable importance")
 ```
 
-We see that both methods can capture the effect of the four active variables. However, when using deconfounding, there is much less signal that is captured from other covariates, whereas a plain additive model also attributes significant influence to the non-influential covariates. We can get the size of the active set by using the \texttt{print()} function and see that when using deconfounding, we get a smaller set of active variables.
+We see that both methods attribute the largest effects to variables in the active set. However, when using deconfounding, there is much less signal that is captured from other covariates, whereas a plain additive model also attributes significant influence to the non-active covariates and also completely ignores the effect of $X_1$. We can get the size of the active set by using the \texttt{print()} function and see that when using deconfounding, we get a smaller set of active variables.
 
 ```{r print}
 print(fit_standard)
 print(fit_trim)
 ```
 
-Let us finally have a look at the individual component functions $f_j$. They can be displayed using the \texttt{fit_individual_fj()} function.
+Let us finally have a look at the individual component functions $f_j$. They can be displayed using the \texttt{fit_individual_fj()} function. We display the individual component functions $f_j$ for $j\in \{1,2,3,4\}$ (true active set).
 
 ```{r components}
-#par(mfrow = c(2,2))
 xx <- seq(-4, 4, 0.05)
 for(j in 1:4){
   fj <- get(paste("f", j, sep = ""))
@@ -94,4 +93,4 @@ for(j in 1:4){
 
 ```
 
-We see that on the true active set, the difference in fitted function is not very large, at least in the regions, where there are many observations of $X_j$. This means that the difference in mean squared error is mostly due to overestimation of the effect of the fitted functions outside the active set.
+We see that for for $j = 2,3,4$, the difference in the fitted functions is not very large, at least in the regions, where there are many observations of $X_j$. However, the standard additive model failed to put $j=1$ into the active set and as seen above, attributed larger effects to the variables that are not in the true active set, hence leading to the significantly larger mean squared error observed above.
