@@ -82,13 +82,27 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
                  Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
                  Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
-
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
   
   n <- NROW(X)
   p <- NCOL(X)
+  
+  if(n != length(Y)) stop('X and Y must have the same number of observations')
+  if(!is.numeric(cv_k) || cv_k < 2 || cv_k > n) stop('cv_k must be an integer between 2 and n')
+  if(!is.numeric(n_K) || n_K < 1) stop('n_K must be a positive integer')
+  if(!is.numeric(n_lambda1) || n_lambda1 < 1) stop('n_lambda1 must be a positive integer')
+  if(!is.numeric(n_lambda2) || n_lambda2 < 1) stop('n_lambda2 must be a positive integer')
+  if(!is.numeric(mc.cores) || mc.cores < 1) stop('mc.cores must be a positive integer')
+  
+  if(!is.null(ind_lin)){
+    if(!is.numeric(ind_lin)){
+      if(!is.character(ind_lin)) stop("ind_lin must either contain integers or variable names")
+      ind_lin <- which(colnames(data.frame(X)) %in% ind_lin)
+    }
+    if((min(ind_lin) < 1) || max(ind_lin) > p) stop("ind_lin must contain covariates in the data in [1, p]")
+  }
   
   gprLassoControl <- grplasso::grpl.control(save.x = FALSE, save.y = FALSE, trace = 0)
   
@@ -124,7 +138,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     lbreaks <- list()
     
     # variable grouping, intercept not penalized gets NA
-    index <-c(NA, rep(1:p, times = K_eff))
+    index <- c(NA, rep(1:p, times = K_eff))
     for (j in 1:p){
       # number of breaks is number of basis functions minus order (4 by default) + 2
       if(K_eff[j] >= 4){
@@ -152,7 +166,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   }
   
   # generate folds for CV
-  ind <-  sample(rep(1:cv_k, length.out = n), replace = FALSE)
+  ind <- sample(rep(1:cv_k, length.out = n), replace = FALSE)
   
   # calculates mse on fold l and for a listK which has the form of a lmodK[[i]]
   mse_fold_K <- function(l, listK){
