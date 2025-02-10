@@ -332,10 +332,10 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
 
     # add new leaves
     leave$AddChild(best_branch, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'no', 
+                   cp = loss_dec / loss_start, decision = 'yes', 
                    n_samples = sum(E[, best_branch] == 1))
     leave$AddChild(i + 1, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'yes', 
+                   cp = loss_dec / loss_start, decision = 'no', 
                    n_samples = sum(E[, i + 1] == 1))
 
     # add estimates to tree leaves
