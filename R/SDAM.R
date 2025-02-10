@@ -9,8 +9,12 @@
 #'@references
 #'  \insertAllCited{}
 #' @author Cyrill Scheidegger
-#' @param X A numeric matrix of size \eqn{n\times p}, where \eqn{n} is the number of observations and \eqn{p} is the number of covariates.
-#' @param Y A numeric vector of length \eqn{n}, representing the response variable.
+#' @param formula Object of class \code{formula} or describing the model to fit 
+#' of the form \code{y ~ x1 + x2 + ...} where \code{y} is a numeric response and 
+#' \code{x1, x2, ...} are vectors of covariates. Interactions are not supported.
+#' @param data Training data of class \code{data.frame} containing the variables in the model.
+#' @param x Matrix of covariates, alternative to \code{formula} and \code{data}.
+#' @param y Vector of responses, alternative to \code{formula} and \code{data}.
 #' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
 #' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
 #' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
@@ -51,14 +55,19 @@
 #' set.seed(1)
 #' X <- matrix(rnorm(20 * 15), ncol = 15)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 #' print(model)
 #'
 #' @export
-SDAM <- function(X, Y, Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, 
+SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
+                 Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
                  Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
 
+  input_data <- data.handler(formula = formula, data = data, x = x, y = y)
+  X <- input_data$X
+  Y <- input_data$Y
+  
   n <- NROW(X)
   p <- NCOL(X)
   

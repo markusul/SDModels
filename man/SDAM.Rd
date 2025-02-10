@@ -5,8 +5,10 @@
 \title{Spectrally Deconfounded Additive Models}
 \usage{
 SDAM(
-  X,
-  Y,
+  formula = NULL,
+  data = NULL,
+  x = NULL,
+  y = NULL,
   Q_type = "trim",
   trim_quantile = 0.5,
   q_hat = 0,
@@ -21,9 +23,15 @@ SDAM(
 )
 }
 \arguments{
-\item{X}{A numeric matrix of size \eqn{n\times p}, where \eqn{n} is the number of observations and \eqn{p} is the number of covariates.}
+\item{formula}{Object of class \code{formula} or describing the model to fit 
+of the form \code{y ~ x1 + x2 + ...} where \code{y} is a numeric response and 
+\code{x1, x2, ...} are vectors of covariates. Interactions are not supported.}
 
-\item{Y}{A numeric vector of length \eqn{n}, representing the response variable.}
+\item{data}{Training data of class \code{data.frame} containing the variables in the model.}
+
+\item{x}{Matrix of covariates, alternative to \code{formula} and \code{data}.}
+
+\item{y}{Vector of responses, alternative to \code{formula} and \code{data}.}
 
 \item{Q_type}{Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
@@ -84,7 +92,7 @@ chosen by cross validation.
 set.seed(1)
 X <- matrix(rnorm(20 * 15), ncol = 15)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 print(model)
 
 }
