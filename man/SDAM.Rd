@@ -92,12 +92,34 @@ chosen by cross validation.
 set.seed(1)
 X <- matrix(rnorm(20 * 15), ncol = 15)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+
+# estimate model
 model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-print(model)
+model
+
+# extract variable importance
+varImp(model)
+
+# predict new data
+X_new <- matrix(rexp(20 * 15), ncol = 15)
+predict(model, newdata = data.frame(X_new))
+
+# predict for individual Xj
+predict_individual_fj(object = model, j = 1, data.frame(X_new))
+
+# estimate model with pca adjustement
+mod_pca <- SDAM(x = X, y = Y, Q_type = "pca", q_hat = 3, cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+
+# estimate model without deconfounding
+mod_none <- SDAM(Y ~ ., data.frame(X, Y), Q_type = "no_deconfounding", cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
 
 }
 \references{
 \insertAllCited{}
+}
+\seealso{
+\code{\link{get_Q}}, \code{\link{predict.SDAM}}, \code{\link{varImp.SDAM}}, 
+\code{\link{predict_individual_fj}}, \code{\link{partDependence}}
 }
 \author{
 Cyrill Scheidegger

@@ -72,8 +72,9 @@ varImp.SDForest <- function(object){
 #' @export
 varImp.SDAM <- function(object){
   vIj <- function(j){
-    return(mean(predict_individual_fj(object, object$X[, j], j)^2))
+    return(mean(predict_individual_fj(object, j)^2))
   }
   vI <- sapply(1:object$p, vIj)
+  names(vI) <- object$var_names
   return(vI)
 }
