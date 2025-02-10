@@ -136,7 +136,7 @@ predict.SDAM <- function(object, newdata, ...){
   
   # Calculate contributions from active variables
   for (j in object$active) {
-    if (!is.null(breaks_list[[j]])) {
+    if (length(breaks_list) != 0 && !is.null(breaks_list[[j]])) {
       Bj <- Bbasis(X[, j], breaks = breaks_list[[j]])
       y_pred <- y_pred + Bj %*% coefs_list[[j]]
     } else {
@@ -178,15 +178,20 @@ predict_individual_fj <- function(object, j, newdata = NULL){
   }
   
   if (!(j %in% object$active)) {
-    return(rep(0, length(X)))
+    return(rep(0, nrow(X)))
   }
-  breaks_j <- object$breaks[[j]]
+  
+  if(length(object$breaks) == 0){
+    breaks_j <- NULL
+  }else{
+    breaks_j <- object$breaks[[j]]
+  }
   coefs_j <- object$coefs[[j]]
   
   if (!is.null(breaks_j)) {
     Bj <- Bbasis(X[, j], breaks = breaks_j)
     return(Bj %*% coefs_j)
   } else {
-    return(X * c(coefs_j))
+    return(X[, j] * c(coefs_j))
   }
 }
