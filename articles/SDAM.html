@@ -116,8 +116,8 @@ is additive in the first 4 covariates.</p>
 <span><span class="va">f4</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fl">4</span><span class="op">/</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">}</span></span>
 <span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">{</span><span class="fu">f1</span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">+</span><span class="fu">f2</span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">+</span><span class="fu">f3</span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">+</span><span class="fu">f4</span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fl">4</span><span class="op">]</span><span class="op">)</span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span></span>
 <span><span class="va">Gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">q</span><span class="op">*</span><span class="va">p</span>, min <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, nrow<span class="op">=</span><span class="va">q</span><span class="op">)</span></span>
@@ -133,10 +133,10 @@ We fit both a standard additive model and a deconfounded additive model
 using the trim transformation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://markusul.github.io/SDModels/">SDModels</a></span><span class="op">)</span></span>
-<span><span class="va">fit_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, Y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"no_deconfounding"</span><span class="op">)</span></span>
+<span><span class="va">fit_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"no_deconfounding"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
 <span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
-<span><span class="va">fit_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>X <span class="op">=</span> <span class="va">X</span>, Y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span><span class="op">)</span></span>
+<span><span class="va">fit_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
 <span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span></code></pre></div>
 <p>For both models, we compare the predicted values to the true function
@@ -147,9 +147,9 @@ by calculating the mean squared error on the training data.</p>
 <span><span class="va">pred_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_trim</span>, Xnew <span class="op">=</span> <span class="va">X</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">MSE_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu">f</span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">-</span> <span class="va">pred_standard</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 3.513245</span></span>
+<span><span class="co">#&gt; [1] 10.00365</span></span>
 <span><span class="op">(</span><span class="va">MSE_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu">f</span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">-</span> <span class="va">pred_trim</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5.365031</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.73134</span></span></code></pre></div>
 <p>We see that the mean squared error when using the deconfounding is
 smaller than using no spectral transformation. Let us have a look at the
 variable importance.</p>
@@ -160,29 +160,35 @@ variable importance.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/varImp.SDForest.html">varImp</a></span><span class="op">(</span><span class="va">fit_trim</span><span class="op">)</span>, main <span class="op">=</span> <span class="st">"Deconfounded Additive Model"</span>, xlab <span class="op">=</span> <span class="st">"j"</span>, ylab <span class="op">=</span> <span class="st">"variable importance"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="SDAM_files/figure-html/plotImp-2.png" width="700"></p>
-<p>We see that both methods can capture the effect of the four active
-variables. However, when using deconfounding, there is much less signal
-that is captured from other covariates, whereas a plain additive model
-also attributes significant influence to the non-influential covariates.
+<p>We see that both methods attribute the largest effects to variables
+in the active set. However, when using deconfounding, there is much less
+signal that is captured from other covariates, whereas a plain additive
+model also attributes significant influence to the non-active covariates
+and also completely ignores the effect of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>1</mn></msub><annotation encoding="application/x-tex">X_1</annotation></semantics></math>.
 We can get the size of the active set by using the function and see that
 when using deconfounding, we get a smaller set of active variables.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit_standard</span><span class="op">)</span></span>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Number of covariates:  20 </span></span>
-<span><span class="co">#&gt; Number of active covariates:  7</span></span>
+<span><span class="co">#&gt; Number of covariates:  200 </span></span>
+<span><span class="co">#&gt; Number of active covariates:  85</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit_trim</span><span class="op">)</span></span>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Number of covariates:  20 </span></span>
-<span><span class="co">#&gt; Number of active covariates:  0</span></span></code></pre></div>
+<span><span class="co">#&gt; Number of covariates:  200 </span></span>
+<span><span class="co">#&gt; Number of active covariates:  20</span></span></code></pre></div>
 <p>Let us finally have a look at the individual component functions
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>j</mi></msub><annotation encoding="application/x-tex">f_j</annotation></semantics></math>.
-They can be displayed using the function.</p>
+They can be displayed using the function. We display the individual
+component functions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>j</mi></msub><annotation encoding="application/x-tex">f_j</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">j\in \{1,2,3,4\}</annotation></semantics></math>
+(true active set).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#par(mfrow = c(2,2))</span></span>
-<span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">0.05</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">fj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"f"</span>, <span class="va">j</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">predj_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_individual_fj.html">predict_individual_fj</a></span><span class="op">(</span><span class="va">fit_standard</span>, <span class="va">xx</span>, <span class="va">j</span><span class="op">)</span></span>
@@ -194,14 +200,21 @@ They can be displayed using the function.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"true function"</span>, <span class="st">"standard"</span>, <span class="st">"deconfounded"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; Warning in rug(X[, j]): some values will be clipped</span></span></code></pre></div>
-<p><img src="SDAM_files/figure-html/components-1.png" width="700"><img src="SDAM_files/figure-html/components-2.png" width="700"><img src="SDAM_files/figure-html/components-3.png" width="700"><img src="SDAM_files/figure-html/components-4.png" width="700"></p>
-<p>We see that on the true active set, the difference in fitted function
-is not very large, at least in the regions, where there are many
-observations of
+<p><img src="SDAM_files/figure-html/components-1.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; Warning in rug(X[, j]): some values will be clipped</span></span></code></pre>
+<p><img src="SDAM_files/figure-html/components-2.png" width="700"></p>
+<pre><code><span><span class="co">#&gt; Warning in rug(X[, j]): some values will be clipped</span></span></code></pre>
+<p><img src="SDAM_files/figure-html/components-3.png" width="700"><img src="SDAM_files/figure-html/components-4.png" width="700"></p>
+<p>We see that for for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">j = 2,3,4</annotation></semantics></math>,
+the difference in the fitted functions is not very large, at least in
+the regions, where there are many observations of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>j</mi></msub><annotation encoding="application/x-tex">X_j</annotation></semantics></math>.
-This means that the difference in mean squared error is mostly due to
-overestimation of the effect of the fitted functions outside the active
-set.</p>
+However, the standard additive model failed to put
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j=1</annotation></semantics></math>
+into the active set and as seen above, attributed larger effects to the
+variables that are not in the true active set, hence leading to the
+significantly larger mean squared error observed above.</p>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-scheidegger2023spectral" class="csl-entry">
 Scheidegger, Cyrill, Zijian Guo, and Peter Bühlmann. 2025.
