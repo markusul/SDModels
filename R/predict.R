@@ -180,6 +180,9 @@ predict_individual_fj <- function(object, j, newdata = NULL){
   }
   if(is.null(nrow(X))) X <- matrix(X, ncol = object$p)
   
+  if(is.character(j)) j <- which(object$var_names %in% j)
+  if(!is.numeric(j) || length(j) != 1) stop("j has not be an integer in [1, p] or a covariate name")
+  
   if (!(j %in% object$active)) {
     return(rep(0, nrow(X)))
   }
@@ -193,7 +196,7 @@ predict_individual_fj <- function(object, j, newdata = NULL){
   
   if (!is.null(breaks_j)) {
     Bj <- Bbasis(X[, j], breaks = breaks_j)
-    return(Bj %*% coefs_j)
+    return(c(Bj %*% coefs_j))
   } else {
     return(X[, j] * c(coefs_j))
   }
