@@ -54,8 +54,8 @@ fit_trim <- SDAM(x = X, y = Y, Q_type = "trim")
 For both models, we compare the predicted values to the true function $f$ by calculating the mean squared error on the training data.
 
 ```{r pred}
-pred_standard <- predict(fit_standard, Xnew = X)
-pred_trim <- predict(fit_trim, Xnew = X)
+pred_standard <- predict(fit_standard, newdata = data.frame(X))
+pred_trim <- predict(fit_trim, newdata = data.frame(X))
 
 (MSE_standard <- mean((f(X) - pred_standard)^2))
 (MSE_trim <- mean((f(X) - pred_trim)^2))
@@ -64,7 +64,6 @@ pred_trim <- predict(fit_trim, Xnew = X)
 We see that the mean squared error when using the deconfounding is smaller than using no spectral transformation. Let us have a look at the variable importance.
 
 ```{r plotImp}
-#par(mfrow = c(2,1))
 plot(varImp(fit_standard), main = "Standard Additive Model", xlab = "j", ylab = "variable importance")
 plot(varImp(fit_trim), main = "Deconfounded Additive Model", xlab = "j", ylab = "variable importance")
 ```
@@ -80,10 +79,12 @@ Let us finally have a look at the individual component functions $f_j$. They can
 
 ```{r components}
 xx <- seq(-4, 4, 0.05)
+XX <- data.frame(matrix(rep(seq(-4, 4, 0.05), p), ncol = p))
+
 for(j in 1:4){
   fj <- get(paste("f", j, sep = ""))
-  predj_standard <- predict_individual_fj(fit_standard, xx, j)
-  predj_trim <- predict_individual_fj(fit_trim, xx, j)
+  predj_standard <- predict_individual_fj(fit_standard, j, XX)
+  predj_trim <- predict_individual_fj(fit_trim, j, XX)
   plot(xx, fj(xx) - mean(fj(X[, j])), type = "l", main = paste("j = ", j, sep =""), xlab = "Xj", ylab = "fj(Xj)")
   rug(X[, j])
   lines(xx, predj_standard, col = "blue")
