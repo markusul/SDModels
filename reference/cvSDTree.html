@@ -89,7 +89,7 @@ separately to ensure independence of the validation set.</p>
 <span>  gpu <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  mem_size <span class="op">=</span> <span class="fl">1e+07</span>,</span>
 <span>  max_candidates <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  n_cv <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  nfolds <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  cp_seq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mc.cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  Q_scale <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -193,7 +193,7 @@ the memory is not sufficient or the gpu is to small.</p></dd>
 proposed at each node for each covariate.</p></dd>
 
 
-<dt id="arg-n-cv">n_cv<a class="anchor" aria-label="anchor" href="#arg-n-cv"></a></dt>
+<dt id="arg-nfolds">nfolds<a class="anchor" aria-label="anchor" href="#arg-nfolds"></a></dt>
 <dd><p>Number of folds for cross-validation.
 It is recommended to not use more than 5 folds if the number of covariates
 is larger than the number of observations. In this case the spectral
