@@ -30,6 +30,7 @@ Suggests:
     knitr,
     rmarkdown,
     ranger,
+    HDclassif,
     qpdf,
     igraph,
     testthat (>= 3.0.0)
