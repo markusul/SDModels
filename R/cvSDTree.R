@@ -45,7 +45,7 @@
 #' the memory is not sufficient or the gpu is to small.
 #' @param max_candidates Maximum number of split points that are 
 #' proposed at each node for each covariate.
-#' @param n_cv Number of folds for cross-validation. 
+#' @param nfolds Number of folds for cross-validation. 
 #' It is recommended to not use more than 5 folds if the number of covariates 
 #' is larger than the number of observations. In this case the spectral 
 #' transformation could differ to much if the validation data is 
@@ -75,7 +75,7 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
                      max_leaves = NULL, cp = 0.01, min_sample = 5, mtry = NULL, 
                      fast = TRUE, Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, 
                      Qf = NULL, A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, 
-                     max_candidates = 100, n_cv = 3, cp_seq = NULL, mc.cores = 1, 
+                     max_candidates = 100, nfolds = 3, cp_seq = NULL, mc.cores = 1, 
                      Q_scale = TRUE){
   ifelse(GPUmatrix::installTorch(), gpu_type <- 'torch', gpu_type <- 'tensorflow')
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
@@ -93,8 +93,8 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   if(min_sample < 1) stop('min_sample must be larger than 0')
   if(!is.null(cp_seq) && (any(cp_seq < 0) | any(cp_seq > 1))) 
     stop('cp.seq must be between 0 and 1')
-  if(n_cv < 2 | n_cv > n) stop('n_cv must be at least 2 and smaller than n')
-  if(n_cv > 5 & n < p) 
+  if(nfolds < 2 | nfolds > n) stop('nfolds must be at least 2 and smaller than n')
+  if(nfolds > 5 & n < p) 
     warning('if n < p and to many folds are used, Q_validation might differ 
             to much from Q_trainig, consider using less folds')
   
@@ -147,9 +147,9 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   loss_start <- as.numeric(loss_start)
 
   # validation set size
-  len_test <- floor(n / n_cv)
+  len_test <- floor(n / nfolds)
   # validation sets
-  test_ind <- lapply(1:n_cv, function(x) 1:len_test + (x - 1) * len_test)
+  test_ind <- lapply(1:nfolds, function(x) 1:len_test + (x - 1) * len_test)
 
   # sequence of minimum loss decrease to compare with cv
   if(is.null(cp_seq)){
@@ -204,7 +204,7 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   })
 
   # collect performance for different min loss decreases
-  perf <- matrix(unlist(perf), ncol = n_cv, byrow = FALSE)
+  perf <- matrix(unlist(perf), ncol = nfolds, byrow = FALSE)
   cp_table <- matrix(c(t_seq / loss_start, apply(perf, 1, mean), 
                        apply(perf, 1, sd)), ncol = 3, byrow = FALSE)
   colnames(cp_table) <- c('cp', 'SDLoss mean', 'SDLoss sd')

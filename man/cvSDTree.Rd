@@ -23,7 +23,7 @@ cvSDTree(
   gpu = FALSE,
   mem_size = 1e+07,
   max_candidates = 100,
-  n_cv = 3,
+  nfolds = 3,
   cp_seq = NULL,
   mc.cores = 1,
   Q_scale = TRUE
@@ -87,7 +87,7 @@ the memory is not sufficient or the gpu is to small.}
 \item{max_candidates}{Maximum number of split points that are 
 proposed at each node for each covariate.}
 
-\item{n_cv}{Number of folds for cross-validation. 
+\item{nfolds}{Number of folds for cross-validation. 
 It is recommended to not use more than 5 folds if the number of covariates 
 is larger than the number of observations. In this case the spectral 
 transformation could differ to much if the validation data is 
