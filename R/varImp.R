@@ -52,8 +52,6 @@ varImp.SDForest <- function(object){
   rowMeans(sapply(object$forest, varImp))
 }
 
-
-
 #' Extract Variable importance for SDAM
 #'
 #' This function extracts the variable importance of an SDAM.

@@ -127,6 +127,8 @@ predict.SDAM <- function(object, newdata, ...){
   
   X <- X[, object$var_names]
   if(any(is.na(X))) stop('X must not contain missing values')
+
+  if(is.null(nrow(X))) X <- matrix(X, ncol = object$p)
   
   intercept <- object$intercept
   breaks_list <- object$breaks
@@ -176,6 +178,7 @@ predict_individual_fj <- function(object, j, newdata = NULL){
   }else{
     X <- object$X
   }
+  if(is.null(nrow(X))) X <- matrix(X, ncol = object$p)
   
   if (!(j %in% object$active)) {
     return(rep(0, nrow(X)))
