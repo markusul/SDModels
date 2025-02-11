@@ -81,6 +81,20 @@ partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
   res
 }
 
+#' Print partDependence
+#' 
+#' Print contents of the partDependence.
+#' @author Markus Ulmer
+#' @param x Fitted object of class \code{partDependence}.
+#' @param ... Further arguments passed to or from other methods.
+#' @seealso \code{\link{partDependence}}, \code{\link{plot.partDependence}}
+#' @method print partDependence
+#' @export
+print.partDependence <- function(x, ...){
+  cat("Partial dependence of covariate: ", x$j, "\n")
+  cat("Plot to analyze!")
+}
+
 #' Plot partial dependence
 #' 
 #' This function plots the partial dependence of a model on a single variable.
