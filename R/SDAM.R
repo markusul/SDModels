@@ -24,7 +24,7 @@
 #' only needed for trim, see \code{\link{get_Q}}.
 #' @param q_hat  Assumed confounding dimension, only needed for pca, 
 #' see \code{\link{get_Q}}.
-#' @param cv_k The number of folds for cross-validation. Default is 5.
+#' @param nfolds The number of folds for cross-validation. Default is 5.
 #' @param cv_method The method for selecting the regularization parameter during cross-validation.
 #' One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".
 #' @param n_K The number of candidate values for the number of basis functions for B-splines. Default is 4.
@@ -54,34 +54,43 @@
 #' \code{\link{predict_individual_fj}}, \code{\link{partDependence}}
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 15), ncol = 15)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' 
+#' library(HDclassif)
+#' data(wine)
+#' names(wine) <- c("class", "alcohol", "malicAcid", "ash", "alcalinityAsh", "magnesium", 
+#'                  "totPhenols", "flavanoids", "nonFlavPhenols", "proanthocyanins", 
+#'                  "colIntens", "hue", "OD", "proline")
+#' wine <- log(wine)
+#'
 #' # estimate model
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-#' model
+#' # do not use class in the model and restrict proline to be linear 
+#' model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline")
 #' 
 #' # extract variable importance
 #' varImp(model)
 #' 
-#' # predict new data
-#' X_new <- matrix(rexp(20 * 15), ncol = 15)
-#' predict(model, newdata = data.frame(X_new))
+#' # most important variable
+#' mostImp <- names(which.max(varImp(model)))
+#' mostImp
 #' 
 #' # predict for individual Xj
-#' predict_individual_fj(object = model, j = 1, data.frame(X_new))
+#' predJ <- predict_individual_fj(object = model, j = mostImp)
+#' plot(wine[, mostImp], predJ, 
+#'      xlab = paste0("log ", mostImp), ylab = "log alcohol")
 #' 
-#' # estimate model with pca adjustement
-#' mod_pca <- SDAM(x = X, y = Y, Q_type = "pca", q_hat = 3, cv_k = 3, 
-#'                 n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+#' # partial dependece
+#' plot(partDependence(model, mostImp))
 #' 
-#' # estimate model without deconfounding
-#' mod_none <- SDAM(Y ~ ., data.frame(X, Y), Q_type = "no_deconfounding", 
-#'                  cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+#' # predict 
+#' predict(model, newdata = wine[42, ])
+#' 
+#' ## alternative function call
+#' mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
+#'                  Q_type = "no_deconfounding", nfolds = 3, n_K = 4, 
+#'                  n_lambda1 = 4, n_lambda2 = 8)
 #'
 #' @export
 SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
-                 Q_type = "trim", trim_quantile = 0.5, q_hat = 0, cv_k = 5, 
+                 Q_type = "trim", trim_quantile = 0.5, q_hat = 0, nfolds = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
                  Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
@@ -92,7 +101,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   p <- NCOL(X)
   
   if(n != length(Y)) stop('X and Y must have the same number of observations')
-  if(!is.numeric(cv_k) || cv_k < 2 || cv_k > n) stop('cv_k must be an integer between 2 and n')
+  if(!is.numeric(nfolds) || nfolds < 2 || nfolds > n) stop('nfolds must be an integer between 2 and n')
   if(!is.numeric(n_K) || n_K < 1) stop('n_K must be a positive integer')
   if(!is.numeric(n_lambda1) || n_lambda1 < 1) stop('n_lambda1 must be a positive integer')
   if(!is.numeric(n_lambda2) || n_lambda2 < 1) stop('n_lambda2 must be a positive integer')
@@ -135,16 +144,21 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     K_eff[K_eff < 4] <- 1
     
     # first column is intercept
-    B <- cbind(rep(1, n), matrix(nrow = n, ncol = sum(K_eff)))
+    #B <- cbind(rep(1, n), matrix(nrow = n, ncol = sum(K_eff)))
+    B <- matrix(1, nrow = n, ncol = 1)
     Rlist <- list()
     lbreaks <- list()
     
     # variable grouping, intercept not penalized gets NA
-    index <- c(NA, rep(1:p, times = K_eff))
+    #index <- c(NA, rep(1:p, times = K_eff))
+    index <- NA
     for (j in 1:p){
       # number of breaks is number of basis functions minus order (4 by default) + 2
       if(K_eff[j] >= 4){
         breaks <- quantile(X[,j], probs=seq(0, 1, length.out = K_eff[j]-2))
+        breaks <- unique(breaks)
+        K_eff[j] <- length(breaks) + 2
+        
         lbreaks[[j]] <- breaks
         Bj <- Bbasis(X[,j], breaks = breaks)
       }
@@ -153,7 +167,11 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
         Bj <- X[, j]
       }
       Rj.inv <- solve(chol(1/n*t(Bj) %*% Bj))
-      B[, index == j & !is.na(index)] <- Bj %*% Rj.inv
+      
+      index <- c(index, rep(j, K_eff[j]))
+      B <- cbind(B, Bj %*% Rj.inv)
+      
+      #B[, index == j & !is.na(index)] <- Bj %*% Rj.inv
       Rlist[[j]] <- Rj.inv
     }
     QB <- Qf(B)
@@ -168,7 +186,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   }
   
   # generate folds for CV
-  ind <- sample(rep(1:cv_k, length.out = n), replace = FALSE)
+  ind <- sample(rep(1:nfolds, length.out = n), replace = FALSE)
   
   # calculates mse on fold l and for a listK which has the form of a lmodK[[i]]
   mse_fold_K <- function(l, listK){
@@ -196,13 +214,13 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   print("Initial cross-validation")
   if(mc.cores == 1){
-    MSES <- pbapply::pblapply(1:cv_k, mse_fold) 
+    MSES <- pbapply::pblapply(1:nfolds, mse_fold) 
   } else {
-    MSES <- parallel::mclapply(1:cv_k, mse_fold, mc.cores = mc.cores)
+    MSES <- parallel::mclapply(1:nfolds, mse_fold, mc.cores = mc.cores)
   }
   
   # aggregate MSEs over folds
-  MSES.agg <- Reduce("+", MSES) / cv_k
+  MSES.agg <- Reduce("+", MSES) / nfolds
   ind.min <- which(MSES.agg == min(MSES.agg), arr.ind = TRUE)
   K.min <- vK[ind.min[1]]
   lambda.min <- lmodK[[ind.min[1]]]$lambda[ind.min[2]]
@@ -214,15 +232,15 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   print("Second stage cross-validation")
   if(mc.cores == 1){
-    MSES1 <- pbapply::pblapply(1:cv_k, mse_fold_K, listK = modK.min)
+    MSES1 <- pbapply::pblapply(1:nfolds, mse_fold_K, listK = modK.min)
   } else {
-    MSES1 <- parallel::mclapply(1:cv_k, mse_fold_K, listK = modK.min, 
+    MSES1 <- parallel::mclapply(1:nfolds, mse_fold_K, listK = modK.min, 
                                 mc.cores = mc.cores)
   }
   
   MSES1 <- do.call(rbind, MSES1)
   MSE1.agg <- apply(MSES1, 2, mean)
-  se.agg <- 1/sqrt(cv_k) * apply(MSES1, 2, sd)
+  se.agg <- 1/sqrt(nfolds) * apply(MSES1, 2, sd)
   ind.min1 <- which.min(MSE1.agg)
   
   if(cv_method == "min"){

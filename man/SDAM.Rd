@@ -12,7 +12,7 @@ SDAM(
   Q_type = "trim",
   trim_quantile = 0.5,
   q_hat = 0,
-  cv_k = 5,
+  nfolds = 5,
   cv_method = "1se",
   n_K = 4,
   n_lambda1 = 10,
@@ -45,7 +45,7 @@ only needed for trim, see \code{\link{get_Q}}.}
 \item{q_hat}{Assumed confounding dimension, only needed for pca, 
 see \code{\link{get_Q}}.}
 
-\item{cv_k}{The number of folds for cross-validation. Default is 5.}
+\item{nfolds}{The number of folds for cross-validation. Default is 5.}
 
 \item{cv_method}{The method for selecting the regularization parameter during cross-validation.
 One of "min" (minimum cv-loss) and "1se" (one-standard-error rule) Default is "1se".}
@@ -90,30 +90,39 @@ chosen by cross validation.
 }
 \examples{
 set.seed(1)
-X <- matrix(rnorm(20 * 15), ncol = 15)
-Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+library(HDclassif)
+data(wine)
+names(wine) <- c("class", "alcohol", "malicAcid", "ash", "alcalinityAsh", "magnesium", 
+                 "totPhenols", "flavanoids", "nonFlavPhenols", "proanthocyanins", 
+                 "colIntens", "hue", "OD", "proline")
+wine <- log(wine)
 
 # estimate model
-model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
-model
+# do not use class in the model and restrict proline to be linear 
+model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline")
 
 # extract variable importance
 varImp(model)
 
-# predict new data
-X_new <- matrix(rexp(20 * 15), ncol = 15)
-predict(model, newdata = data.frame(X_new))
+# most important variable
+mostImp <- names(which.max(varImp(model)))
+mostImp
 
 # predict for individual Xj
-predict_individual_fj(object = model, j = 1, data.frame(X_new))
+predJ <- predict_individual_fj(object = model, j = mostImp)
+plot(wine[, mostImp], predJ, 
+     xlab = paste0("log ", mostImp), ylab = "log alcohol")
 
-# estimate model with pca adjustement
-mod_pca <- SDAM(x = X, y = Y, Q_type = "pca", q_hat = 3, cv_k = 3, 
-                n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+# partial dependece
+plot(partDependence(model, mostImp))
 
-# estimate model without deconfounding
-mod_none <- SDAM(Y ~ ., data.frame(X, Y), Q_type = "no_deconfounding", 
-                 cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+# predict 
+predict(model, newdata = wine[42, ])
+
+## alternative function call
+mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
+                 Q_type = "no_deconfounding", nfolds = 3, n_K = 4, 
+                 n_lambda1 = 4, n_lambda2 = 8)
 
 }
 \references{
