@@ -67,7 +67,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'SDAM'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">Xnew</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">newdata</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -78,8 +78,9 @@
 <dd><p>Fitted object of class <code>SDAM</code>.</p></dd>
 
 
-<dt id="arg-xnew">Xnew<a class="anchor" aria-label="anchor" href="#arg-xnew"></a></dt>
-<dd><p>Matrix of new test data at which to evaluate the fitted function.</p></dd>
+<dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
+<dd><p>New test data of class <code>data.frame</code> containing
+the covariates for which to predict the response.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -104,10 +105,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span> <span class="op">*</span> <span class="fl">15</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span>  <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, cv_k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in attr(x, "formula") %||% {    form &lt;- switch(mode(x), `NULL` = structure(list(), class = "formula"),         character = eval(str2expression(x)), call = eval(x),         stop("invalid formula"))    environment(form) &lt;- env    form}:</span> invalid formula</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">model</span>, Xnew <span class="op">=</span> <span class="va">X</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model' not found</span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, cv_k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">model</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199 0.4055199</span>
 </code></pre></div>
     </div>
   </div>

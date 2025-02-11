@@ -66,7 +66,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">predict_individual_fj</span><span class="op">(</span><span class="va">object</span>, <span class="va">Xjnew</span>, <span class="va">j</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">predict_individual_fj</span><span class="op">(</span><span class="va">object</span>, <span class="va">j</span>, newdata <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -77,12 +77,13 @@
 <dd><p>Fitted object of class <code>SDAM</code>.</p></dd>
 
 
-<dt id="arg-xjnew">Xjnew<a class="anchor" aria-label="anchor" href="#arg-xjnew"></a></dt>
-<dd><p>Vector of new test data at which to evaluate fj.</p></dd>
-
-
 <dt id="arg-j">j<a class="anchor" aria-label="anchor" href="#arg-j"></a></dt>
 <dd><p>Which component to evaluate.</p></dd>
+
+
+<dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
+<dd><p>New test data of class <code>data.frame</code> containing
+the covariates for which to predict the response.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -103,10 +104,11 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span> <span class="op">*</span> <span class="fl">15</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span>  <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, cv_k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in attr(x, "formula") %||% {    form &lt;- switch(mode(x), `NULL` = structure(list(), class = "formula"),         character = eval(str2expression(x)), call = eval(x),         stop("invalid formula"))    environment(form) &lt;- env    form}:</span> invalid formula</span>
-<span class="r-in"><span><span class="fu">predict_individual_fj</span><span class="op">(</span>object <span class="op">=</span> <span class="va">model</span>, Xjnew <span class="op">=</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, j <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'model' not found</span>
+<span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, cv_k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
+<span class="r-in"><span><span class="fu">predict_individual_fj</span><span class="op">(</span>object <span class="op">=</span> <span class="va">model</span>, j <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</span>
 </code></pre></div>
     </div>
   </div>
