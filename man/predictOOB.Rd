@@ -14,6 +14,12 @@ If \code{NULL}, the data saved in the object is used.}
 }
 \value{
 A vector of out-of-bag predictions for the training data.
+#' set.seed(1)
+n <- 50
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+predictOOB(model)
 }
 \description{
 Predicts the response for the training data 

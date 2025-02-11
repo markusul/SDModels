@@ -10,7 +10,7 @@
 #' @examples
 #' set.seed(1)
 #' n <- 50
-#' X <- matrix(rnorm(n * 20), nrow = n)
+#' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
 #' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding')
 #' predict(model, newdata = data.frame(X))
@@ -40,9 +40,9 @@ predict.SDTree <- function(object, newdata, ...){
 #' @examples
 #' set.seed(1)
 #' n <- 50
-#' X <- matrix(rnorm(n * 20), nrow = n)
+#' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
-#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 10)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
 #' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDForest}}
 #' @export
@@ -72,6 +72,12 @@ predict.SDForest <- function(object, newdata, ...){
 #' @param X Covariates of the training data.
 #' If \code{NULL}, the data saved in the object is used.
 #' @return A vector of out-of-bag predictions for the training data.
+#' #' set.seed(1)
+#' n <- 50
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+#' predictOOB(model)
 #' @seealso \code{\link{SDForest}} \code{\link{prune.SDForest}} \code{\link{plotOOB}}
 #' @export
 predictOOB <- function(object, X = NULL){
@@ -113,9 +119,9 @@ predictOOB <- function(object, X = NULL){
 #' @return A vector of predictions for the new data.
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 15), ncol = 15)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 5)
+#' X <- matrix(rnorm(10 * 5), ncol = 5)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 #' predict(object = model, newdata = data.frame(X))
 #' @seealso \code{\link{SDAM}}
 #' @export
@@ -161,9 +167,9 @@ predict.SDAM <- function(object, newdata, ...){
 #' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' X <- matrix(rnorm(20 * 5), ncol = 5)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 5)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 #' predict_individual_fj(object = model, j = 1)
 #' @export
 predict_individual_fj <- function(object, j, newdata = NULL){

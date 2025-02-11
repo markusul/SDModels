@@ -23,7 +23,7 @@ Predicts the response for new data using a fitted SDTree.
 \examples{
 set.seed(1)
 n <- 50
-X <- matrix(rnorm(n * 20), nrow = n)
+X <- matrix(rnorm(n * 5), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
 model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding')
 predict(model, newdata = data.frame(X))

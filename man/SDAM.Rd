@@ -99,7 +99,7 @@ wine <- log(wine)
 
 # estimate model
 # do not use class in the model and restrict proline to be linear 
-model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline")
+model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline", nfold = 3)
 
 # extract variable importance
 varImp(model)
@@ -121,7 +121,7 @@ predict(model, newdata = wine[42, ])
 
 ## alternative function call
 mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
-                 Q_type = "no_deconfounding", nfolds = 3, n_K = 4, 
+                 Q_type = "no_deconfounding", nfolds = 2, n_K = 4, 
                  n_lambda1 = 4, n_lambda2 = 8)
 
 }
