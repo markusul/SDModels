@@ -54,7 +54,7 @@ data.handler <- function(formula = NULL, data = NULL, x = NULL, y = NULL){
       m[ord] <- lapply(m[ord], as.integer)
       
       Terms <- attr(m, "terms")
-      if(any(attr(Terms, "order") > 1L)) stop("Trees cannot handle interaction terms")
+      if(any(attr(Terms, "order") > 1L)) stop("Trees/SDAM cannot handle interaction terms")
       
       Y <- model.response(m)
       X <- model.matrix(attr(m, "terms"), m)[, -1L, drop = FALSE]
