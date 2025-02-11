@@ -115,7 +115,7 @@ predictOOB <- function(object, X = NULL){
 #' set.seed(1)
 #' X <- matrix(rnorm(20 * 15), ncol = 15)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 5)
 #' predict(object = model, newdata = data.frame(X))
 #' @seealso \code{\link{SDAM}}
 #' @export
@@ -163,7 +163,7 @@ predict.SDAM <- function(object, newdata, ...){
 #' set.seed(1)
 #' X <- matrix(rnorm(20 * 15), ncol = 15)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 5)
 #' predict_individual_fj(object = model, j = 1)
 #' @export
 predict_individual_fj <- function(object, j, newdata = NULL){
