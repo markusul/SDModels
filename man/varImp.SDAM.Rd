@@ -21,7 +21,7 @@ The measure is not standardized.
 set.seed(1)
 X <- matrix(rnorm(20 * 15), ncol = 15)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-model <- SDAM(X, Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
+model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, cv_k = 5)
 varImp(model)
 }
 \seealso{

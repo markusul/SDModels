@@ -108,10 +108,12 @@ predict(model, newdata = data.frame(X_new))
 predict_individual_fj(object = model, j = 1, data.frame(X_new))
 
 # estimate model with pca adjustement
-mod_pca <- SDAM(x = X, y = Y, Q_type = "pca", q_hat = 3, cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+mod_pca <- SDAM(x = X, y = Y, Q_type = "pca", q_hat = 3, cv_k = 3, 
+                n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
 
 # estimate model without deconfounding
-mod_none <- SDAM(Y ~ ., data.frame(X, Y), Q_type = "no_deconfounding", cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
+mod_none <- SDAM(Y ~ ., data.frame(X, Y), Q_type = "no_deconfounding", 
+                 cv_k = 3, n_K = 4, n_lambda1 = 4, n_lambda2 = 8)
 
 }
 \references{
