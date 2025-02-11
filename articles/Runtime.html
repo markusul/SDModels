@@ -131,8 +131,7 @@ of potential RAM-overflows.</p>
 <p>Especially if we have many observations, it might be reasonable to
 perform the matrix multiplications on a GPU. We can evaluate many
 potential splits simultaneously by multiplying an n times n matrix with
-an n times potential split matrix on a GPU. We use <a href="https://cran.r-project.org/web/packages/GPUmatrix/vignettes/Vignette.html" class="external-link">GPUmatrix</a>
-<span class="citation">(Lobato-Fernandez, A.Ferrer-Bonsoms, and Rubio
+an n times potential split matrix on a GPU. We use <a href="https://CRAN.R-project.org/package=GPUmatrix" class="external-link">GPUmatrix</a> <span class="citation">(Lobato-Fernandez, A.Ferrer-Bonsoms, and Rubio
 2024)</span> to do the calculations on the GPU. We also refer to their
 website to set up your GPU properly. The number of splits that can be
 evaluated in parallel in this way highly depends on your GPU size and
