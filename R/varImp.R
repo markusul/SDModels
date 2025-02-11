@@ -63,9 +63,9 @@ varImp.SDForest <- function(object){
 #' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 15), ncol = 15)
+#' X <- matrix(rnorm(20 * 5), ncol = 5)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
-#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 5)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2)
 #' varImp(model)
 #' @export
 varImp.SDAM <- function(object){
