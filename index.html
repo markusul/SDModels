@@ -91,7 +91,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>Spectrally Deconfounded Models (SDModels) is a package with methods for estimating non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (Ćevid, Bühlmann, and Meinshausen (2020), Guo, Ćevid, and Bühlmann (2022)). These methods have been shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose and the SDModels will, in general, estimate a function closer to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>f</mi><mn>0</mn></msup><annotation encoding="application/x-tex">f^0</annotation></semantics></math> than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann (2025)) and Spectrally Deconfounded Random Forests (SDForest)(Ulmer, Scheidegger, and Bühlmann (2025)).</p>
+<p>Spectrally Deconfounded Models (SDModels) is a package with methods to screen for and analyze non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (Ćevid, Bühlmann, and Meinshausen (2020), Guo, Ćevid, and Bühlmann (2022)). These methods have been shown to be a good estimate for the true direct effect if we observe many covariates, e.g., high-dimensional settings, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose, and the SDModels will, in general, estimate a function closer to the true one than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann (2025)) and Spectrally Deconfounded Random Forests (SDForest)(Ulmer, Scheidegger, and Bühlmann (2025)).</p>
 <p><img src="reference/figures/confModel.png"></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -147,9 +147,8 @@
 <span><span class="co">#&gt; 5  °--2     1.1821439  1.5229617 24  X24 &lt;= 1.52       no        37</span></span>
 <span><span class="co">#&gt; 6      ¦--2 1.0367566         NA NA            1      yes        19</span></span>
 <span><span class="co">#&gt; 7      °--4 1.4551242         NA NA          1.5       no        18</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Tree</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-SDTree-1.png" width="100%"></p>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<span><span class="co">#plot(Tree)</span></span></code></pre></div>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020. “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear Models</span>.” <em>J. Mach. Learn. Res.</em> 21 (1).
 </div>
