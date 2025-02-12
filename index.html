@@ -148,9 +148,20 @@
 <span><span class="co">#&gt; 6      ¦--2 1.0367566         NA NA            1      yes        19</span></span>
 <span><span class="co">#&gt; 7      °--4 1.4551242         NA NA          1.5       no        18</span></span>
 <span><span class="co">#plot(Tree)</span></span></code></pre></div>
+<p>Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the <code>SDAM</code> function. See also the article <a href="https://markusul.github.io/SDAM/articles/SDTree.html" class="external-link">SDAM</a>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
+<span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
+<span></span>
+<span><span class="va">model</span></span>
+<span><span class="co">#&gt; SDAM result</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of covariates:  50 </span></span>
+<span><span class="co">#&gt; Number of active covariates:  4</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
-Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020. “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear Models</span>.” <em>J. Mach. Learn. Res.</em> 21 (1).
+Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020. “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear Models</span>.” <em>J. Mach. Learn. Res.</em> 21 (1). <a href="http://jmlr.org/papers/v21/19-545.html" class="external-link uri">http://jmlr.org/papers/v21/19-545.html</a>.
 </div>
 <div id="ref-Guo2022DoublyConfounding" class="csl-entry">
 Guo, Zijian, Domagoj Ćevid, and Peter Bühlmann. 2022. “<span class="nocase">Doubly debiased lasso: High-dimensional inference under hidden confounding</span>.” <em>The Annals of Statistics</em> 50 (3). <a href="https://doi.org/10.1214/21-AOS2152" class="external-link uri">https://doi.org/10.1214/21-AOS2152</a>.
