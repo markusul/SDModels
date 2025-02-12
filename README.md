@@ -97,6 +97,22 @@ Tree
 #plot(Tree)
 ```
 
+Or you can estimate a Spectrally Deconfounded Additive Model, with
+theoretical guarantees, using the `SDAM` function. See also the article
+[SDAM](https://markusul.github.io/SDAM/articles/SDTree.html).
+
+``` r
+model <- SDAM(Y ~ ., train_data)
+#> [1] "Initial cross-validation"
+#> [1] "Second stage cross-validation"
+
+model
+#> SDAM result
+#> 
+#> Number of covariates:  50 
+#> Number of active covariates:  4
+```
+
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">
 
@@ -105,6 +121,7 @@ entry-spacing="0">
 Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020.
 “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear
 Models</span>.” *J. Mach. Learn. Res.* 21 (1).
+<http://jmlr.org/papers/v21/19-545.html>.
 
 </div>
 
