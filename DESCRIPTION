@@ -1,6 +1,6 @@
 Package: SDModels
 Title: Spectrally Deconfounded Models
-Version: 0.1
+Version: 1.0
 Date: 2024-05-31
 Authors@R: c(
   person("Markus", "Ulmer", email = "markus.ulmer@stat.math.ethz.ch", 
