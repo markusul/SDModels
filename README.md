@@ -99,7 +99,7 @@ Tree
 
 Or you can estimate a Spectrally Deconfounded Additive Model, with
 theoretical guarantees, using the `SDAM` function. See also the article
-[SDAM](https://markusul.github.io/SDAM/articles/SDTree.html).
+[SDAM](https://markusul.github.io/SDModels/articles/SDAM.html).
 
 ``` r
 model <- SDAM(Y ~ ., train_data)
