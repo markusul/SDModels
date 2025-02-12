@@ -101,10 +101,10 @@ The mean of the variable importance of all trees results in the variable importa
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDForest.html">SDForest</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">Sepal.Width</span> <span class="op">+</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span>, </span></span>
-<span class="r-in"><span>                 <span class="va">iris</span>, nTree <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 <span class="va">iris</span>, nTree <span class="op">=</span> <span class="fl">10</span>, cp <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">varImp</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Sepal.Width Petal.Length  Petal.Width </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.06329457   0.14883710   0.14177738 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0000000    0.0474703    0.0000000 </span>
 </code></pre></div>
     </div>
   </div>

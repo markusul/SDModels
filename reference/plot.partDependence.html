@@ -92,7 +92,13 @@
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="partDependence.html">partDependence</a></code></p></div>
+    <div class="dont-index"><p><code><a href="partDependence.html">partDependence</a></code>
+set.seed(1)
+x &lt;- rnorm(10)
+y &lt;- sign(x) * 3 + rnorm(10)
+model &lt;- SDTree(x = x, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+pd &lt;- partDependence(model, 1, X = x)
+plot(pd)</p></div>
     </div>
     <div id="author">
     <h2>Author</h2>

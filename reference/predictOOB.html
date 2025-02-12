@@ -93,7 +93,7 @@ If <code>NULL</code>, the data saved in the object is used.</p></dd>
 n &lt;- 50
 X &lt;- matrix(rnorm(n * 5), nrow = n)
 y &lt;- sign(X[, 1]) * 3 + rnorm(n)
-model &lt;- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+model &lt;- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 predictOOB(model)</p>
     </div>
     <div id="see-also">

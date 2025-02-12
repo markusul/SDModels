@@ -84,7 +84,13 @@
 </dl></div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="SDTree.html">SDTree</a></code></p></div>
+    <div class="dont-index"><p><code><a href="SDTree.html">SDTree</a></code>
+set.seed(1)
+n &lt;- 10
+X &lt;- matrix(rnorm(n * 5), nrow = n)
+y &lt;- sign(X[, 1]) * 3 + rnorm(n)
+model &lt;- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+plot(model)</p></div>
     </div>
     <div id="author">
     <h2>Author</h2>
