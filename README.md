@@ -8,19 +8,19 @@
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Spectrally Deconfounded Models (SDModels) is a package with methods for
-estimating non-linear sparse direct effects in the presence of
-unobserved confounding using the spectral deconfounding techniques
+Spectrally Deconfounded Models (SDModels) is a package with methods to
+screen for and analyze non-linear sparse direct effects in the presence
+of unobserved confounding using the spectral deconfounding techniques
 (Ćevid, Bühlmann, and Meinshausen (2020), Guo, Ćevid, and Bühlmann
 (2022)). These methods have been shown to be a good estimate for the
-true direct effect, if we observe many covariates, e.g. high-dimensional
-setting, and we have fairly dense confounding. Even if the assumptions
-are violated, it seems like there is not much to lose and the SDModels
-will, in general, estimate a function closer to $f^0$ than classical
-least squares optimization. SDModels provides software for Spectrally
-Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and Bühlmann
-(2025)) and Spectrally Deconfounded Random Forests (SDForest)(Ulmer,
-Scheidegger, and Bühlmann (2025)).
+true direct effect if we observe many covariates, e.g., high-dimensional
+settings, and we have fairly dense confounding. Even if the assumptions
+are violated, it seems like there is not much to lose, and the SDModels
+will, in general, estimate a function closer to the true one than
+classical least squares optimization. SDModels provides software for
+Spectrally Deconfounded Additive Models (SDAMs) (Scheidegger, Guo, and
+Bühlmann (2025)) and Spectrally Deconfounded Random Forests
+(SDForest)(Ulmer, Scheidegger, and Bühlmann (2025)).
 
 ![](man/figures/confModel.png)
 
@@ -92,12 +92,11 @@ Tree
 #> 5  °--2     1.1821439  1.5229617 24  X24 <= 1.52       no        37
 #> 6      ¦--2 1.0367566         NA NA            1      yes        19
 #> 7      °--4 1.4551242         NA NA          1.5       no        18
-plot(Tree)
+#plot(Tree)
 ```
 
-<img src="man/figures/README-SDTree-1.png" width="100%" />
-
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 
