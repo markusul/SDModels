@@ -51,7 +51,7 @@ or
 
 ## Usage
 
-This is a basic example on how to estimate the direct effect of $X$ on $Y$ using SDForest. You can learn more about analyzing sparse direct effects estimated by SDForest in `vignette("SDForest")`.
+This is a basic example on how to estimate the direct effect of $X$ on $Y$ using SDForest. You can learn more about analyzing sparse direct effects estimated by SDForest in the article [SDForest](https://markusul.github.io/SDModels/articles/SDForest.html).
 
 ```{r SDForest}
 library(SDModels)
@@ -69,7 +69,7 @@ fit <- SDForest(Y ~ ., train_data)
 fit
 ```
 
-You can also estimate just one Spectrally Deconfounded Regression Tree using the `SDTree` function. See also `vignette("SDTree")`.
+You can also estimate just one Spectrally Deconfounded Regression Tree using the `SDTree` function. See also the article [SDTree](https://markusul.github.io/SDModels/articles/SDTree.html).
 
 ```{r SDTree}
 Tree <- SDTree(Y ~ ., train_data, cp = 0.03)
