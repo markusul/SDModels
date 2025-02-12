@@ -22,7 +22,8 @@ Imports:
     Rdpack,
     tidyr,
     fda,
-    grplasso
+    grplasso,
+    rlang
 Suggests: 
     plotly,
     datasets,

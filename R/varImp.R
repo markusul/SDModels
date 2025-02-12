@@ -12,7 +12,7 @@ varImp <- function(object) {UseMethod("varImp")}
 #' @seealso \code{\link{varImp.SDForest}} \code{\link{SDTree}}
 #' @examples
 #' data(iris)
-#' tree <- SDTree(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris)
+#' tree <- SDTree(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris, cp = 0.5)
 #' varImp(tree)
 #' @export
 varImp.SDTree <- function(object){
@@ -45,7 +45,7 @@ varImp.SDTree <- function(object){
 #' @examples
 #' data(iris)
 #' fit <- SDForest(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, 
-#'                  iris, nTree = 10)
+#'                  iris, nTree = 10, cp = 0.5)
 #' varImp(fit)
 #' @export
 varImp.SDForest <- function(object){
@@ -63,8 +63,8 @@ varImp.SDForest <- function(object){
 #' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 5), ncol = 5)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+#' X <- matrix(rnorm(10 * 5), ncol = 5)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2)
 #' varImp(model)
 #' @export

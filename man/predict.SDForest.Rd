@@ -25,7 +25,7 @@ set.seed(1)
 n <- 50
 X <- matrix(rnorm(n * 5), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
-model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 predict(model, newdata = data.frame(X))
 }
 \seealso{

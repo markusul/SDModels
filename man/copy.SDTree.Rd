@@ -18,6 +18,14 @@ A copy of the SDTree object
 Returns a copy of the tree object. 
 Might be useful if you want to keep the original tree in comparison to the pruned tree.
 }
+\examples{
+
+set.seed(1)
+X <- matrix(rnorm(10 * 20), nrow = 10)
+Y <- rnorm(10)
+fit <- SDTree(x = X, y = Y, cp = 0.5)
+fit2 <- copy(fit)
+}
 \seealso{
 \code{\link{prune}}
 }

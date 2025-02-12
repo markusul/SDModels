@@ -9,10 +9,10 @@
 #' @return A vector of predictions for the new data.
 #' @examples
 #' set.seed(1)
-#' n <- 50
+#' n <- 10
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
-#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding')
+#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 #' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDTree}}
 #' @export
@@ -42,7 +42,7 @@ predict.SDTree <- function(object, newdata, ...){
 #' n <- 50
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
-#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 #' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDForest}}
 #' @export
@@ -76,7 +76,7 @@ predict.SDForest <- function(object, newdata, ...){
 #' n <- 50
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
-#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 #' predictOOB(model)
 #' @seealso \code{\link{SDForest}} \code{\link{prune.SDForest}} \code{\link{plotOOB}}
 #' @export
@@ -122,7 +122,7 @@ predictOOB <- function(object, X = NULL){
 #' X <- matrix(rnorm(10 * 5), ncol = 5)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
-#' predict(object = model, newdata = data.frame(X))
+#' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDAM}}
 #' @export
 predict.SDAM <- function(object, newdata, ...){
@@ -167,10 +167,10 @@ predict.SDAM <- function(object, newdata, ...){
 #' @seealso \code{\link{SDAM}}
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(20 * 5), ncol = 5)
-#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(20)
+#' X <- matrix(rnorm(10 * 5), ncol = 5)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
-#' predict_individual_fj(object = model, j = 1)
+#' predict_individual_fj(model, j = 1)
 #' @export
 predict_individual_fj <- function(object, j, newdata = NULL){
   if(!is.null(newdata)){

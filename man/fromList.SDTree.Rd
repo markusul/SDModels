@@ -18,6 +18,14 @@ an SDTree object with the tree in Node format
 Converts the tree in an SDTree object from
 class \code{list} to class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels}.
 }
+\examples{
+set.seed(1)
+n <- 10
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+fromList(toList(model))
+}
 \references{
 \insertAllCited{}
 }

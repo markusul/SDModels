@@ -14,6 +14,15 @@
 \description{
 Print contents of the SDTree.
 }
+\examples{
+
+set.seed(1)
+n <- 10
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+print(model)
+}
 \seealso{
 \code{\link{SDTree}}
 }

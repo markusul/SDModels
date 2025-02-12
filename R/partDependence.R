@@ -30,7 +30,7 @@
 #' x <- rnorm(100)
 #' y <- sign(x) * 3 + rnorm(100)
 #' model <- SDTree(x = x, y = y, Q_type = 'no_deconfounding')
-#' pd <- partDependence(model, 1, X = x)
+#' pd <- partDependence(model, 1, X = x, subSample = 10)
 #' plot(pd)
 #' @seealso \code{\link{SDForest}}, \code{\link{SDTree}}
 #' @export
@@ -49,6 +49,7 @@ partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
   }
   
   if(!is.null(subSample)) X <- X[sample(1:nrow(X), subSample), ]
+  X <- data.frame(X)
   
   if(!is.numeric(j)) stop('j must be a numeric or character')
   if(j > ncol(X)) stop('j must be smaller than p')
@@ -89,6 +90,13 @@ partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
 #' @param ... Further arguments passed to or from other methods.
 #' @seealso \code{\link{partDependence}}, \code{\link{plot.partDependence}}
 #' @method print partDependence
+#' @examples
+#' set.seed(1)
+#' x <- rnorm(10)
+#' y <- sign(x) * 3 + rnorm(10)
+#' model <- SDTree(x = x, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+#' pd <- partDependence(model, 1, X = x)
+#' print(pd)
 #' @export
 print.partDependence <- function(x, ...){
   cat("Partial dependence of covariate: ", x$j, "\n")
@@ -104,6 +112,12 @@ print.partDependence <- function(x, ...){
 #' @param ... Further arguments passed to or from other methods.
 #' @return A ggplot object.
 #' @seealso \code{\link{partDependence}}
+#' set.seed(1)
+#' x <- rnorm(10)
+#' y <- sign(x) * 3 + rnorm(10)
+#' model <- SDTree(x = x, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+#' pd <- partDependence(model, 1, X = x)
+#' plot(pd)
 #' @export
 plot.partDependence <- function(x, n_examples = 19, ...){
   ggdep <- ggplot2::ggplot() + ggplot2::theme_bw()
@@ -116,15 +130,15 @@ plot.partDependence <- function(x, n_examples = 19, ...){
   for(i in sample_examples){
     pred_data <- data.frame(x = x_seq, y = preds[, i])
     ggdep <- ggdep + ggplot2::geom_line(data = pred_data, 
-                                        ggplot2::aes(x = x, y = y), col = 'grey')
+                                        ggplot2::aes(x = .data$x, y = .data$y), col = 'grey')
   }
   
   ggdep <- ggdep + ggplot2::geom_line(data = data.frame(x = x_seq, y = x$preds_mean), 
-                                      ggplot2::aes(x = x, y = y), col = '#08cbba', 
+                                      ggplot2::aes(x = .data$x, y = .data$y), col = '#08cbba', 
                                       linewidth = 1.5)
   ggdep <- ggdep + ggplot2::geom_rug(data = data.frame(x = x$xj, 
                                                        y = min(preds[, sample_examples])), 
-                                     ggplot2::aes(x = x, y = y), 
+                                     ggplot2::aes(x = .data$x, y = .data$y), 
                                      sides = 'b', col = '#949494')
   ggdep <- ggdep + ggplot2::ylab('f(x)') + ggplot2::ggtitle('Partial dependence')
   if(is.character(x$j)){

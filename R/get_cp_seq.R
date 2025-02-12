@@ -11,6 +11,14 @@ get_cp_seq <- function(object, ...) UseMethod('get_cp_seq')
 #' @param ... Further arguments passed to or from other methods.
 #' @return A sequence of complexity parameters
 #' @seealso \code{\link{regPath}} \code{\link{stabilitySelection}}
+#' @examples
+#' 
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0)
+#' get_cp_seq(model)
 #' @export
 get_cp_seq.SDTree <- function(object, ...){
   cp_seq <- unique(object$tree$Get('cp_max'))
@@ -32,6 +40,14 @@ get_cp_seq.SDTree <- function(object, ...){
 #' @seealso \code{\link{regPath}} \code{\link{stabilitySelection}} 
 #' \code{\link{get_cp_seq.SDTree}}
 #' @aliases get_cp_seq
+#' @examples
+#' 
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0, nTree = 2)
+#' get_cp_seq(model)
 #' @export
 get_cp_seq.SDForest <- function(object, ...){
   cp_seq <- unique((unlist(lapply(object$forest, function(x) x$tree$Get('cp_max')))))

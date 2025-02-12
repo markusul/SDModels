@@ -21,7 +21,7 @@ regPath <- function(object, ...) UseMethod('regPath')
 #' n <- 10
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
-#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding')
+#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 #' paths <- regPath(model)
 #' plot(paths)
 #' \dontrun{
@@ -78,7 +78,7 @@ regPath.SDTree <- function(object, cp_seq = NULL, ...){
 #' n <- 10
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
-#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding')
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 #' paths <- regPath(model)
 #' plotOOB(paths)
 #' plot(paths)
@@ -146,7 +146,7 @@ stabilitySelection <- function(object, ...) UseMethod('stabilitySelection')
 #' n <- 10
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
-#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding')
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 2, cp = 0.5)
 #' paths <- stabilitySelection(model)
 #' plot(paths)
 #' \dontrun{
@@ -184,6 +184,17 @@ stabilitySelection.SDForest <- function(object, cp_seq = NULL, ...){
 #' If the \code{path} object includes a cp_min value, a black dashed line is
 #' added to indicate the out-of-bag optimal variable selection.
 #' @seealso \code{\link{regPath}} \code{\link{stabilitySelection}}
+#' @examples
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
+#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+#' paths <- regPath(model)
+#' plot(paths)
+#' \dontrun{
+#' plot(paths, plotly = TRUE)
+#' }
 #' @export
 plot.paths <- function(x, plotly = FALSE, selection = NULL, sqrt_scale = FALSE, ...){
   varImp_path <- x$varImp_path
@@ -192,13 +203,13 @@ plot.paths <- function(x, plotly = FALSE, selection = NULL, sqrt_scale = FALSE, 
   }
 
   imp_data <- data.frame(varImp_path, cp = x$cp)
-  imp_data <- tidyr::gather(imp_data, key = 'covariate', value = 'importance', -cp)
+  imp_data <- tidyr::gather(imp_data, key = 'covariate', value = 'importance', -.data$cp)
   
-  gg_path <- ggplot2::ggplot(imp_data, ggplot2::aes(x = cp, y = importance, 
-                                                    col = covariate)) +
+  gg_path <- ggplot2::ggplot(imp_data, ggplot2::aes(x = .data$cp, y = .data$importance, 
+                                                    col = .data$covariate)) +
       ggplot2::geom_line() + 
       ggplot2::theme_bw() + 
-      ggplot2::geom_rug(data = imp_data, ggplot2::aes(x = cp, y = importance), 
+      ggplot2::geom_rug(data = imp_data, ggplot2::aes(x = .data$cp, y = .data$importance), 
                         sides = 'b', col = '#949494')
 
   if(!is.null(x$cp_min)){
@@ -233,15 +244,23 @@ plot.paths <- function(x, plotly = FALSE, selection = NULL, sqrt_scale = FALSE, 
 #' @param sqrt_scale If TRUE the x-axis is on a square root scale.
 #' @return A ggplot object
 #' @seealso \code{\link{regPath.SDForest}}
+#' @examples
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+#' paths <- regPath(model)
+#' plotOOB(paths)
 #' @export
 plotOOB <- function(object, sqrt_scale = FALSE){
     loss_data <- data.frame(object$loss_path, cp = object$cp)
 
-    gg_sde <- ggplot2::ggplot(loss_data, ggplot2::aes(x = cp, y = oob.SDE)) +
+    gg_sde <- ggplot2::ggplot(loss_data, ggplot2::aes(x = .data$cp, y = .data$oob.SDE)) +
         ggplot2::geom_line() + 
         ggplot2::theme_bw()
 
-    gg_mse <- ggplot2::ggplot(loss_data, ggplot2::aes(x = cp, y = oob.MSE)) +
+    gg_mse <- ggplot2::ggplot(loss_data, ggplot2::aes(x = .data$cp, y = .data$oob.MSE)) +
         ggplot2::geom_line() + 
         ggplot2::theme_bw()
     

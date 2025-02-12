@@ -19,6 +19,15 @@ This function extracts the sequence of complexity parameters of an SDTree that
 result in changes of the tree structure if pruned. Only cp values that differ
 in the first three digits after the decimal point are returned.
 }
+\examples{
+
+set.seed(1)
+n <- 10
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0)
+get_cp_seq(model)
+}
 \seealso{
 \code{\link{regPath}} \code{\link{stabilitySelection}}
 }

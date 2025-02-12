@@ -19,6 +19,14 @@ A copy of the SDForest object
 Returns a copy of the forest object.
 Might be useful if you want to keep the original forest in comparison to the pruned forest.
 }
+\examples{
+
+set.seed(1)
+X <- matrix(rnorm(10 * 20), nrow = 10)
+Y <- rnorm(10)
+fit <- SDForest(x = X, y = Y, nTree = 2, cp = 0.5)
+fit2 <- copy(fit)
+}
 \seealso{
 \code{\link{prune}}
 }

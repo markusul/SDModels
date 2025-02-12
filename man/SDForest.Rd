@@ -159,6 +159,15 @@ that reduces the loss the most only from those.
 \deqn{\widehat{f(X)} = \frac{1}{N_{tree}} \sum_{t = 1}^{N_{tree}} SDTree_t(X)}
 }
 \examples{
+
+set.seed(1)
+n <- 50
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
+predict(model, newdata = data.frame(X))
+
+\dontrun{
 set.seed(42)
 # simulation of confounded data
 sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
@@ -202,6 +211,7 @@ fit <- prune(fit, cp = path$cp_min)
 most_imp <- which.max(fit$var_importance)
 dep <- partDependence(fit, most_imp)
 plot(dep, n_examples = 100)
+}
 }
 \references{
 \insertAllCited{}

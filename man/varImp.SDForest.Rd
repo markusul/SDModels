@@ -22,7 +22,7 @@ The mean of the variable importance of all trees results in the variable importa
 \examples{
 data(iris)
 fit <- SDForest(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, 
-                 iris, nTree = 10)
+                 iris, nTree = 10, cp = 0.5)
 varImp(fit)
 }
 \seealso{

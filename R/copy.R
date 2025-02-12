@@ -10,6 +10,13 @@ copy <- function(object, ...) UseMethod('copy')
 #' @param ... Further arguments passed to or from other methods.
 #' @return A copy of the SDTree object
 #' @seealso \code{\link{prune}}
+#' @examples
+#' 
+#' set.seed(1)
+#' X <- matrix(rnorm(10 * 20), nrow = 10)
+#' Y <- rnorm(10)
+#' fit <- SDTree(x = X, y = Y, cp = 0.5)
+#' fit2 <- copy(fit)
 #' @export
 copy.SDTree <- function(object, ...){
   new_tree <- data.tree::Clone(object$tree)
@@ -29,6 +36,13 @@ copy.SDTree <- function(object, ...){
 #' @return A copy of the SDForest object
 #' @seealso \code{\link{prune}}
 #' @aliases copy
+#' @examples
+#' 
+#' set.seed(1)
+#' X <- matrix(rnorm(10 * 20), nrow = 10)
+#' Y <- rnorm(10)
+#' fit <- SDForest(x = X, y = Y, nTree = 2, cp = 0.5)
+#' fit2 <- copy(fit)
 #' @export
 copy.SDForest <- function(object, ...){
   new_forest <- lapply(object$forest, function(tree){copy(tree)})

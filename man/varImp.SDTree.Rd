@@ -19,7 +19,7 @@ function resulting from all splits that use this covariate.
 }
 \examples{
 data(iris)
-tree <- SDTree(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris)
+tree <- SDTree(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, iris, cp = 0.5)
 varImp(tree)
 }
 \seealso{

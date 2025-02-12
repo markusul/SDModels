@@ -79,6 +79,14 @@
 #' @seealso \code{\link{simulate_data_nonlinear}}, \code{\link{regPath.SDTree}}, 
 #' \code{\link{prune.SDTree}}, \code{\link{partDependence}}
 #' @examples
+#' 
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDTree(x = X, y = y, cp = 0.5)
+#' 
+#' \dontrun{
 #' set.seed(42)
 #' # simulation of confounded data
 #' sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
@@ -101,9 +109,8 @@
 #' tree_plain <- prune(tree_plain, cp = tree_plain_cv$cp_min)
 #' tree_causal <- prune(tree_causal, cp = tree_causal_cv$cp_min)
 #' plot(tree_causal)
-#' 
-#' 
 #' plot(tree_plain)
+#' }
 #' @export
 SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves = NULL, 
                    cp = 0.01, min_sample = 5, mtry = NULL, fast = TRUE,

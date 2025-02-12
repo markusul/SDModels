@@ -22,10 +22,10 @@ Predicts the response for new data using a fitted SDTree.
 }
 \examples{
 set.seed(1)
-n <- 50
+n <- 10
 X <- matrix(rnorm(n * 5), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
-model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding')
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 predict(model, newdata = data.frame(X))
 }
 \seealso{

@@ -19,6 +19,14 @@ Converts the tree in an SDTree object from
 class \code{Node} \insertCite{Glur2023Data.tree:Structure}{SDModels} to class \code{list}.
 This makes it substantially easier to save the tree to disk.
 }
+\examples{
+set.seed(1)
+n <- 10
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+toList(model)
+}
 \references{
 \insertAllCited{}
 }
