@@ -19,7 +19,8 @@ SDAM(
   n_lambda2 = 20,
   Q_scale = TRUE,
   ind_lin = NULL,
-  mc.cores = 1
+  mc.cores = 1,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -66,6 +67,8 @@ Default is `NULL`.}
 
 \item{mc.cores}{Number of cores to use for parallel processing, if \code{mc.cores > 1}
 the cross validation is parallelized. Default is `1`. (only supported for unix)}
+
+\item{verbose}{If \code{TRUE} fitting information is shown.}
 }
 \value{
 An object of class `SDAM` containing the following elements:

@@ -38,7 +38,7 @@
 #'  Default is `NULL`.
 #' @param mc.cores  Number of cores to use for parallel processing, if \code{mc.cores > 1}
 #' the cross validation is parallelized. Default is `1`. (only supported for unix)
-#'
+#' @param verbose If \code{TRUE} fitting information is shown.
 #' @return An object of class `SDAM` containing the following elements:
 #' \item{X}{The original design matrix.}
 #' \item{p}{The number of covariates in `X`.}
@@ -98,7 +98,7 @@
 SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
                  Q_type = "trim", trim_quantile = 0.5, q_hat = 0, nfolds = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
-                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1){
+                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1, verbose = TRUE){
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -218,7 +218,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     return(unname(do.call(rbind, MSEl)))
   }
   
-  print("Initial cross-validation")
+  if(verbose) print("Initial cross-validation")
   if(mc.cores == 1){
     MSES <- pbapply::pblapply(1:nfolds, mse_fold) 
   } else {
@@ -236,7 +236,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
                              length.out = n_lambda2))
   
-  print("Second stage cross-validation")
+  if(verbose) print("Second stage cross-validation")
   if(mc.cores == 1){
     MSES1 <- pbapply::pblapply(1:nfolds, mse_fold_K, listK = modK.min)
   } else {

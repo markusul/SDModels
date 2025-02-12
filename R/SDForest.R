@@ -72,6 +72,7 @@
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 #' and we do not know of a scenario where this hurts.
+#' @param verbose If \code{TRUE} fitting information is shown.
 #' @return Object of class \code{SDForest} containing:
 #' \item{predictions}{Vector of predictions for each observation.}
 #' \item{forest}{List of SDTree objects.}
@@ -163,7 +164,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                      A = NULL, gamma = 7, max_size = NULL, gpu = FALSE, 
                      return_data = TRUE, mem_size = 1e+7, leave_out_ind = NULL, 
                      envs = NULL, nTree_leave_out = NULL, nTree_env = NULL, 
-                     max_candidates = 100, Q_scale = TRUE){
+                     max_candidates = 100, Q_scale = TRUE, verbose = TRUE){
   if(gpu) ifelse(GPUmatrix::installTorch(), 
                  gpu_type <- 'torch', 
                  gpu_type <- 'tensorflow')
@@ -253,7 +254,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     tree_env <- rep(names(nTree_env), nTree_env)
 
     nTree <- sum(nTree_env)
-    print(paste0("Fitting stratified trees resulting in ", nTree, " trees."))
+    if(verbose) print(paste0("Fitting stratified trees resulting in ", nTree, " trees."))
 
     ind <- lapply(names(nTree_env), function(env_l) {
       lapply(1:nTree_env[env_l], function(x) {
@@ -271,7 +272,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
 
   if(mc.cores > 1){
     if(locatexec::is_unix()){
-      print('mclapply')
+      if(verbose) print('mclapply')
       res <- parallel::mclapply(ind, function(i) {
         SDTree(x = X[i, ], y = Y[i], cp = cp, min_sample = min_sample, 
                Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
@@ -280,7 +281,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
         }, 
         mc.cores = mc.cores)
     }else{
-      print('makeCluster')
+      if(verbose) print('makeCluster')
       cl <- parallel::makeCluster(mc.cores)
       doParallel::registerDoParallel(cl)
       parallel::clusterExport(cl = cl, 
