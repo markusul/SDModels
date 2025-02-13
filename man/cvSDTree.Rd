@@ -10,7 +10,7 @@ cvSDTree(
   x = NULL,
   y = NULL,
   max_leaves = NULL,
-  cp = 0.01,
+  cp = 0,
   min_sample = 5,
   mtry = NULL,
   fast = TRUE,

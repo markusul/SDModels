@@ -21,6 +21,12 @@ This function plots the partial dependence of a model on a single variable.
 }
 \seealso{
 \code{\link{partDependence}}
+set.seed(1)
+x <- rnorm(10)
+y <- sign(x) * 3 + rnorm(10)
+model <- SDTree(x = x, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+pd <- partDependence(model, 1, X = x)
+plot(pd)
 }
 \author{
 Markus Ulmer

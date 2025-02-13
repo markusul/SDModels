@@ -31,6 +31,14 @@ Prunes all trees in the forest and re-calculates the out-of-bag predictions and 
 The training data is needed to calculate the out-of-bag statistics. Note that the forest is pruned in place.
 If you intend to keep the original forest, make a copy of it before pruning.
 }
+\examples{
+
+set.seed(1)
+X <- matrix(rnorm(10 * 20), nrow = 10)
+Y <- rnorm(10)
+fit <- SDForest(x = X, y = Y, nTree = 2)
+pruned_fit <- prune(copy(fit), 0.2)
+}
 \seealso{
 \code{\link{copy}} \code{\link{prune.SDTree}} \code{\link{regPath}}
 }

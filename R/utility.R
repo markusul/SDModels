@@ -13,7 +13,7 @@
 #' @importFrom utils lsf.str
 #' @importFrom utils capture.output
 #' @importFrom stats rbeta
-
+#' @importFrom rlang .data
 
 data.handler <- function(formula = NULL, data = NULL, x = NULL, y = NULL){
   if(is.null(formula)){

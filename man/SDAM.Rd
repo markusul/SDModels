@@ -19,7 +19,8 @@ SDAM(
   n_lambda2 = 20,
   Q_scale = TRUE,
   ind_lin = NULL,
-  mc.cores = 1
+  mc.cores = 1,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -66,6 +67,8 @@ Default is `NULL`.}
 
 \item{mc.cores}{Number of cores to use for parallel processing, if \code{mc.cores > 1}
 the cross validation is parallelized. Default is `1`. (only supported for unix)}
+
+\item{verbose}{If \code{TRUE} fitting information is shown.}
 }
 \value{
 An object of class `SDAM` containing the following elements:
@@ -90,6 +93,11 @@ chosen by cross validation.
 }
 \examples{
 set.seed(1)
+X <- matrix(rnorm(10 * 5), ncol = 5)
+Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
+model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
+
+\dontrun{
 library(HDclassif)
 data(wine)
 names(wine) <- c("class", "alcohol", "malicAcid", "ash", "alcalinityAsh", "magnesium", 
@@ -123,6 +131,7 @@ predict(model, newdata = wine[42, ])
 mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
                  Q_type = "no_deconfounding", nfolds = 2, n_K = 4, 
                  n_lambda1 = 4, n_lambda2 = 8)
+}
 
 }
 \references{

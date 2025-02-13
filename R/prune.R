@@ -15,8 +15,8 @@ prune <- function(object, ...) UseMethod('prune')
 #' @export
 #' @examples
 #' set.seed(1)
-#' X <- matrix(rnorm(50 * 20), nrow = 50)
-#' Y <- rnorm(50)
+#' X <- matrix(rnorm(10 * 20), nrow = 10)
+#' Y <- rnorm(10)
 #' tree <- SDTree(x = X, y = Y)
 #' pruned_tree <- prune(copy(tree), 0.2)
 #' tree
@@ -50,6 +50,13 @@ prune.SDTree <- function(object, cp, ...){
 #' @return A pruned SDForest object
 #' @seealso \code{\link{copy}} \code{\link{prune.SDTree}} \code{\link{regPath}}
 #' @aliases prune
+#' @examples
+#' 
+#' set.seed(1)
+#' X <- matrix(rnorm(10 * 20), nrow = 10)
+#' Y <- rnorm(10)
+#' fit <- SDForest(x = X, y = Y, nTree = 2)
+#' pruned_fit <- prune(copy(fit), 0.2)
 #' @export
 prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE, ...){
   pruned_forest <- lapply(object$forest, function(tree){prune(tree, cp)})
@@ -83,7 +90,9 @@ prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE
 
   if(pred){
     # predict with all trees
-    pred <- do.call(cbind, lapply(object$forest, function(x){matrix(predict_outsample(x$tree, X))}))
+    pred <- do.call(cbind, 
+                    lapply(object$forest, 
+                           function(x){matrix(predict_outsample(x$tree, X))}))
       
     # use mean over trees as final prediction
     f_X_hat <- rowMeans(pred)
@@ -92,7 +101,9 @@ prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE
     object$predictions <- NULL
   }
   # variable importance
-  object$var_importance <- rowMeans(as.matrix(sapply(object$forest, function(x){matrix(x$var_importance)})))  
+  object$var_importance <- 
+    rowMeans(as.matrix(sapply(object$forest, 
+                              function(x){matrix(x$var_importance)})))  
 
   object
 }

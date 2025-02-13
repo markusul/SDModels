@@ -31,6 +31,13 @@
 #' \item{beta}{the parameter vector for the function f(X), see \code{\link{f_four}}}
 #' \item{H}{the matrix of confounding covariates}
 #' @seealso \code{\link{f_four}}
+#' @examples
+#' set.seed(42)
+#' # simulation of confounded data
+#' sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
+#' X <- sim_data$X
+#' Y <- sim_data$Y
+#' 
 #' @export 
 simulate_data_nonlinear <- function(q, p, n, m, K = 2, eff = NULL, fixEff = FALSE){
   # complexity of f_X (number of fourier basis functions) K
@@ -95,6 +102,14 @@ simulate_data_nonlinear <- function(q, p, n, m, K = 2, eff = NULL, fixEff = FALS
 #' @param js the indices of the causal covariates in X
 #' @return the value of the function f(x)
 #' @seealso \code{\link{simulate_data_nonlinear}}
+#' @examples
+#' set.seed(42)
+#' # simulation of confounded data
+#' sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
+#' X <- sim_data$X
+#' j <- sim_data$j[1]
+#' apply(X, 1, function(x) f_four(x, sim_data$beta, j))
+#' 
 #' @export
 f_four <- function(x, beta, js){
   # function to generate f_X
@@ -154,6 +169,12 @@ f_four <- function(x, beta, js){
 #' \item{tree}{If \code{make_tree}, the random regression tree of class 
 #' \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}}
 #' @seealso \code{\link{simulate_data_nonlinear}}
+#' @examples
+#' set.seed(42)
+#' # simulation of confounded data
+#' sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
+#' X <- sim_data$X
+#' Y <- sim_data$Y
 #' @export 
 simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
   # minimum number of observations for split

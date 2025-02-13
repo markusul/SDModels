@@ -28,6 +28,18 @@ This function visualizes the variable importance of an SDTree or SDForest
 for different complexity parameters. Both the regularization path and
 the stability selection path can be visualized.
 }
+\examples{
+set.seed(1)
+n <- 10
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
+model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+paths <- regPath(model)
+plot(paths)
+\dontrun{
+plot(paths, plotly = TRUE)
+}
+}
 \seealso{
 \code{\link{regPath}} \code{\link{stabilitySelection}}
 }

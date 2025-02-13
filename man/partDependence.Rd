@@ -42,7 +42,7 @@ set.seed(1)
 x <- rnorm(100)
 y <- sign(x) * 3 + rnorm(100)
 model <- SDTree(x = x, y = y, Q_type = 'no_deconfounding')
-pd <- partDependence(model, 1, X = x)
+pd <- partDependence(model, 1, X = x, subSample = 10)
 plot(pd)
 }
 \references{

@@ -72,7 +72,7 @@
 #' @seealso \code{\link{SDTree}} \code{\link{prune.SDTree}} \code{\link{regPath.SDTree}}
 #' @export
 cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
-                     max_leaves = NULL, cp = 0.01, min_sample = 5, mtry = NULL, 
+                     max_leaves = NULL, cp = 0, min_sample = 5, mtry = NULL, 
                      fast = TRUE, Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, 
                      Qf = NULL, A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, 
                      max_candidates = 100, nfolds = 3, cp_seq = NULL, mc.cores = 1, 

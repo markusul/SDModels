@@ -13,6 +13,13 @@ mergeForest(fit1, fit2)
 }
 \value{
 merged \code{SDForest} object
+set.seed(1)
+n <- 50
+X <- matrix(rnorm(n * 5), nrow = n)
+y <- sign(X[, 1]) * 3 + rnorm(n)
+fit1 <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
+fit2 <- SDForest(x = X, y = y, nTree = 5, cp = 0.5)
+mergeForest(fit1, fit2)
 }
 \description{
 This function merges two forests. 

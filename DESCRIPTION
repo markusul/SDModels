@@ -6,8 +6,19 @@ Authors@R: c(
   person("Markus", "Ulmer", email = "markus.ulmer@stat.math.ethz.ch", 
          role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-7783-8475")), 
   person("Cyrill", "Scheidegger", role = "aut", comment = c(ORCID = "0009-0005-2851-1384")))
-Description: Estimation and  analysis of sparse non-linear causal
-    functions in the presence of unobserved confounding.
+Description: Spectrally Deconfounded Models (SDModels) is a package with methods 
+  to screen for and analyze non-linear sparse direct effects in the presence of 
+  unobserved confounding using the spectral deconfounding techniques 
+  (Ćevid, Bühlmann, and Meinshausen (2020)<jmlr.org/papers/v21/19-545.html>, 
+  Guo, Ćevid, and Bühlmann (2022) <doi:10.1214/21-AOS2152>). 
+  These methods have been shown to be a good estimate for the true direct effect 
+  if we observe many covariates, e.g., high-dimensional settings, and we have 
+  fairly dense confounding. Even if the assumptions are violated, it seems like 
+  there is not much to lose, and the SDModels will, in general, estimate a function 
+  closer to the true one than classical least squares optimization. 
+  SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) 
+  (Scheidegger, Guo, and Bühlmann (2025) <doi:10.1145/3711116>) and Spectrally Deconfounded Random 
+  Forests (SDForest)(Ulmer, Scheidegger, and Bühlmann (2025) <doi:10.48550/arXiv.2502.03969>).
 License: GPL-3 + file LICENSE
 Imports: 
     data.tree,
@@ -22,7 +33,8 @@ Imports:
     Rdpack,
     tidyr,
     fda,
-    grplasso
+    grplasso,
+    rlang
 Suggests: 
     plotly,
     datasets,
@@ -39,4 +51,5 @@ Encoding: UTF-8
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://markusul.github.io/SDModels/
+BugReports: https://github.com/markusul/SDModels/issues
 Config/testthat/edition: 3

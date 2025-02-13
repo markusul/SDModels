@@ -47,6 +47,14 @@ For the simulation, all the above parameters are drawn from a standard normal di
 \eqn{\nu} which is drawn from a normal distribution with standard deviation 0.1.
 The parameters \eqn{\beta} are drawn from a uniform distribution between -1 and 1.
 }
+\examples{
+set.seed(42)
+# simulation of confounded data
+sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
+X <- sim_data$X
+Y <- sim_data$Y
+
+}
 \seealso{
 \code{\link{f_four}}
 }

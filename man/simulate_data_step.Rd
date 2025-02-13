@@ -41,6 +41,13 @@ For the simulation, all the above parameters are drawn from a standard normal di
 \eqn{\delta} which is drawn from a normal distribution with standard deviation 10.
 The leaf levels \eqn{c_k} are drawn from a uniform distribution between -50 and 50.
 }
+\examples{
+set.seed(42)
+# simulation of confounded data
+sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
+X <- sim_data$X
+Y <- sim_data$Y
+}
 \references{
 \insertAllCited{}
 }

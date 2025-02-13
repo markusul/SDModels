@@ -22,7 +22,7 @@ Sys.setenv(OPENSSL_CONF="/dev/null")
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Spectrally Deconfounded Models (SDModels) is a package with methods for estimating non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (@Cevid2020SpectralModels, @Guo2022DoublyConfounding). These methods have been shown to be a good estimate for the true direct effect, if we observe many covariates, e.g. high-dimensional setting, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose and the SDModels will, in general, estimate a function closer to $f^0$ than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (@scheidegger2023spectral) and Spectrally Deconfounded Random Forests (SDForest)(@ulmer2025spectrallydeconfoundedrandomforests).
+Spectrally Deconfounded Models (SDModels) is a package with methods to screen for and analyze non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (@Cevid2020SpectralModels, @Guo2022DoublyConfounding). These methods have been shown to be a good estimate for the true direct effect if we observe many covariates, e.g., high-dimensional settings, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose, and the SDModels will, in general, estimate a function closer to the true one than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (@scheidegger2023spectral) and Spectrally Deconfounded Random Forests (SDForest)(@ulmer2025spectrallydeconfoundedrandomforests).
 
 ![](man/figures/confModel.png)
 
@@ -51,7 +51,7 @@ or
 
 ## Usage
 
-This is a basic example on how to estimate the direct effect of $X$ on $Y$ using SDForest. You can learn more about analyzing sparse direct effects estimated by SDForest in `vignette("SDForest")`.
+This is a basic example on how to estimate the direct effect of $X$ on $Y$ using SDForest. You can learn more about analyzing sparse direct effects estimated by SDForest in the article [SDForest](https://markusul.github.io/SDModels/articles/SDForest.html).
 
 ```{r SDForest}
 library(SDModels)
@@ -69,13 +69,20 @@ fit <- SDForest(Y ~ ., train_data)
 fit
 ```
 
-You can also estimate just one Spectrally Deconfounded Regression Tree using the `SDTree` function. See also `vignette("SDTree")`.
+You can also estimate just one Spectrally Deconfounded Regression Tree using the `SDTree` function. See also the article [SDTree](https://markusul.github.io/SDModels/articles/SDTree.html).
 
 ```{r SDTree}
 Tree <- SDTree(Y ~ ., train_data, cp = 0.03)
 
 # plot the tree
 Tree
-plot(Tree)
+#plot(Tree)
 ```
 
+Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the `SDAM` function. See also the article [SDAM](https://markusul.github.io/SDModels/articles/SDAM.html).
+
+```{r SDAM}
+model <- SDAM(Y ~ ., train_data)
+
+model
+```

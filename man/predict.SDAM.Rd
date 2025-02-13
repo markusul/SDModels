@@ -25,7 +25,7 @@ set.seed(1)
 X <- matrix(rnorm(10 * 5), ncol = 5)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
-predict(object = model, newdata = data.frame(X))
+predict(model, newdata = data.frame(X))
 }
 \seealso{
 \code{\link{SDAM}}

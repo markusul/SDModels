@@ -23,6 +23,15 @@ The function is given by:
 \deqn{f(x_i) = \sum_{j = 1}^p 1_{j \in js} \sum_{k = 1}^K (\beta_{j, k}^{(1)} \cos(0.2 k x_j) +
 \beta_{j, k}^{(2)} \sin(0.2 k x_j))}
 }
+\examples{
+set.seed(42)
+# simulation of confounded data
+sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)
+X <- sim_data$X
+j <- sim_data$j[1]
+apply(X, 1, function(x) f_four(x, sim_data$beta, j))
+
+}
 \seealso{
 \code{\link{simulate_data_nonlinear}}
 }

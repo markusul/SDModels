@@ -23,8 +23,8 @@ If you intend to keep the original tree, make a copy of it before pruning.
 }
 \examples{
 set.seed(1)
-X <- matrix(rnorm(50 * 20), nrow = 50)
-Y <- rnorm(50)
+X <- matrix(rnorm(10 * 20), nrow = 10)
+Y <- rnorm(10)
 tree <- SDTree(x = X, y = Y)
 pruned_tree <- prune(copy(tree), 0.2)
 tree

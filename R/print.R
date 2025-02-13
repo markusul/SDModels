@@ -6,9 +6,18 @@
 #' @param ... Further arguments passed to or from other methods.
 #' @seealso \code{\link{SDTree}}
 #' @method print SDTree
+#' @examples
+#' 
+#' set.seed(1)
+#' n <- 10
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
+#' print(model)
 #' @export
 print.SDTree <- function(x, ...){
   # print function for the spectral deconfounded tree
+  if(is.list(x$tree)) return("Tree in list format use fromList()!")
   print(x$tree, 'value', 's', 'j', 'label', 'decision', 'n_samples')
 }
 
@@ -20,6 +29,14 @@ print.SDTree <- function(x, ...){
 #' @param ... Further arguments passed to or from other methods.
 #' @seealso \code{\link{SDForest}}
 #' @method print SDForest
+#' @examples
+#' 
+#' set.seed(1)
+#' n <- 50
+#' X <- matrix(rnorm(n * 5), nrow = n)
+#' y <- sign(X[, 1]) * 3 + rnorm(n)
+#' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
+#' print(model)
 #' @export
 print.SDForest <- function(x, ...){
   cat("SDForest result\n\n")
@@ -40,6 +57,13 @@ print.SDForest <- function(x, ...){
 #' @param ... Further arguments passed to or from other methods.
 #' @seealso \code{\link{SDAM}}
 #' @method print SDAM
+#' @examples
+#' 
+#' set.seed(1)
+#' X <- matrix(rnorm(10 * 5), ncol = 5)
+#' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
+#' print(model)
 #' @export
 print.SDAM <- function(x, ...){
   cat("SDAM result\n\n")
