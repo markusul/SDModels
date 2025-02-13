@@ -18,7 +18,7 @@ Description: Spectrally Deconfounded Models (SDModels) is a package with methods
   SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) 
   (Scheidegger, Guo, and Bühlmann (2025) <doi:10.1145/3711116>) and Spectrally Deconfounded Random 
   Forests (SDForest)(Ulmer, Scheidegger, and Bühlmann (2025) <doi:10.48550/arXiv.2502.03969>).
-License: GPL-3 + file LICENSE
+License: BSD_3_clause + file LICENSE
 Imports: 
     data.tree,
     DiagrammeR,
