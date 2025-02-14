@@ -1,3 +1,3 @@
-# SDModels 1.1
+# SDModels 1.0.2
 
 * Initial CRAN submission.

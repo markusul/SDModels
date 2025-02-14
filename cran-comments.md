@@ -1,5 +1,5 @@
 ## Resubmission
-I have fixed the license mismatch to License: GPL-3
+I have put software in single quote 'SDModels' and added parentheses to the functions SDAM() and SDForest()
 
 ## R CMD check results
 
