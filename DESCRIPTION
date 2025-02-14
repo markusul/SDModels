@@ -5,7 +5,7 @@ Authors@R: c(
   person("Markus", "Ulmer", email = "markus.ulmer@stat.math.ethz.ch", 
          role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-7783-8475")), 
   person("Cyrill", "Scheidegger", role = "aut", comment = c(ORCID = "0009-0005-2851-1384")))
-Description: Spectrally Deconfounded Models (SDModels) is a package with methods 
+Description: Spectrally Deconfounded Models ('SDModels') is a package with methods 
   to screen for and analyze non-linear sparse direct effects in the presence of 
   unobserved confounding using the spectral deconfounding techniques 
   (Ćevid, Bühlmann, and Meinshausen (2020)<jmlr.org/papers/v21/19-545.html>, 
@@ -13,11 +13,11 @@ Description: Spectrally Deconfounded Models (SDModels) is a package with methods
   These methods have been shown to be a good estimate for the true direct effect 
   if we observe many covariates, e.g., high-dimensional settings, and we have 
   fairly dense confounding. Even if the assumptions are violated, it seems like 
-  there is not much to lose, and the SDModels will, in general, estimate a function 
+  there is not much to lose, and the deconfounded models will, in general, estimate a function 
   closer to the true one than classical least squares optimization. 
-  SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) 
-  (Scheidegger, Guo, and Bühlmann (2025) <doi:10.1145/3711116>) and Spectrally Deconfounded Random 
-  Forests (SDForest)(Ulmer, Scheidegger, and Bühlmann (2025) <doi:10.48550/arXiv.2502.03969>).
+  'SDModels' provides functions SDAM() for Spectrally Deconfounded Additive Models 
+  (Scheidegger, Guo, and Bühlmann (2025) <doi:10.1145/3711116>) and SDForest() for Spectrally Deconfounded Random 
+  Forests (Ulmer, Scheidegger, and Bühlmann (2025) <doi:10.48550/arXiv.2502.03969>).
 License: GPL-3
 Imports: 
     data.tree,
