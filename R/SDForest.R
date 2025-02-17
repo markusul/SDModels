@@ -104,7 +104,6 @@
 #' \code{\link{simulate_data_nonlinear}}, \code{\link{regPath}}, 
 #' \code{\link{stabilitySelection}}, \code{\link{prune}}, \code{\link{partDependence}}
 #' @examples
-#' 
 #' set.seed(1)
 #' n <- 50
 #' X <- matrix(rnorm(n * 5), nrow = n)
@@ -112,7 +111,7 @@
 #' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 #' predict(model, newdata = data.frame(X))
 #' 
-#' \dontrun{
+#' \donttest{
 #' set.seed(42)
 #' # simulation of confounded data
 #' sim_data <- simulate_data_nonlinear(q = 2, p = 150, n = 100, m = 2)

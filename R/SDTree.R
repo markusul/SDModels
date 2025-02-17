@@ -79,14 +79,13 @@
 #' @seealso \code{\link{simulate_data_nonlinear}}, \code{\link{regPath.SDTree}}, 
 #' \code{\link{prune.SDTree}}, \code{\link{partDependence}}
 #' @examples
-#' 
 #' set.seed(1)
 #' n <- 10
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
 #' model <- SDTree(x = X, y = y, cp = 0.5)
 #' 
-#' \dontrun{
+#' \donttest{
 #' set.seed(42)
 #' # simulation of confounded data
 #' sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
