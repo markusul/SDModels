@@ -88,6 +88,7 @@ partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
 #' @author Markus Ulmer
 #' @param x Fitted object of class \code{partDependence}.
 #' @param ... Further arguments passed to or from other methods.
+#' @return No return value, called for side effects
 #' @seealso \code{\link{partDependence}}, \code{\link{plot.partDependence}}
 #' @method print partDependence
 #' @examples

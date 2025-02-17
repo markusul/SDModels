@@ -9,7 +9,10 @@
 \arguments{
 \item{x}{Fitted object of class \code{SDTree}.}
 
-\item{...}{Further arguments passed to or from other methods.}
+\item{...}{Further arguments for DiagrammeR::render_graph()}
+}
+\value{
+graph object from DiagrammeR::render_graph()
 }
 \description{
 Plot the SDTree.

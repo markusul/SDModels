@@ -11,6 +11,9 @@
 
 \item{...}{Further arguments passed to or from other methods.}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Print number of covariates and number of active covariates for SDAM object.
 }

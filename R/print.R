@@ -4,6 +4,7 @@
 #' @author Markus Ulmer
 #' @param x Fitted object of class \code{SDTree}.
 #' @param ... Further arguments passed to or from other methods.
+#' @return No return value, called for side effects
 #' @seealso \code{\link{SDTree}}
 #' @method print SDTree
 #' @examples
@@ -27,6 +28,7 @@ print.SDTree <- function(x, ...){
 #' @author Markus Ulmer
 #' @param x Fitted object of class \code{SDForest}.
 #' @param ... Further arguments passed to or from other methods.
+#' @return No return value, called for side effects
 #' @seealso \code{\link{SDForest}}
 #' @method print SDForest
 #' @examples
@@ -55,6 +57,7 @@ print.SDForest <- function(x, ...){
 #' @author Cyrill Scheidegger
 #' @param x Fitted object of class \code{SDAM}.
 #' @param ... Further arguments passed to or from other methods.
+#' @return No return value, called for side effects
 #' @seealso \code{\link{SDAM}}
 #' @method print SDAM
 #' @examples

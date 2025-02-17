@@ -11,6 +11,9 @@
 
 \item{...}{Further arguments passed to or from other methods.}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Print contents of the SDForest.
 }
