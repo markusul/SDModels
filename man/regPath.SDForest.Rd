@@ -48,9 +48,10 @@ model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 paths <- regPath(model)
 plotOOB(paths)
 plot(paths)
-\dontrun{
+\donttest{
 plot(paths, plotly = TRUE)
 }
+
 }
 \seealso{
 \code{\link{plot.paths}} \code{\link{plotOOB}} \code{\link{regPath.SDTree}} \code{\link{prune}} \code{\link{get_cp_seq}} \code{\link{SDForest}}

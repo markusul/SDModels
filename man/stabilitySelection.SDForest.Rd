@@ -36,7 +36,7 @@ y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
 model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 2, cp = 0.5)
 paths <- stabilitySelection(model)
 plot(paths)
-\dontrun{
+\donttest{
 plot(paths, plotly = TRUE)
 }
 }

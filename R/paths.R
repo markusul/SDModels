@@ -24,7 +24,7 @@ regPath <- function(object, ...) UseMethod('regPath')
 #' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 #' paths <- regPath(model)
 #' plot(paths)
-#' \dontrun{
+#' \donttest{
 #' plot(paths, plotly = TRUE)
 #' }
 #' @export
@@ -82,9 +82,10 @@ regPath.SDTree <- function(object, cp_seq = NULL, ...){
 #' paths <- regPath(model)
 #' plotOOB(paths)
 #' plot(paths)
-#' \dontrun{
+#' \donttest{
 #' plot(paths, plotly = TRUE)
 #' }
+#' 
 #' @export
 regPath.SDForest <- function(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL, 
                              copy = TRUE, ...){
@@ -149,7 +150,7 @@ stabilitySelection <- function(object, ...) UseMethod('stabilitySelection')
 #' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 2, cp = 0.5)
 #' paths <- stabilitySelection(model)
 #' plot(paths)
-#' \dontrun{
+#' \donttest{
 #' plot(paths, plotly = TRUE)
 #' }
 #' @export
@@ -192,7 +193,7 @@ stabilitySelection.SDForest <- function(object, cp_seq = NULL, ...){
 #' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 #' paths <- regPath(model)
 #' plot(paths)
-#' \dontrun{
+#' \donttest{
 #' plot(paths, plotly = TRUE)
 #' }
 #' @export

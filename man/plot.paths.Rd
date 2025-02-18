@@ -36,7 +36,7 @@ y <- sign(X[, 1]) * 3 + sign(X[, 2]) + rnorm(n)
 model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
 paths <- regPath(model)
 plot(paths)
-\dontrun{
+\donttest{
 plot(paths, plotly = TRUE)
 }
 }
