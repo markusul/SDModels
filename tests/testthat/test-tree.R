@@ -27,3 +27,10 @@ expect_equal(as.vector(predict(pruned_tree, data.frame(X))), predict(pruned_rpar
 
 partDependence(tree, 1, X, subSample = 10)
 
+#test single variable and single prediction
+tree <- SDTree(x = X[, 1], y = Y, Q_type = 'no_deconfounding', 
+               cp = 0, min_sample = 5)
+expect_equal(tree$predictions, as.vector(predict(tree, data.frame(X = X[, 1]))))
+expect_equal(tree$predictions[1], predict(tree, data.frame(X = X[1, 1])))
+
+             
