@@ -22,7 +22,7 @@ predict.SDTree <- function(object, newdata, ...){
   X <- data.handler(~., newdata)$X
   if(!all(object$var_names %in% colnames(X))) stop('newdata must contain all covariates used for training')
 
-  X <- X[, object$var_names]
+  X <- as.matrix(X[, object$var_names])
   if(any(is.na(X))) stop('X must not contain missing values')
   
   predict_outsample(object$tree, X)
