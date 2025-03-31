@@ -20,6 +20,7 @@ Sys.setenv(OPENSSL_CONF="/dev/null")
   
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
+![CRAN Downloads overall](https://cranlogs.r-pkg.org/badges/grand-total/SDModels?color=brightgreen)
 <!-- badges: end -->
 
 Spectrally Deconfounded Models (SDModels) is a package with methods to screen for and analyze non-linear sparse direct effects in the presence of unobserved confounding using the spectral deconfounding techniques (@Cevid2020SpectralModels, @Guo2022DoublyConfounding). These methods have been shown to be a good estimate for the true direct effect if we observe many covariates, e.g., high-dimensional settings, and we have fairly dense confounding. Even if the assumptions are violated, it seems like there is not much to lose, and the SDModels will, in general, estimate a function closer to the true one than classical least squares optimization. SDModels provides software for Spectrally Deconfounded Additive Models (SDAMs) (@scheidegger2023spectral) and Spectrally Deconfounded Random Forests (SDForest)(@ulmer2025spectrallydeconfoundedrandomforests).

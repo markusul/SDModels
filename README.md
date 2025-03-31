@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
+![CRAN Downloads
+overall](https://cranlogs.r-pkg.org/badges/grand-total/SDModels?color=brightgreen)
 <!-- badges: end -->
 
 Spectrally Deconfounded Models (SDModels) is a package with methods to
@@ -113,8 +115,7 @@ model
 #> Number of active covariates:  4
 ```
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 
