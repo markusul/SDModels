@@ -356,7 +356,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     # a partition with less than min_sample observations or unique samples 
     # are not available for further splits
     to_small <- sapply(potential_splits, function(x){
-      new_samples <- nrow(unique(X[as.logical(E[, x]),]))
+      new_samples <- nrow(unique(as.matrix(X[as.logical(E[, x]),])))
       if(is.null(new_samples)) new_samples <- 0
       (new_samples < min_sample * 2)
       })
