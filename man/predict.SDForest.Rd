@@ -4,13 +4,16 @@
 \alias{predict.SDForest}
 \title{Predictions for the SDForest}
 \usage{
-\method{predict}{SDForest}(object, newdata, ...)
+\method{predict}{SDForest}(object, newdata, mc.cores = 1, ...)
 }
 \arguments{
 \item{object}{Fitted object of class \code{SDForest}.}
 
 \item{newdata}{New test data of class \code{data.frame} containing
 the covariates for which to predict the response.}
+
+\item{mc.cores}{Number of cores to use for parallel processing,
+if \code{mc.cores > 1} the trees predict in parallel.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

@@ -35,6 +35,8 @@ predict.SDTree <- function(object, newdata, ...){
 #' @param object Fitted object of class \code{SDForest}.
 #' @param newdata New test data of class \code{data.frame} containing
 #' the covariates for which to predict the response.
+#' @param mc.cores Number of cores to use for parallel processing,
+#' if \code{mc.cores > 1} the trees predict in parallel.
 #' @param ... Further arguments passed to or from other methods.
 #' @return A vector of predictions for the new data.
 #' @examples
