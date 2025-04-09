@@ -139,7 +139,7 @@ is additive in the first 4 covariates.</p>
 We fit both a standard additive model and a deconfounded additive model
 using the trim transformation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://markusul.github.io/SDModels/">SDModels</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.markus-ulmer.ch/SDModels/" class="external-link">SDModels</a></span><span class="op">)</span></span>
 <span><span class="va">fit_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"no_deconfounding"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
 <span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
