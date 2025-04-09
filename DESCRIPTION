@@ -37,6 +37,6 @@ RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-URL: https://markusul.github.io/SDModels/
+URL: https://www.markus-ulmer.ch/SDModels/
 BugReports: https://github.com/markusul/SDModels/issues
 Config/testthat/edition: 3
