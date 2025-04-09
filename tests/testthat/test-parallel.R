@@ -1,9 +1,17 @@
 set.seed(1)
 #RhpcBLASctl::omp_set_num_threads(1)
+n <- 50
+X <- matrix(rnorm(n * 20), nrow = n)
+Y <- rnorm(n)
 
-X <- matrix(rnorm(50 * 20), nrow = 50)
-Y <- rnorm(50)
+# fit in parallel
+expect_no_error(
+fit <- SDForest(x = X, y = Y, Q_type = 'no_deconfounding', 
+        nTree = 2, mc.cores = 2, verbose = FALSE)
+)
 
-expect_no_error(SDForest(x = X, y = Y, Q_type = 'no_deconfounding', 
-        nTree = 2, mc.cores = 2, verbose = FALSE))
+# predict in parallel
+expect_no_error(
+predict(fit, newdata = data.frame(X), mc.cores = 2)
+)
 

@@ -218,10 +218,11 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     for(branch in potential_splits){
       E_branch <- E[, branch]
       index <- which(E_branch == 1)
-      X_branch <- as.matrix(X[index, ])
+      X_branch <- matrix(X[index, ], nrow = length(index))
 
       s <- find_s(X_branch, max_candidates = max_candidates)
       n_splits <- nrow(s)
+
       if(min_sample > 1) {
         s <- s[-c(0:(min_sample - 1), (n_splits - min_sample + 2):(n_splits+1)), ]
       }
@@ -356,7 +357,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     # a partition with less than min_sample observations or unique samples 
     # are not available for further splits
     to_small <- sapply(potential_splits, function(x){
-      new_samples <- nrow(unique(as.matrix(X[as.logical(E[, x]),])))
+      new_samples <- nrow(unique(matrix(X[as.logical(E[, x]),], nrow = sum(E[, x]))))
       if(is.null(new_samples)) new_samples <- 0
       (new_samples < min_sample * 2)
       })

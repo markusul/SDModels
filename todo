@@ -1,2 +1,1 @@
-- support multicore for prediction
 - remove dependeny on data.tree -> use matrix representation for trees to save memory

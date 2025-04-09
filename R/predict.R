@@ -46,7 +46,7 @@ predict.SDTree <- function(object, newdata, ...){
 #' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDForest}}
 #' @export
-predict.SDForest <- function(object, newdata, ...){
+predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   # predict function for the spectral deconfounded random forest
   # using the mean over all trees as the prediction
   # check data type
@@ -58,7 +58,27 @@ predict.SDForest <- function(object, newdata, ...){
   X <- X[, object$var_names]
   if(any(is.na(X))) stop('X must not contain missing values')
 
-  pred <- do.call(cbind, lapply(object$forest, function(x){predict_outsample(x$tree, X)}))
+  if(mc.cores > 1){
+    if(locatexec::is_unix()){
+      preds <- parallel::mclapply(object$forest, 
+                                function(x){predict_outsample(x$tree, X)}, 
+                                mc.cores = mc.cores)
+    }else{
+      cl <- parallel::makeCluster(mc.cores)
+      doParallel::registerDoParallel(cl)
+      parallel::clusterExport(cl = cl, 
+                              unclass(lsf.str(envir = asNamespace("SDModels"), 
+                                              all = TRUE)),
+                              envir = as.environment(asNamespace("SDModels")))
+      preds <- parallel::clusterApplyLB(cl = cl, object$forest, 
+                                      fun = function(x){predict_outsample(x$tree, X)})
+      parallel::stopCluster(cl = cl)
+    }
+  }else{
+    preds <- pbapply::pblapply(object$forest, function(x){predict_outsample(x$tree, X)})
+  }
+  
+  pred <- do.call(cbind, preds)
   rowMeans(pred)
 }
 
