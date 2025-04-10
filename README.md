@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SDModels)](https://CRAN.R-project.org/package=SDModels)
 [![R-CMD-check](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/markusul/SDModels/actions/workflows/R-CMD-check.yaml)
 ![CRAN Downloads
 overall](https://cranlogs.r-pkg.org/badges/grand-total/SDModels?color=brightgreen)
@@ -115,8 +116,7 @@ model
 #> Number of active covariates:  4
 ```
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 
