@@ -1,5 +1,9 @@
 url: https://markusul.github.io/SDModels/
 
+authors:
+  Markus Ulmer:
+    href: https://www.markus-ulmer.ch
+
 template:
   bootstrap: 3
   options: 
