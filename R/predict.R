@@ -57,7 +57,9 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   X <- data.handler(~., newdata)$X
   if(!all(object$var_names %in% colnames(X))) stop('newdata must contain all covariates used for training')
 
-  X <- X[, object$var_names]
+  X <- matrix(X[, object$var_names], nrow = nrow(X))
+  colnames(X) <- object$var_names
+  
   if(any(is.na(X))) stop('X must not contain missing values')
 
   if(mc.cores > 1){
@@ -77,7 +79,7 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
       parallel::stopCluster(cl = cl)
     }
   }else{
-    preds <- pbapply::pblapply(object$forest, function(x){predict_outsample(x$tree, X)})
+    preds <- lapply(object$forest, function(x){predict_outsample(x$tree, X)})
   }
   
   pred <- do.call(cbind, preds)

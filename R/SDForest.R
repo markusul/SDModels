@@ -360,12 +360,15 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   f_X_hat <- rowMeans(pred)
 
   # variable importance
-  var_imp <- sapply(res, function(x){x$var_importance})
-  if(p > 1){
-    var_imp <- rowMeans(var_imp)
-  }else {
-    var_imp <- mean(var_imp)
-  }
+  #var_imp <- sapply(res, function(x){x$var_importance})
+  #if(p > 1){
+  #  var_imp <- rowMeans(var_imp)
+  #}else {
+  #  var_imp <- mean(var_imp)
+  #}
+  
+  var_imp <- do.call(cbind, lapply(res, function(x){x$var_importance}))
+  var_imp <- rowMeans(var_imp)
 
   output <- list(predictions = f_X_hat, 
                  forest = res, 

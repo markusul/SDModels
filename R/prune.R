@@ -102,7 +102,7 @@ prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE
   }
   # variable importance
   object$var_importance <- 
-    rowMeans(as.matrix(sapply(object$forest, 
+    rowMeans(do.call(cbind, lapply(object$forest, 
                               function(x){matrix(x$var_importance)})))  
 
   object

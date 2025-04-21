@@ -1,3 +1,8 @@
+# SDModels 1.0.8
+
+* Fix various bugs on edge cases with just one variable or just one tree
+* SDForest, regPath.SDTree, regPath.SDForest, predict.SDForest, prune.SDForest, varImp.SDTree
+
 # SDModels 1.0.7
 
 * Fix bug in estimation of SDTree when using only one covariate (did stop splitting after one split)

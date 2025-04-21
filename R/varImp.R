@@ -49,7 +49,7 @@ varImp.SDTree <- function(object){
 #' varImp(fit)
 #' @export
 varImp.SDForest <- function(object){
-  rowMeans(sapply(object$forest, varImp))
+  rowMeans(do.call(cbind, lapply(object$forest, varImp)))
 }
 
 #' Extract Variable importance for SDAM

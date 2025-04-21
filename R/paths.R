@@ -38,7 +38,8 @@ regPath.SDTree <- function(object, cp_seq = NULL, ...){
     pruned_object <- prune(object, cp)
     return(list(var_importance = pruned_object$var_importance))})
 
-  varImp_path <- t(sapply(res, function(x)x$var_importance))
+  #varImp_path <- t(sapply(res, function(x)x$var_importance))
+  varImp_path <- do.call(rbind, lapply(res, function(x)x$var_importance))
   colnames(varImp_path) <- object$var_names
 
   paths <- list(cp = cp_seq, varImp_path = varImp_path, 
@@ -105,10 +106,12 @@ regPath.SDForest <- function(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL
                 oob_SDloss = pruned_object$oob_SDloss, 
                 oob_loss = pruned_object$oob_loss))})
 
-  varImp_path <- t(sapply(res, function(x)x$var_importance))
+  #varImp_path <- t(sapply(res, function(x)x$var_importance))
+  varImp_path <- do.call(rbind, lapply(res, function(x)x$var_importance))
   colnames(varImp_path) <- object$var_names
 
-  loss_path <- t(sapply(res, function(x) c(x$oob_SDloss, x$oob_loss)))
+  #loss_path <- t(sapply(res, function(x) c(x$oob_SDloss, x$oob_loss)))
+  loss_path <- do.call(rbind, lapply(res, function(x) c(x$oob_SDloss, x$oob_loss)))
   colnames(loss_path) <- c('oob SDE', 'oob MSE')
   paths <- list(cp = cp_seq, varImp_path = varImp_path, loss_path = loss_path,
                 cp_min = cp_seq[which.min(loss_path[, 1])], 
