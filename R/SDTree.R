@@ -68,6 +68,9 @@
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 #' and we do not know of a scenario where this hurts.
+#' @param predictors Subset of colnames(X) or numerical indices of the covariates 
+#' for which an effect on y should be estimated. All the other covariates are only
+#' used for deconfounding.
 #' @return Object of class \code{SDTree} containing
 #' \item{predictions}{Predictions for the training set.}
 #' \item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}. 
@@ -84,6 +87,11 @@
 #' X <- matrix(rnorm(n * 5), nrow = n)
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
 #' model <- SDTree(x = X, y = y, cp = 0.5)
+#' 
+#' ###### subset of predictors
+#' # if we know, that only the first covariate has an effect on y,
+#' # we can estimate only its effect and use the others just for deconfounding
+#' model <- SDTree(x = X, y = y, cp = 0.5, predictors = c(1))
 #' 
 #' \donttest{
 #' set.seed(42)
@@ -115,7 +123,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
                    cp = 0.01, min_sample = 5, mtry = NULL, fast = TRUE,
                    Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, Qf = NULL, 
                    A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, max_candidates = 100, 
-                   Q_scale = TRUE){
+                   Q_scale = TRUE, predictors = NULL){
   if(gpu) ifelse(GPUmatrix::installTorch(), 
                  gpu_type <- 'torch', 
                  gpu_type <- 'tensorflow')
@@ -126,8 +134,6 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
 
   # number of observations
   n <- nrow(X)
-  # number of covariates
-  p <- ncol(X)
 
   if(is.null(max_leaves)) max_leaves <- n
 
@@ -140,7 +146,6 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   if(min_sample < 1) stop('min_sample must be larger than 0')
   if(cp < 0) stop('cp must be at least 0')
   if(!is.null(mtry) && mtry < 1) stop('mtry must be larger than 0')
-  if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
   if(n < 2 * min_sample) stop('n must be at least 2 * min_sample')
   if(max_candidates < 1) stop('max_candidates must be at least 1')
 
@@ -166,6 +171,29 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     if(!is.function(Qf)) stop('Q must be a function')
     if(length(Qf(rnorm(n))) == n) stop('Q must map from n to n')
   }
+  
+  #selection of predictors
+  if(!is.null(predictors)){
+    if(is.character(predictors)){
+      if(!all(predictors %in% colnames(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+      predictors <- which(colnames(X) %in% predictors)
+    }
+    if(is.numeric(predictors)){
+      if(!all(predictors > 0 & predictors <= ncol(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+    }
+    pred_names <- colnames(X)
+    X <- matrix(X[, predictors], ncol = length(predictors))
+    if(!is.null(pred_names)){
+      colnames(X) <- pred_names[predictors]
+    }
+  }
+  
+  # number of covariates
+  p <- ncol(X)
+  
+  if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
 
   # calculate first estimate
   E <- matrix(1, n, 1)

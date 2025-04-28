@@ -23,7 +23,8 @@ SDTree(
   gpu = FALSE,
   mem_size = 1e+07,
   max_candidates = 100,
-  Q_scale = TRUE
+  Q_scale = TRUE,
+  predictors = NULL
 )
 }
 \arguments{
@@ -87,6 +88,10 @@ proposed at each node for each covariate.}
 \item{Q_scale}{Should data be scaled to estimate the spectral transformation? 
 Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 and we do not know of a scenario where this hurts.}
+
+\item{predictors}{Subset of colnames(X) or numerical indices of the covariates 
+for which an effect on y should be estimated. All the other covariates are only
+used for deconfounding.}
 }
 \value{
 Object of class \code{SDTree} containing
@@ -129,6 +134,11 @@ n <- 10
 X <- matrix(rnorm(n * 5), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
 model <- SDTree(x = X, y = y, cp = 0.5)
+
+###### subset of predictors
+# if we know, that only the first covariate has an effect on y,
+# we can estimate only its effect and use the others just for deconfounding
+model <- SDTree(x = X, y = y, cp = 0.5, predictors = c(1))
 
 \donttest{
 set.seed(42)
