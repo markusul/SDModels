@@ -23,5 +23,17 @@ for(selection in selection_list){
   tree2 <- SDTree(x = X_sel, y = Y, cp = 0, 
                   Q_type = "no_deconfounding")
   
-  expect_equal(tree1$var_importance, tree2$var_importance)
+  expect_equal(tree1[c(1, 3, 4)], tree2[c(1, 3, 4)])
+  
+  # Forest
+  set.seed(1)
+  forest1 <- SDForest(x = X, y = Y, predictors = selection, 
+                      Q_type = "no_deconfounding", nTree = 2)
+  set.seed(1)
+  forest2 <- SDForest(x = X_sel, y = Y, 
+                      Q_type = "no_deconfounding", nTree = 2)
+  
+  expect_equal(forest1[c(1, 3:11)], forest2[c(1, 3:11)])
+  expect_equal(predict(forest1, data.frame(X_sel)), predict(forest2, data.frame(X_sel)))
+  expect_equal(predict(forest1, data.frame(X)), predict(forest2, data.frame(X)))
 }

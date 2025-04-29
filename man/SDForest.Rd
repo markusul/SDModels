@@ -30,7 +30,8 @@ SDForest(
   nTree_env = NULL,
   max_candidates = 100,
   Q_scale = TRUE,
-  verbose = TRUE
+  verbose = TRUE,
+  predictors = NULL
 )
 }
 \arguments{
@@ -114,6 +115,10 @@ Default is \code{TRUE} to not reduce the signal of high variance covariates,
 and we do not know of a scenario where this hurts.}
 
 \item{verbose}{If \code{TRUE} fitting information is shown.}
+
+\item{predictors}{Subset of colnames(X) or numerical indices of the covariates 
+for which an effect on y should be estimated. All the other covariates are only
+used for deconfounding.}
 }
 \value{
 Object of class \code{SDForest} containing:
@@ -168,6 +173,11 @@ X <- matrix(rnorm(n * 5), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
 model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 predict(model, newdata = data.frame(X))
+
+###### subset of predictors
+# if we know, that only the first covariate has an effect on y,
+# we can estimate only its effect and use the others just for deconfounding
+model <- SDForest(x = X, y = y, cp = 0.5, nTree = 5, predictors = c(1))
 
 \donttest{
 set.seed(42)
