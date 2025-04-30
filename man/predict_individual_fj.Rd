@@ -4,15 +4,14 @@
 \alias{predict_individual_fj}
 \title{Predictions of individual component functions for SDAM}
 \usage{
-predict_individual_fj(object, j, newdata = NULL)
+predict_individual_fj(object, j, x = NULL)
 }
 \arguments{
 \item{object}{Fitted object of class \code{SDAM}.}
 
 \item{j}{Which component to evaluate.}
 
-\item{newdata}{New test data of class \code{data.frame} containing
-the covariates for which to predict the response.}
+\item{x}{New numeric data to predict for.}
 }
 \value{
 A vector of predictions for fj evaluated at Xjnew.
@@ -25,7 +24,7 @@ set.seed(1)
 X <- matrix(rnorm(10 * 5), ncol = 5)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
-predict_individual_fj(model, j = 1)
+predict_individual_fj(model, j = 1, seq(-2, 2, length.out = 100))
 }
 \seealso{
 \code{\link{SDAM}}

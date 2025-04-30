@@ -185,8 +185,7 @@ predict.SDAM <- function(object, newdata, ...){
 #' @author Cyrill Scheidegger
 #' @param object Fitted object of class \code{SDAM}.
 #' @param j Which component to evaluate.
-#' @param newdata New test data of class \code{data.frame} containing
-#' the covariates for which to predict the response.
+#' @param x New numeric data to predict for.
 #' @return A vector of predictions for fj evaluated at Xjnew.
 #' @seealso \code{\link{SDAM}}
 #' @examples
@@ -194,27 +193,25 @@ predict.SDAM <- function(object, newdata, ...){
 #' X <- matrix(rnorm(10 * 5), ncol = 5)
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
-#' predict_individual_fj(model, j = 1)
+#' predict_individual_fj(model, j = 1, seq(-2, 2, length.out = 100))
 #' @export
-predict_individual_fj <- function(object, j, newdata = NULL){
-  if(!is.null(newdata)){
-    if(!is.data.frame(newdata)) stop('newdata must be a data.frame')
-  
-    X <- data.handler(~., newdata)$X
-    if(!all(object$var_names %in% colnames(X))) stop('newdata must contain all covariates used for training')
-  
-    X <- X[, object$var_names]
-    if(any(is.na(X))) stop('X must not contain missing values')
-  }else{
-    X <- object$X
-  }
-  if(is.null(nrow(X))) X <- matrix(X, ncol = object$p)
-  
+predict_individual_fj <- function(object, j, x = NULL){
   if(is.character(j)) j <- which(object$var_names %in% j)
-  if(!is.numeric(j) || length(j) != 1) stop("j has not be an integer in [1, p] or a covariate name")
+  if(length(j) == 0) 
+    stop("j has not be an integer in [1, p] or a covariate name used for training")
   
+  if(!is.numeric(j) | length(j) != 1 | j > object$p | j < 1) 
+    stop("j has not be an integer in [1, p] or a covariate name used for training")
+
+  if(!is.null(x)){
+    if(!is.numeric(x)) stop('x must be a numeric vector')
+    if(any(is.na(x))) stop('x must not contain missing values')
+  }else{
+    x <- object$X[, j]
+  }
+    
   if (!(j %in% object$active)) {
-    return(rep(0, nrow(X)))
+    return(rep(0, length(x)))
   }
   
   if(length(object$breaks) == 0){
@@ -225,9 +222,9 @@ predict_individual_fj <- function(object, j, newdata = NULL){
   coefs_j <- object$coefs[[j]]
   
   if (!is.null(breaks_j)) {
-    Bj <- Bbasis(X[, j], breaks = breaks_j)
+    Bj <- Bbasis(x, breaks = breaks_j)
     return(c(Bj %*% coefs_j))
   } else {
-    return(X[, j] * c(coefs_j))
+    return(x * c(coefs_j))
   }
 }
