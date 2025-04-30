@@ -1,3 +1,7 @@
+# SDModels 1.0.9
+
+* Add the option to select some variables as predictors in SDTree and SDForest.
+
 # SDModels 1.0.8
 
 * Fix various bugs on edge cases with just one variable or just one tree
