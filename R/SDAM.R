@@ -297,6 +297,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       active <- c(active, j)
       # transform back
       lcoef[[j]] <- Rlist[[j]] %*% cj
+    } else {
+      lcoef[[j]] <- 0
     }
   }
   intercept <- mod$coefficients[1]
