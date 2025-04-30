@@ -201,7 +201,7 @@ predict_individual_fj <- function(object, j, x = NULL){
     stop("j has not be an integer in [1, p] or a covariate name used for training")
   
   if(!is.numeric(j) | length(j) != 1 | j > object$p | j < 1) 
-    stop("j has not be an integer in [1, p] or a covariate name used for training")
+    stop("j has to be an integer in [1, p] or a covariate name used for training")
 
   if(!is.null(x)){
     if(!is.numeric(x)) stop('x must be a numeric vector')
