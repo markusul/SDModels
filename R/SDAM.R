@@ -75,7 +75,7 @@
 #'
 #' # estimate model
 #' # do not use class in the model and restrict proline to be linear 
-#' model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline", nfold = 3)
+#' model <- SDAM(alcohol ~ ., wine, ind_lin = "proline", nfold = 3)
 #' 
 #' # extract variable importance
 #' varImp(model)
