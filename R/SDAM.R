@@ -85,8 +85,10 @@
 #' mostImp
 #' 
 #' # predict for individual Xj
-#' predJ <- predict_individual_fj(object = model, j = mostImp)
-#' plot(wine[, mostImp], predJ, 
+#' x <- seq(min(wine[, mostImp]), max(wine[, mostImp]), length.out = 100)
+#' predJ <- predict_individual_fj(object = model, j = mostImp, x = x)
+#' 
+#' plot(x, predJ, 
 #'      xlab = paste0("log ", mostImp), ylab = "log alcohol")
 #' 
 #' # partial dependece
@@ -204,7 +206,12 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = grplasso::LinReg(), 
                                      center = FALSE, standardize = FALSE)
     # lambdas for cross validation
-    lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
+    if(is.finite(lambdamax)){
+      lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
+    }else{
+      lambda <- rep(0, n_lambda1)
+      index <- rep(1, length(index))
+    }
     lmodK[[i]] <- list(Rlist = Rlist, lbreaks = lbreaks, index = index, B = B, 
                        QB = QB, lambda = lambda, K = K, K_eff = K_eff)
   }
@@ -225,7 +232,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
                               center = FALSE, standardize = FALSE, 
                               control = gprLassoControl)
     )
-    
+
     QYpred <- predict(mod, newdata = listK$QB[test, ])
     mse <- apply(QYpred, 2, function(y){mean((y - QY[test])^2)})
     return(mse)
@@ -251,8 +258,13 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   # refit model for K.min and find best value for lambda in the neighborhood of lambda.min
   modK.min <- lmodK[[ind.min[1]]]
-  modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
-                             length.out = n_lambda2))
+  
+  if(lambda.min == 0){
+    modK.min$lambda <- rep(0, n_lambda2)
+  }else{
+    modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
+                               length.out = n_lambda2))
+  }
   
   if(verbose) print("Second stage cross-validation")
   if(mc.cores == 1){
@@ -320,6 +332,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   lreturn$breaks <- modK.min$lbreaks
   
   # list of coefficients
+  names(lcoef) <- lreturn$var_names
   lreturn$coefs <- lcoef
   
   # estimated active set

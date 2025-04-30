@@ -126,8 +126,10 @@ mostImp <- names(which.max(varImp(model)))
 mostImp
 
 # predict for individual Xj
-predJ <- predict_individual_fj(object = model, j = mostImp)
-plot(wine[, mostImp], predJ, 
+x <- seq(min(wine[, mostImp]), max(wine[, mostImp]), length.out = 100)
+predJ <- predict_individual_fj(object = model, j = mostImp, x = x)
+
+plot(x, predJ, 
      xlab = paste0("log ", mostImp), ylab = "log alcohol")
 
 # partial dependece
