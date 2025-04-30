@@ -1,3 +1,9 @@
+# SDModels 1.0.10
+
+* Added feature to select some predictors not to be regularized closes option to use some covariates not regularized in SDAM #4
+* Fix the length of the coefficient list to the number of predictors and name the elements
+* change predict_individual_j to expect a numeric new data vector instead of a whole data.frame
+
 # SDModels 1.0.9
 
 * Add the option to select some variables as predictors in SDTree and SDForest.
