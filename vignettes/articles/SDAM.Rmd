@@ -84,7 +84,7 @@ XX <- data.frame(matrix(rep(seq(-4, 4, 0.05), p), ncol = p))
 for(j in 1:4){
   fj <- get(paste("f", j, sep = ""))
   predj_standard <- predict_individual_fj(fit_standard, j, XX)
-  predj_trim <- predict_individual_fj(fit_trim, j, XX)
+  predj_trim <- predict_individual_fj(fit_trim, j, XX[, j])
   plot(xx, fj(xx) - mean(fj(X[, j])), type = "l", main = paste("j = ", j, sep =""), xlab = "Xj", ylab = "fj(Xj)")
   rug(X[, j])
   lines(xx, predj_standard, col = "blue")
