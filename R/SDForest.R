@@ -73,6 +73,9 @@
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 #' and we do not know of a scenario where this hurts.
 #' @param verbose If \code{TRUE} fitting information is shown.
+#' @param predictors Subset of colnames(X) or numerical indices of the covariates 
+#' for which an effect on y should be estimated. All the other covariates are only
+#' used for deconfounding.
 #' @return Object of class \code{SDForest} containing:
 #' \item{predictions}{Vector of predictions for each observation.}
 #' \item{forest}{List of SDTree objects.}
@@ -110,6 +113,11 @@
 #' y <- sign(X[, 1]) * 3 + rnorm(n)
 #' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', nTree = 5, cp = 0.5)
 #' predict(model, newdata = data.frame(X))
+#' 
+#' ###### subset of predictors
+#' # if we know, that only the first covariate has an effect on y,
+#' # we can estimate only its effect and use the others just for deconfounding
+#' model <- SDForest(x = X, y = y, cp = 0.5, nTree = 5, predictors = c(1))
 #' 
 #' \donttest{
 #' set.seed(42)
@@ -163,7 +171,8 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                      A = NULL, gamma = 7, max_size = NULL, gpu = FALSE, 
                      return_data = TRUE, mem_size = 1e+7, leave_out_ind = NULL, 
                      envs = NULL, nTree_leave_out = NULL, nTree_env = NULL, 
-                     max_candidates = 100, Q_scale = TRUE, verbose = TRUE){
+                     max_candidates = 100, Q_scale = TRUE, verbose = TRUE, 
+                     predictors = NULL){
   if(gpu) ifelse(GPUmatrix::installTorch(), 
                  gpu_type <- 'torch', 
                  gpu_type <- 'tensorflow')
@@ -174,7 +183,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   # number of observations
   n <- nrow(X)
   # number of covariates
-  p <- ncol(X)
+  p <- ifelse(is.null(predictors), ncol(X), length(predictors))
 
   if(is.null(max_size)) max_size <- n
 
@@ -268,15 +277,18 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       })})
       ind <- do.call(c, ind)
   }
-
+  
   if(mc.cores > 1){
     if(locatexec::is_unix()){
       if(verbose) print('mclapply')
       res <- parallel::mclapply(ind, function(i) {
-        SDTree(x = X[i, ], y = Y[i], cp = cp, min_sample = min_sample, 
+        Xi <- matrix(X[i, ], ncol = ncol(X))
+        colnames(Xi) <- colnames(X)
+        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
                Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
                mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale)
+               max_candidates = max_candidates, Q_scale = Q_scale, 
+               predictors = predictors)
         }, 
         mc.cores = mc.cores)
     }else{
@@ -287,20 +299,46 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                               unclass(lsf.str(envir = asNamespace("SDModels"), 
                                               all = TRUE)),
                               envir = as.environment(asNamespace("SDModels")))
-      res <- parallel::clusterApplyLB(cl = cl, ind, fun = function(i)
-        SDTree(x = X[i, ], y = Y[i], cp = cp, min_sample = min_sample, 
+      res <- parallel::clusterApplyLB(cl = cl, ind, fun = function(i){
+        Xi <- matrix(X[i, ], ncol = ncol(X))
+        colnames(Xi) <- colnames(X)
+        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
                Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
                mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale))
+               max_candidates = max_candidates, Q_scale = Q_scale, 
+               predictors = predictors)
+        })
       parallel::stopCluster(cl = cl)
     }
   }else{
-    res <- pbapply::pblapply(ind, function(i)
-      SDTree(x = X[i, ], y = Y[i], cp = cp, min_sample = min_sample, 
+    res <- pbapply::pblapply(ind, function(i){
+      Xi <- matrix(X[i, ], ncol = ncol(X))
+      colnames(Xi) <- colnames(X)
+      SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
              Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
              mtry = mtry, A = A[i, ], gamma = gamma, gpu = gpu, 
-             mem_size = mem_size, max_candidates = max_candidates, Q_scale = Q_scale))
+             mem_size = mem_size, max_candidates = max_candidates, 
+             Q_scale = Q_scale, predictors = predictors)
+    })
   }
+  
+  #selection of predictors
+  if(!is.null(predictors)){
+    if(is.character(predictors)){
+      if(!all(predictors %in% colnames(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+      predictors <- which(colnames(X) %in% predictors)
+    }
+    if(is.numeric(predictors)){
+      if(!all(predictors > 0 & predictors <= ncol(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+    }
+    pred_names <- colnames(X)
+    X <- matrix(X[, predictors], ncol = length(predictors))
+    if(!is.null(pred_names)){
+      colnames(X) <- pred_names[predictors]
+    }
+  } 
 
   # ensemble predictions for each observation
   # but only with the trees that did not contain the observation in the training set
@@ -358,15 +396,8 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   
   # use mean over trees as final prediction
   f_X_hat <- rowMeans(pred)
-
-  # variable importance
-  #var_imp <- sapply(res, function(x){x$var_importance})
-  #if(p > 1){
-  #  var_imp <- rowMeans(var_imp)
-  #}else {
-  #  var_imp <- mean(var_imp)
-  #}
   
+  # variable importance
   var_imp <- do.call(cbind, lapply(res, function(x){x$var_importance}))
   var_imp <- rowMeans(var_imp)
 
