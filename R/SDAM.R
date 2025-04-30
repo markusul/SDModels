@@ -39,9 +39,12 @@
 #' @param mc.cores  Number of cores to use for parallel processing, if \code{mc.cores > 1}
 #' the cross validation is parallelized. Default is `1`. (only supported for unix)
 #' @param verbose If \code{TRUE} fitting information is shown.
+#' @param notRegularized A vector of indices specifying which covariates not to regularize.
+#'  Default is `NULL`.
 #' @return An object of class `SDAM` containing the following elements:
 #' \item{X}{The original design matrix.}
 #' \item{p}{The number of covariates in `X`.}
+#' \item{var_names}{Names of the covariates in the training data.}
 #' \item{intercept}{The intercept term of the fitted model.}
 #' \item{K}{A vector of the number of basis functions for each covariate,
 #' where 1 corresponds to a linear term. The entries of the vector will mostly by
@@ -58,6 +61,9 @@
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 #' 
+#' # if we know that the first covariate one is relevant, we can also choose to not regularize it
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, 
+#'               n_K = 1, notRegularized = c(1))
 #' 
 #' \donttest{
 #' library(HDclassif)
@@ -69,7 +75,7 @@
 #'
 #' # estimate model
 #' # do not use class in the model and restrict proline to be linear 
-#' model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline", nfold = 3)
+#' model <- SDAM(alcohol ~ ., wine, ind_lin = "proline", nfold = 3)
 #' 
 #' # extract variable importance
 #' varImp(model)
@@ -79,8 +85,10 @@
 #' mostImp
 #' 
 #' # predict for individual Xj
-#' predJ <- predict_individual_fj(object = model, j = mostImp)
-#' plot(wine[, mostImp], predJ, 
+#' x <- seq(min(wine[, mostImp]), max(wine[, mostImp]), length.out = 100)
+#' predJ <- predict_individual_fj(object = model, j = mostImp, x = x)
+#' 
+#' plot(x, predJ, 
 #'      xlab = paste0("log ", mostImp), ylab = "log alcohol")
 #' 
 #' # partial dependece
@@ -99,7 +107,8 @@
 SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
                  Q_type = "trim", trim_quantile = 0.5, q_hat = 0, nfolds = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
-                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1, verbose = TRUE){
+                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1, verbose = TRUE, 
+                 notRegularized = NULL){
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -120,6 +129,14 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       ind_lin <- which(colnames(data.frame(X)) %in% ind_lin)
     }
     if((min(ind_lin) < 1) || max(ind_lin) > p) stop("ind_lin must contain covariates in the data in [1, p]")
+  }
+  
+  if(!is.null(notRegularized)){
+    if(!is.numeric(notRegularized)){
+      if(!is.character(notRegularized)) stop("notRegularized must either contain integers or variable names")
+      notRegularized <- which(colnames(data.frame(X)) %in% notRegularized)
+    }
+    if((min(notRegularized) < 1) || max(notRegularized) > p) stop("notRegularized must contain covariates in the data in [1, p]")
   }
   
   gprLassoControl <- grplasso::grpl.control(save.x = FALSE, save.y = FALSE, trace = 0)
@@ -175,7 +192,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       }
       Rj.inv <- solve(chol(1/n*t(Bj) %*% Bj))
       
-      index <- c(index, rep(j, K_eff[j]))
+      #setting index of not regularized variables to NA
+      index <- c(index, rep(ifelse(j %in% notRegularized, NA,j), K_eff[j]))
       B <- cbind(B, Bj %*% Rj.inv)
       
       #B[, index == j & !is.na(index)] <- Bj %*% Rj.inv
@@ -183,11 +201,17 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     }
     QB <- Qf(B)
     
+    
     # calculate maximal lambda
     lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = grplasso::LinReg(), 
                                      center = FALSE, standardize = FALSE)
     # lambdas for cross validation
-    lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
+    if(is.finite(lambdamax)){
+      lambda <- exp(seq(log(lambdamax), log(lambdamax/1000), length.out = n_lambda1))
+    }else{
+      lambda <- rep(0, n_lambda1)
+      index <- rep(1, length(index))
+    }
     lmodK[[i]] <- list(Rlist = Rlist, lbreaks = lbreaks, index = index, B = B, 
                        QB = QB, lambda = lambda, K = K, K_eff = K_eff)
   }
@@ -208,7 +232,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
                               center = FALSE, standardize = FALSE, 
                               control = gprLassoControl)
     )
-    
+
     QYpred <- predict(mod, newdata = listK$QB[test, ])
     mse <- apply(QYpred, 2, function(y){mean((y - QY[test])^2)})
     return(mse)
@@ -234,8 +258,13 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   # refit model for K.min and find best value for lambda in the neighborhood of lambda.min
   modK.min <- lmodK[[ind.min[1]]]
-  modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
-                             length.out = n_lambda2))
+  
+  if(lambda.min == 0){
+    modK.min$lambda <- rep(0, n_lambda2)
+  }else{
+    modK.min$lambda <- exp(seq(log(lambda.min * 10), log(lambda.min/10), 
+                               length.out = n_lambda2))
+  }
   
   if(verbose) print("Second stage cross-validation")
   if(mc.cores == 1){
@@ -271,7 +300,9 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   lcoef <- list()
   active <- numeric()
   running_ind <- 1
-  index <- modK.min$index
+  #index <- modK.min$index
+  index <- c(NA, unlist(lapply(1:p, function(j) rep(j, modK.min$K_eff[j]))))
+
   Rlist <- modK.min$Rlist
   for(j in 1:p){
     cj <- mod$coefficients[index == j & !is.na(index)]
@@ -279,6 +310,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       active <- c(active, j)
       # transform back
       lcoef[[j]] <- Rlist[[j]] %*% cj
+    } else {
+      lcoef[[j]] <- 0
     }
   }
   intercept <- mod$coefficients[1]
@@ -299,6 +332,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   lreturn$breaks <- modK.min$lbreaks
   
   # list of coefficients
+  names(lcoef) <- lreturn$var_names
   lreturn$coefs <- lcoef
   
   # estimated active set

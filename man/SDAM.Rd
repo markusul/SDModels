@@ -20,7 +20,8 @@ SDAM(
   Q_scale = TRUE,
   ind_lin = NULL,
   mc.cores = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  notRegularized = NULL
 )
 }
 \arguments{
@@ -69,11 +70,15 @@ Default is `NULL`.}
 the cross validation is parallelized. Default is `1`. (only supported for unix)}
 
 \item{verbose}{If \code{TRUE} fitting information is shown.}
+
+\item{notRegularized}{A vector of indices specifying which covariates not to regularize.
+Default is `NULL`.}
 }
 \value{
 An object of class `SDAM` containing the following elements:
 \item{X}{The original design matrix.}
 \item{p}{The number of covariates in `X`.}
+\item{var_names}{Names of the covariates in the training data.}
 \item{intercept}{The intercept term of the fitted model.}
 \item{K}{A vector of the number of basis functions for each covariate,
 where 1 corresponds to a linear term. The entries of the vector will mostly by
@@ -97,6 +102,9 @@ X <- matrix(rnorm(10 * 5), ncol = 5)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 
+# if we know that the first covariate one is relevant, we can also choose to not regularize it
+model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, 
+              n_K = 1, notRegularized = c(1))
 
 \donttest{
 library(HDclassif)
@@ -108,7 +116,7 @@ wine <- log(wine)
 
 # estimate model
 # do not use class in the model and restrict proline to be linear 
-model <- SDAM(alcohol ~ -class + ., wine, ind_lin = "proline", nfold = 3)
+model <- SDAM(alcohol ~ ., wine, ind_lin = "proline", nfold = 3)
 
 # extract variable importance
 varImp(model)
@@ -118,8 +126,10 @@ mostImp <- names(which.max(varImp(model)))
 mostImp
 
 # predict for individual Xj
-predJ <- predict_individual_fj(object = model, j = mostImp)
-plot(wine[, mostImp], predJ, 
+x <- seq(min(wine[, mostImp]), max(wine[, mostImp]), length.out = 100)
+predJ <- predict_individual_fj(object = model, j = mostImp, x = x)
+
+plot(x, predJ, 
      xlab = paste0("log ", mostImp), ylab = "log alcohol")
 
 # partial dependece
