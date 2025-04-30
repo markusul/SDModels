@@ -20,7 +20,8 @@ SDAM(
   Q_scale = TRUE,
   ind_lin = NULL,
   mc.cores = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  notRegularized = NULL
 )
 }
 \arguments{
@@ -69,6 +70,9 @@ Default is `NULL`.}
 the cross validation is parallelized. Default is `1`. (only supported for unix)}
 
 \item{verbose}{If \code{TRUE} fitting information is shown.}
+
+\item{notRegularized}{A vector of indices specifying which covariates not to regularize.
+Default is `NULL`.}
 }
 \value{
 An object of class `SDAM` containing the following elements:
@@ -97,6 +101,9 @@ X <- matrix(rnorm(10 * 5), ncol = 5)
 Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 
+# if we know that the first covariate one is relevant, we can also choose to not regularize it
+model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, 
+              n_K = 1, notRegularized = c(1))
 
 \donttest{
 library(HDclassif)

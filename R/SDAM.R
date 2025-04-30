@@ -39,6 +39,8 @@
 #' @param mc.cores  Number of cores to use for parallel processing, if \code{mc.cores > 1}
 #' the cross validation is parallelized. Default is `1`. (only supported for unix)
 #' @param verbose If \code{TRUE} fitting information is shown.
+#' @param notRegularized A vector of indices specifying which covariates not to regularize.
+#'  Default is `NULL`.
 #' @return An object of class `SDAM` containing the following elements:
 #' \item{X}{The original design matrix.}
 #' \item{p}{The number of covariates in `X`.}
@@ -58,6 +60,9 @@
 #' Y <- sin(X[, 1]) -  X[, 2] + rnorm(10)
 #' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, n_K = 1)
 #' 
+#' # if we know that the first covariate one is relevant, we can also choose to not regularize it
+#' model <- SDAM(x = X, y = Y, Q_type = "trim", trim_quantile = 0.5, nfold = 2, 
+#'               n_K = 1, notRegularized = c(1))
 #' 
 #' \donttest{
 #' library(HDclassif)
@@ -99,7 +104,8 @@
 SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
                  Q_type = "trim", trim_quantile = 0.5, q_hat = 0, nfolds = 5, 
                  cv_method = "1se", n_K = 4, n_lambda1 = 10, n_lambda2 = 20, 
-                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1, verbose = TRUE){
+                 Q_scale = TRUE, ind_lin = NULL, mc.cores = 1, verbose = TRUE, 
+                 notRegularized = NULL){
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -120,6 +126,14 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       ind_lin <- which(colnames(data.frame(X)) %in% ind_lin)
     }
     if((min(ind_lin) < 1) || max(ind_lin) > p) stop("ind_lin must contain covariates in the data in [1, p]")
+  }
+  
+  if(!is.null(notRegularized)){
+    if(!is.numeric(notRegularized)){
+      if(!is.character(notRegularized)) stop("notRegularized must either contain integers or variable names")
+      notRegularized <- which(colnames(data.frame(X)) %in% notRegularized)
+    }
+    if((min(notRegularized) < 1) || max(notRegularized) > p) stop("notRegularized must contain covariates in the data in [1, p]")
   }
   
   gprLassoControl <- grplasso::grpl.control(save.x = FALSE, save.y = FALSE, trace = 0)
@@ -175,13 +189,15 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       }
       Rj.inv <- solve(chol(1/n*t(Bj) %*% Bj))
       
-      index <- c(index, rep(j, K_eff[j]))
+      #setting index of not regularized variables to NA
+      index <- c(index, rep(ifelse(j %in% notRegularized, NA,j), K_eff[j]))
       B <- cbind(B, Bj %*% Rj.inv)
       
       #B[, index == j & !is.na(index)] <- Bj %*% Rj.inv
       Rlist[[j]] <- Rj.inv
     }
     QB <- Qf(B)
+    
     
     # calculate maximal lambda
     lambdamax <- grplasso::lambdamax(QB, QY, index = index, model = grplasso::LinReg(), 
@@ -271,7 +287,9 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   lcoef <- list()
   active <- numeric()
   running_ind <- 1
-  index <- modK.min$index
+  #index <- modK.min$index
+  index <- c(NA, unlist(lapply(1:p, function(j) rep(j, modK.min$K_eff[j]))))
+
   Rlist <- modK.min$Rlist
   for(j in 1:p){
     cj <- mod$coefficients[index == j & !is.na(index)]
