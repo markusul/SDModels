@@ -44,6 +44,7 @@
 #' @return An object of class `SDAM` containing the following elements:
 #' \item{X}{The original design matrix.}
 #' \item{p}{The number of covariates in `X`.}
+#' \item{var_names}{Names of the covariates in the training data.}
 #' \item{intercept}{The intercept term of the fitted model.}
 #' \item{K}{A vector of the number of basis functions for each covariate,
 #' where 1 corresponds to a linear term. The entries of the vector will mostly by
