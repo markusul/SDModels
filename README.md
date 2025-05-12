@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SDModels
+# SDModels <a href="http://www.markus-ulmer.ch/SDModels/"><img src="man/figures/logo.png" align="right" height="120" alt="SDModels website" /></a>
 
 <!-- badges: start -->
 
@@ -47,7 +47,7 @@ or
 
 ``` r
 # install.packages('pak')
-# pak::pkg_install('markusul/SDModels')
+pak::pkg_install('markusul/SDModels')
 ```
 
 ## Usage
