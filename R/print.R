@@ -45,8 +45,8 @@ print.SDForest <- function(x, ...){
   cat("Number of trees: ", length(x$forest), "\n")
   cat("Number of covariates: ", length(x$var_names), "\n")
   if(!is.null(x$oob_loss)){
-    cat("OOB loss: ", round(x$oob_loss, 2), "\n")
-    cat("OOB spectral loss: ", round(x$oob_SDloss, 2), "\n")
+    cat("OOB loss: ", round(x$oob_loss, 10), "\n")
+    cat("OOB spectral loss: ", round(x$oob_SDloss, 10), "\n")
   }
 }
 
