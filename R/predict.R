@@ -123,7 +123,10 @@ predictOOB <- function(object, X = NULL){
       return(NA)
     }
     xi <- X[i, ]
-    predictions <- sapply(oob_ind[[i]], function(model){
+    
+    model_idx <- oob_ind[[i]]
+    model_idx <- model_idx[model_idx <= length(object$forest)]
+    predictions <- sapply(model_idx, function(model){
       predict_outsample(object$forest[[model]]$tree, xi)
     })
     mean(predictions)
