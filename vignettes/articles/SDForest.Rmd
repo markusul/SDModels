@@ -54,6 +54,20 @@ fit <- SDForest(Y ~ ., train_data)
 fit
 ```
 
+We can check whether we have used enough trees using the `plot()`. If the error does not stabilize, it might be reasonable to fit more trees and merge them.
+
+```{r plot}
+plot(fit)
+```
+
+Let's use another 50 trees for the model.
+
+```{r plot2}
+fit2 <- SDForest(Y ~ ., train_data, nTree = 50)
+fit <- mergeForest(fit, fit2)
+plot(fit)
+```
+
 ## Causal parents
 
 Given the estimated causal function, the first question we might want to answer is which of the covariates are the causal parents of the response. If we intervene on the causal parents, we expect the response to change. For that, we can estimate the functional dependency of $Y$ on $X$, $\widehat{f(X)}$ and examine which covariates are important in this function. We can directly compare the importance pattern of the deconfounded estimator to the classical random forest estimated by [ranger](https://imbs-hl.github.io/ranger/). This comparison to the plain counterpart always gives a feeling of the strength of confounding. If no confounding exists, `SDForest()` and `ranger::ranger()` should result in similar models.

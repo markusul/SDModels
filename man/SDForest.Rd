@@ -192,9 +192,18 @@ sim_data$j
 # comparison to classical random forest
 fit_ranger <- ranger::ranger(Y ~ ., train_data, importance = 'impurity')
 
-fit <- SDForest(x = X, y = Y, nTree = 10, Q_type = 'pca', q_hat = 2)
-fit <- SDForest(Y ~ ., nTree = 10, train_data)
+fit <- SDForest(x = X, y = Y, nTree = 100, Q_type = 'pca', q_hat = 2)
+fit <- SDForest(Y ~ ., nTree = 100, train_data)
 fit
+
+# we can plot the fit to see whether the number of trees is high enough
+# if the performance stabilizes, we have enough trees otherwise one can fit
+# more and add them
+plot(fit)
+
+# a few more might be helpfull
+fit2 <- SDForest(Y ~ ., nTree = 50, train_data) 
+fit <- mergeForest(fit, fit2)
 
 # comparison of variable importance
 imp_ranger <- fit_ranger$variable.importance
