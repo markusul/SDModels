@@ -66,6 +66,7 @@
 #'               n_K = 1, notRegularized = c(1))
 #' 
 #' \donttest{
+#' set.seed(22)
 #' library(HDclassif)
 #' data(wine)
 #' names(wine) <- c("class", "alcohol", "malicAcid", "ash", "alcalinityAsh", "magnesium", 
@@ -75,7 +76,7 @@
 #'
 #' # estimate model
 #' # do not use class in the model and restrict proline to be linear 
-#' model <- SDAM(alcohol ~ ., wine, ind_lin = "proline", nfold = 3)
+#' model <- SDAM(alcohol ~ . - class, wine, ind_lin = "proline")
 #' 
 #' # extract variable importance
 #' varImp(model)

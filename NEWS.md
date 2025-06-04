@@ -1,3 +1,7 @@
+# SDModels 1.0.12
+
+* Fix extended SDAM example
+
 # SDModels 1.0.11
 
 * Add option to plot SDForests. The plot shows the out-of-bag performance against the number
