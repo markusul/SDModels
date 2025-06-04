@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SDModels <a href="http://www.markus-ulmer.ch/SDModels/"><img src="man/figures/logo.png" align="right" height="120" alt="SDModels website" /></a>
+# SDModels <a href="https://www.markus-ulmer.ch/SDModels/"><img src="man/figures/logo.png" align="right" height="120" alt="SDModels website" /></a>
 
 <!-- badges: start -->
 
@@ -76,8 +76,8 @@ fit
 #> 
 #> Number of trees:  100 
 #> Number of covariates:  50 
-#> OOB loss:  0.17 
-#> OOB spectral loss:  0.05
+#> OOB loss:  0.1684875 
+#> OOB spectral loss:  0.05250606
 ```
 
 You can also estimate just one Spectrally Deconfounded Regression Tree
@@ -116,7 +116,8 @@ model
 #> Number of active covariates:  4
 ```
 
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 Sys.setenv(OPENSSL_CONF="/dev/null")
 ```
 
-# SDModels <a href="http://www.markus-ulmer.ch/SDModels/"><img src="man/figures/logo.png" align="right" height="120" alt="SDModels website" /></a>
+# SDModels <a href="https://www.markus-ulmer.ch/SDModels/"><img src="man/figures/logo.png" align="right" height="120" alt="SDModels website" /></a>
   
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SDModels)](https://CRAN.R-project.org/package=SDModels)
