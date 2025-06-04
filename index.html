@@ -96,7 +96,7 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="sdmodels-">SDModels <a href="http://www.markus-ulmer.ch/SDModels/" class="external-link"><img src="reference/figures/logo.png" align="right" height="120" alt="SDModels website"></a>
+<div class="page-header"><h1 id="sdmodels-">SDModels <a href="https://www.markus-ulmer.ch/SDModels/" class="external-link"><img src="reference/figures/logo.png" align="right" height="120" alt="SDModels website"></a>
 <a class="anchor" aria-label="anchor" href="#sdmodels-"></a>
 </h1></div>
 <!-- badges: start -->
@@ -141,8 +141,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of trees:  100 </span></span>
 <span><span class="co">#&gt; Number of covariates:  50 </span></span>
-<span><span class="co">#&gt; OOB loss:  0.17 </span></span>
-<span><span class="co">#&gt; OOB spectral loss:  0.05</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB loss:  0.1684875 </span></span>
+<span><span class="co">#&gt; OOB spectral loss:  0.05250606</span></span></code></pre></div>
 <p>You can also estimate just one Spectrally Deconfounded Regression Tree using the <code>SDTree</code> function. See also the article <a href="https://www.markus-ulmer.ch/SDModels/articles/SDTree.html" class="external-link">SDTree</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDTree.html">SDTree</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span>, cp <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
@@ -169,7 +169,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of covariates:  50 </span></span>
 <span><span class="co">#&gt; Number of active covariates:  4</span></span></code></pre></div>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020. “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear Models</span>.” <em>J. Mach. Learn. Res.</em> 21 (1). <a href="http://jmlr.org/papers/v21/19-545.html" class="external-link uri">http://jmlr.org/papers/v21/19-545.html</a>.
 </div>
