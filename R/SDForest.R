@@ -287,6 +287,9 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       ind <- do.call(c, ind)
   }
   
+  #use random generater that works with multiprocessing
+  ok <- RNGkind("L'Ecuyer-CMRG")
+  
   if(mc.cores > 1){
     if(locatexec::is_unix()){
       if(verbose) print('mclapply')
@@ -301,14 +304,9 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
         }, 
         mc.cores = mc.cores)
     }else{
-      if(verbose) print('makeCluster')
-      cl <- parallel::makeCluster(mc.cores)
-      doParallel::registerDoParallel(cl)
-      parallel::clusterExport(cl = cl, 
-                              unclass(lsf.str(envir = asNamespace("SDModels"), 
-                                              all = TRUE)),
-                              envir = as.environment(asNamespace("SDModels")))
-      res <- parallel::clusterApplyLB(cl = cl, ind, fun = function(i){
+      if(verbose) print('future')
+      future::plan('multisession', workers = mc.cores)
+      res <- future.apply::future_lapply(future.seed = TRUE, X = ind, FUN = function(i){
         Xi <- matrix(X[i, ], ncol = ncol(X))
         colnames(Xi) <- colnames(X)
         SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
@@ -316,9 +314,26 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
                max_candidates = max_candidates, Q_scale = Q_scale, 
                predictors = predictors)
-        })
-      parallel::stopCluster(cl = cl)
-    }
+      })
+    }#else{
+    #  if(verbose) print('makeCluster')
+    #  cl <- parallel::makeCluster(mc.cores)
+    #  doParallel::registerDoParallel(cl)
+    #  parallel::clusterExport(cl = cl, 
+    #                          unclass(lsf.str(envir = asNamespace("SDModels"), 
+    #                                          all = TRUE)),
+    #                          envir = as.environment(asNamespace("SDModels")))
+    #  res <- parallel::clusterApply(cl = cl, ind, fun = function(i){
+    #    Xi <- matrix(X[i, ], ncol = ncol(X))
+    #    colnames(Xi) <- colnames(X)
+    #    SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
+    #           Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
+    #           mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
+    #           max_candidates = max_candidates, Q_scale = Q_scale, 
+    #           predictors = predictors)
+    #    })
+    #  parallel::stopCluster(cl = cl)
+    #}
   }else{
     res <- pbapply::pblapply(ind, function(i){
       Xi <- matrix(X[i, ], ncol = ncol(X))
@@ -330,6 +345,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
              Q_scale = Q_scale, predictors = predictors)
     })
   }
+  RNGkind(ok[1])
   
   #selection of predictors
   if(!is.null(predictors)){

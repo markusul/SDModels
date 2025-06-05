@@ -1,3 +1,7 @@
+# SDModels 1.0.13
+
+* In case of parallel processing use random number generator "L'Ecuyer-CMRG" for reproducibility
+
 # SDModels 1.0.12
 
 * Fix extended SDAM example

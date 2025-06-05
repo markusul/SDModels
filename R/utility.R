@@ -2,6 +2,8 @@
 #' @import GPUmatrix
 #' @import DiagrammeR
 #' @import data.tree
+#' @import future.apply
+#' @import future
 #' @importFrom stats lm.fit
 #' @importFrom stats model.matrix
 #' @importFrom stats model.response
