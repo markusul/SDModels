@@ -291,7 +291,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   ok <- RNGkind("L'Ecuyer-CMRG")
   
   if(mc.cores > 1){
-    if(locatexec::is_unix()){
+    if(!locatexec::is_windows()){
       if(verbose) print('mclapply')
       res <- parallel::mclapply(ind, function(i) {
         Xi <- matrix(X[i, ], ncol = ncol(X))
