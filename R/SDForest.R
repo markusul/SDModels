@@ -377,7 +377,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     }
     xi <- X[i, ]
     predictions <- sapply(oob_ind[[i]], function(model){
-      predict_outsample(res[[model]]$tree, xi)
+      traverse_tree(res[[model]]$tree, xi)
     })
     return(mean(predictions))
   })
@@ -407,7 +407,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       }
       xi <- X[i, ]
       predictions <- sapply(ooEnv_ind[[i]], function(model){
-        predict_outsample(res[[model]]$tree, xi)
+        traverse_tree(res[[model]]$tree, xi)
       })
       return(mean(predictions))
     })
@@ -417,7 +417,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   }
 
   # predict with all trees
-  pred <- do.call(cbind, lapply(res, function(x){predict_outsample(x$tree, X)}))
+  pred <- do.call(cbind, lapply(res, function(x){traverse_tree(x$tree, X)}))
   
   # use mean over trees as final prediction
   f_X_hat <- rowMeans(pred)

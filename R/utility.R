@@ -91,7 +91,7 @@ split_names <- function(node, var_names = NULL){
   }
 }
 
-leave_names <- function(node){
+leaf_names <- function(node){
   new_name <- as.character(round(node$value, 1))
   if(new_name %in% node$Get('name', filterFun = data.tree::isLeaf)){
     new_name <- paste(new_name, '')
@@ -128,17 +128,29 @@ find_s <- function(X, max_candidates = 100){
   }
 }
 
-traverse_tree <- function(tree, x){
-  # traverse the tree using the splitting rules and 
-  # returns point estimate for f(x)
-  if(tree$isLeaf){
-    return(tree$value)
-  }
-  if(x[tree$j] <= tree$s){
-    traverse_tree(tree$children[[1]], x)
-  }else {
-    traverse_tree(tree$children[[2]], x)
-  }
+traverse_tree <- function(tree, X, m = 1){
+  if(tree[m, "leaf"] == 1) return(tree[m, "value"])
+  
+  # choose child
+  rightSamples <- X[, tree[m, "j"]] >= tree[m, "s"]
+  
+  preds <- rep(NA, nrow(X))
+  if(sum(rightSamples) > 0)
+    preds[rightSamples] <- traverse_tree(tree, X[rightSamples, ], m = tree[m, "right"])
+  if(sum(!rightSamples) > 0)
+    preds[!rightSamples] <- traverse_tree(tree, X[!rightSamples, ], m = tree[m, "left"])
+  preds
+}
+
+getCp_max <-function(tree, m = 1){
+  if(tree[m, "leaf"] == 1) return(list(tree[m, "cp"], m))
+  
+  left_cp <- getCp_max(tree, tree[m, "left"])
+  right_cp <- getCp_max(tree, tree[m, "right"])
+  
+  cp_vec <- c(max(tree[m, "cp"], left_cp[[1]], right_cp[[1]]), left_cp[[1]], right_cp[[1]])
+  m_vec <- c(m, left_cp[[2]], right_cp[[2]])
+  list(cp_vec, m_vec)
 }
 
 loss <- function(Y, f_X){
@@ -256,7 +268,6 @@ Qf_temp <- function(v, Ue, Qf){
 
 
 
-
 # Helper function to construct the B spline basis function.
 # Essentially a wrapper for fda::bsplineS(), but extended to enable
 # linear extrapolation outside range(breaks).
@@ -275,4 +286,5 @@ Bbasis <- function(x, breaks){
   Bx[ind_right, l + 1] <- - (x[ind_right]-breaks[l]) * slope_right
   return(Bx)
 }
+
 

@@ -25,7 +25,7 @@ predict.SDTree <- function(object, newdata, ...){
   X <- as.matrix(X[, object$var_names])
   if(any(is.na(X))) stop('X must not contain missing values')
   
-  predict_outsample(object$tree, X)
+  traverse_tree(object$tree, X)
 }
 
 #' Predictions for the SDForest
@@ -65,7 +65,7 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   if(mc.cores > 1){
     if(locatexec::is_unix()){
       preds <- parallel::mclapply(object$forest, 
-                                function(x){predict_outsample(x$tree, X)}, 
+                                function(x){traverse_tree(x$tree, X)}, 
                                 mc.cores = mc.cores)
     }else{
       cl <- parallel::makeCluster(mc.cores)
@@ -75,11 +75,11 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
                                               all = TRUE)),
                               envir = as.environment(asNamespace("SDModels")))
       preds <- parallel::clusterApplyLB(cl = cl, object$forest, 
-                                      fun = function(x){predict_outsample(x$tree, X)})
+                                      fun = function(x){traverse_tree(x$tree, X)})
       parallel::stopCluster(cl = cl)
     }
   }else{
-    preds <- lapply(object$forest, function(x){predict_outsample(x$tree, X)})
+    preds <- lapply(object$forest, function(x){traverse_tree(x$tree, X)})
   }
   
   pred <- do.call(cbind, preds)
@@ -127,7 +127,7 @@ predictOOB <- function(object, X = NULL){
     model_idx <- oob_ind[[i]]
     model_idx <- model_idx[model_idx <= length(object$forest)]
     predictions <- sapply(model_idx, function(model){
-      predict_outsample(object$forest[[model]]$tree, xi)
+      traverse_tree(object$forest[[model]]$tree, xi)
     })
     mean(predictions)
   })

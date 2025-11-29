@@ -15,7 +15,7 @@
 #' Since comparing all possibilities for \eqn{\mathcal{P}} is impossible, we let a tree grow greedily. 
 #' Given the current tree, we iterate over all leaves and all possible splits. 
 #' We choose the one that reduces the spectral loss the most and estimate after each split 
-#' all the leave estimates
+#' all the leaf estimates
 #' \eqn{\hat{c} = \text{argmin}_{c' \in \mathbb{R}^M} \frac{||Q\mathbf{Y} - Q\mathcal{P} c'||_2^2}{n}} 
 #' which is just a linear regression problem. This is repeated until the loss decreases 
 #' less than a minimum loss decrease after a split. 
@@ -218,9 +218,14 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   loss_temp <- loss_start
 
   # initialize tree
-  tree <- data.tree::Node$new(name = '1', value = as.numeric(c_hat), 
-                              dloss = as.numeric(loss_start), 
-                              cp = 10, n_samples = n)
+  treeInfo <- c("name", "left", "right", "j", "s", "value", "dloss", 
+                "res_dloss", "cp", "cp_max", "n_samples", "leaf")
+  d <- length(treeInfo)
+  
+  tree <- matrix(0, ncol = d, nrow = 1, dimnames = list(NULL, treeInfo))
+  tree[1, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+    c(1, c_hat, loss_start, 10, n, 1)
+  treeSize <- 1
 
   # memory for optimal splits
   memory <- list()
@@ -311,7 +316,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
       break
     }
     
-    # divide observations in leave
+    # divide observations in leaf
     index <- which(E[, best_branch] == 1)
     index_n_branches <- index[X[index, j] > s]
     
@@ -337,7 +342,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     
     # check if loss decrease is larger than minimum loss decrease
     # and if linear model could be estimated
-    if(sum(is.na(as.matrix(c_hat))) > 0){
+    if(sum(is.na(as.numeric(c_hat))) > 0){
       warning('singulaer matrix QE, tree might be to large, consider increasing cp')
       break
     }
@@ -351,33 +356,29 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     # add loss decrease to variable importance
     var_imp[j] <- var_imp[j] + loss_dec
 
-    # select leave to split
-    if(tree$height == 1){
-      leave <- tree
-    }else{
-      leaves <- tree$leaves
-      leave <- leaves[[which(tree$Get('name', filterFun = data.tree::isLeaf) == best_branch)]]
-    }
-
+    # add space for the two new leaves
+    tree <- rbind(tree, matrix(0, nrow = 2, ncol = d))
+    
+    # select leaf to split
+    leaves <- tree[, "leaf"] == 1
+    toSplit <- leaves & (tree[, "name"] == best_branch)
+    if(sum(toSplit) != 1) stop("Tries to split more than one leaf")
+    
     # save split rule
-    leave$j <- j
-    leave$s <- s
-
-    leave$res_dloss <- loss_dec
-
+    tree[toSplit, c("left", "right", "j", "s", "res_dloss", "leaf")] <- 
+      c(treeSize + 1, treeSize + 2, j, s, loss_dec, 0)
+    
     # add new leaves
-    leave$AddChild(best_branch, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'yes', 
-                   n_samples = sum(E[, best_branch] == 1))
-    leave$AddChild(i + 1, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'no', 
-                   n_samples = sum(E[, i + 1] == 1))
+    tree[treeSize + 1, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(tree[toSplit, "name"], loss_dec, loss_dec / loss_start, sum(E[, best_branch] == 1), 1)
+    tree[treeSize + 2, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(i + 1, loss_dec, loss_dec / loss_start, sum(E[, i + 1] == 1), 1)
+    treeSize <- treeSize + 2
 
     # add estimates to tree leaves
     c_hat <- as.numeric(c_hat)
-    for(l in tree$leaves){
-      l$value <- c_hat[as.numeric(l$name)]
-    }
+    # access leaf estimates by leaf names (i.e. columns of E)
+    tree[tree[, "leaf"] == 1, "value"] <- c_hat[tree[tree[, "leaf"] == 1, "name"]]
 
     # the two new partitions need to be checked for optimal splits in next iteration
     potential_splits <- c(best_branch, i + 1)
@@ -403,23 +404,14 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   }
 
   # predict the test set
-  f_X_hat <- predict_outsample(tree, X)
-
+  f_X_hat <- traverse_tree(tree, X)
+  
   var_names <- colnames(data.frame(X))
   names(var_imp) <- var_names
 
-  # labels for the nodes
-  tree$Do(split_names, filterFun = data.tree::isNotLeaf, var_names = var_names)
-  tree$Do(leave_names, filterFun = data.tree::isLeaf)
-
   # cp max of all splits after
-  tree$Do(function(node) node$cp_max <- max(node$Get('cp')))
-  tree$Do(function(node) {
-    cp_max <- data.tree::Aggregate(node, 'cp_max', max)
-    node$children[[1]]$cp_max <- cp_max
-    node$children[[2]]$cp_max <- cp_max
-    }, filterFun = data.tree::isNotLeaf
-  )
+  new_cp <- getCp_max(tree)
+  tree[new_cp[[2]], "cp"] <- new_cp[[1]]
 
   res <- list(predictions = f_X_hat, tree = tree, 
               var_names = var_names, var_importance = var_imp)
