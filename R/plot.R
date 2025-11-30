@@ -14,9 +14,23 @@
 #' plot(model)
 #' @export
 plot.SDTree <- function(x, ...){
-  data.tree::SetEdgeStyle(x$tree, label = function(e) {e$decision})
-  data.tree::SetNodeStyle(x$tree, label = function(n) {n$label})
-  plot(x$tree, ...)
+  labels <- apply(x$tree, 1, split_names, var_names = x$var_names)
+  nodes <- data.frame(name = 1:nrow(x$tree), labels = labels)
+  
+  edges_left <- data.frame(from = 1:nrow(x$tree), to = x$tree[, "left"])
+  edges_left <- edges_left[x$tree[, "leaf"] == 2, ]
+  edges_right <- data.frame(from = 1:nrow(x$tree), to = x$tree[, "right"])
+  edges_right <- edges_right[x$tree[, "leaf"] == 2, ]
+  edges <- rbind(edges_left, edges_right)
+  
+  edge.labels <- c(rep("yes", nrow(edges_left)), rep("no", nrow(edges_right)))
+  
+  treeGraph <- igraph::graph_from_data_frame(edges, vertices = nodes)
+  
+  plot(treeGraph, layout = igraph::layout_as_tree, vertex.label = labels, 
+       vertex.size = 12, margin = 0, vertex.label.cex = 0.8, 
+       vertex.label.dist=0, vertex.label.color = "black", edge.label.color = "black",
+       vertex.shape = "none", edge.label = edge.labels, edge.label.cex = 0.6)
 }
 
 #' Plot performance of SDForest against number of trees
@@ -43,14 +57,14 @@ plot.SDForest <- function(x, ...){
     if(length(x$oob_ind[[i]]) == 0){
       return(NA)
     }
-    xi <- x$X[i, ]
+    xi <- matrix(x$X[i, ], nrow = 1)
     
     # predict for each tree
     pred <- rep(NA, length(x$forest))
     model_idx <- x$oob_ind[[i]]
     model_idx <- model_idx[model_idx <= length(x$forest)]
     predictions <- sapply(model_idx, function(model){
-      predict_outsample(x$forest[[model]]$tree, xi)
+      traverse_tree(x$forest[[model]]$tree, xi)
     })
     pred[model_idx] <- predictions
     pred

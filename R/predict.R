@@ -122,7 +122,7 @@ predictOOB <- function(object, X = NULL){
     if(length(oob_ind[[i]]) == 0){
       return(NA)
     }
-    xi <- X[i, ]
+    xi <- matrix(X[i, ], nrow = 1)
     
     model_idx <- oob_ind[[i]]
     model_idx <- model_idx[model_idx <= length(object$forest)]

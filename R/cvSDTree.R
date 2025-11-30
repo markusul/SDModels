@@ -155,7 +155,6 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   if(is.null(cp_seq)){
     cp_seq <- seq(0, 0.6, 0.002)
   }
-  t_seq <- cp_seq * loss_start
 
   # estimate performance for every validation set
   perf <- lapply(test_ind, function(cv_ind){
@@ -192,12 +191,12 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     
     # validation performance if we prune with the different ts
     if(mc.cores > 1){
-      perf <- parallel::mclapply(t_seq, function(t) 
-        pruned_loss(res$tree, X_cv, Y_cv, Qf_cv, t), 
+      perf <- parallel::mclapply(cp_seq, function(cp) 
+        pruned_loss(res, X_cv, Y_cv, Qf_cv, cp), 
         mc.cores = mc.cores, mc.preschedule = FALSE)
     }else{
-      perf <- lapply(t_seq, function(t) 
-        as.numeric(pruned_loss(res$tree, X_cv, Y_cv, Qf_cv, t)))
+      perf <- lapply(cp_seq, function(cp) 
+        as.numeric(pruned_loss(res, X_cv, Y_cv, Qf_cv, cp)))
     }
     
     return(perf)
@@ -205,7 +204,7 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
 
   # collect performance for different min loss decreases
   perf <- matrix(unlist(perf), ncol = nfolds, byrow = FALSE)
-  cp_table <- matrix(c(t_seq / loss_start, apply(perf, 1, mean), 
+  cp_table <- matrix(c(cp_seq, apply(perf, 1, mean), 
                        apply(perf, 1, sd)), ncol = 3, byrow = FALSE)
   colnames(cp_table) <- c('cp', 'SDLoss mean', 'SDLoss sd')
   

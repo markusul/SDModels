@@ -375,7 +375,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     if(length(oob_ind[[i]]) == 0){
       return(NA)
     }
-    xi <- X[i, ]
+    xi <- matrix(X[i, ], nrow = 1)
     predictions <- sapply(oob_ind[[i]], function(model){
       traverse_tree(res[[model]]$tree, xi)
     })
@@ -405,7 +405,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       if(length(ooEnv_ind[[i]]) == 0){
         return(NA)
       }
-      xi <- X[i, ]
+      xi <- matrix(X[i, ], nrow = 1)
       predictions <- sapply(ooEnv_ind[[i]], function(model){
         traverse_tree(res[[model]]$tree, xi)
       })

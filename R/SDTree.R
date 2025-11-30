@@ -73,7 +73,7 @@
 #' used for deconfounding.
 #' @return Object of class \code{SDTree} containing
 #' \item{predictions}{Predictions for the training set.}
-#' \item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}. 
+#' \item{tree}{The estimated tree of class \code{matrix}. 
 #' The tree contains the information about all the splits and the resulting estimates.}
 #' \item{var_names}{Names of the covariates in the training data.}
 #' \item{var_importance}{Variable importance of the covariates. 
@@ -219,7 +219,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
 
   # initialize tree
   treeInfo <- c("name", "left", "right", "j", "s", "value", "dloss", 
-                "res_dloss", "cp", "cp_max", "n_samples", "leaf")
+                "res_dloss", "cp", "n_samples", "leaf")
   d <- length(treeInfo)
   
   tree <- matrix(0, ncol = d, nrow = 1, dimnames = list(NULL, treeInfo))
@@ -366,7 +366,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     
     # save split rule
     tree[toSplit, c("left", "right", "j", "s", "res_dloss", "leaf")] <- 
-      c(treeSize + 1, treeSize + 2, j, s, loss_dec, 0)
+      c(treeSize + 1, treeSize + 2, j, s, loss_dec, 2)
     
     # add new leaves
     tree[treeSize + 1, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
@@ -412,6 +412,14 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   # cp max of all splits after
   new_cp <- getCp_max(tree)
   tree[new_cp[[2]], "cp"] <- new_cp[[1]]
+  
+  # use max cp over siblings to ensure binary tree
+  for(i in 1:nrow(tree)){
+    if(tree[i, c("j")] != 0){
+      tree[tree[i, c("left", "right")], "cp"] <- 
+        max(tree[tree[i, c("left", "right")], "cp"])
+    }
+  }
 
   res <- list(predictions = f_X_hat, tree = tree, 
               var_names = var_names, var_importance = var_imp)

@@ -1,7 +1,6 @@
 #' @importFrom Rdpack reprompt
 #' @import GPUmatrix
 #' @import DiagrammeR
-#' @import data.tree
 #' @import future.apply
 #' @import future
 #' @importFrom stats lm.fit
@@ -82,21 +81,14 @@ predict_outsample <- function(tree, X){
 }
 
 #helper functions to label nodes for plotting
-
 split_names <- function(node, var_names = NULL){
+  if(node["leaf"] == 1) return(round(node["value"], 2))
+    
   if(is.null(var_names)){
-    node$label <- paste('X', node$j, ' <= ', round(node$s, 2), sep = '')
+    paste('X', node["j"], ' <= ', round(node["s"], 2), sep = '')
   }else{
-    node$label <- paste(var_names[node$j], ' <= ', round(node$s, 2), sep = '')
+    paste(var_names[node["j"]], ' <= ', round(node["s"], 2), sep = '')
   }
-}
-
-leaf_names <- function(node){
-  new_name <- as.character(round(node$value, 1))
-  if(new_name %in% node$Get('name', filterFun = data.tree::isLeaf)){
-    new_name <- paste(new_name, '')
-  }
-  node$label <- new_name
 }
 
 # finds all the reasonable spliting points in a data matrix
@@ -129,16 +121,20 @@ find_s <- function(X, max_candidates = 100){
 }
 
 traverse_tree <- function(tree, X, m = 1){
-  if(tree[m, "leaf"] == 1) return(tree[m, "value"])
+  if(tree[m, "leaf"] == 1) return(rep(tree[m, "value"], nrow(X)))
   
   # choose child
   rightSamples <- X[, tree[m, "j"]] >= tree[m, "s"]
   
   preds <- rep(NA, nrow(X))
   if(sum(rightSamples) > 0)
-    preds[rightSamples] <- traverse_tree(tree, X[rightSamples, ], m = tree[m, "right"])
+    preds[rightSamples] <- traverse_tree(tree, matrix(X[rightSamples, ], 
+                                                      ncol = ncol(X)), 
+                                         m = tree[m, "right"])
   if(sum(!rightSamples) > 0)
-    preds[!rightSamples] <- traverse_tree(tree, X[!rightSamples, ], m = tree[m, "left"])
+    preds[!rightSamples] <- traverse_tree(tree, matrix(X[!rightSamples, ], 
+                                                       ncol = ncol(X)), 
+                                          m = tree[m, "left"])
   preds
 }
 
@@ -157,17 +153,15 @@ loss <- function(Y, f_X){
   as.numeric(sum((Y - f_X)^2) / length(Y))
 }
 
-pruned_loss <- function(tree, X_val, Y_val, Q_val, t){
+pruned_loss <- function(tree, X_val, Y_val, Q_val, cp){
   # function to prune tree using the minimum loss decrease t
   # and return spectral loss on the validation set
   
-  tree_t <- data.tree::Clone(tree)
-  
   # prune tree
-  data.tree::Prune(tree_t, function(x) x$dloss > t)
+  tree <- prune(tree, cp)
   
   # predict on test set
-  f_X_hat_val <- predict_outsample(tree_t, X_val)
+  f_X_hat_val <- traverse_tree(tree$tree, X_val)
   
   # return spectral loss
   sum((Q_val(Y_val) - Q_val(f_X_hat_val)) ** 2) / length(Y_val)

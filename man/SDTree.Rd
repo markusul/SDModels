@@ -96,7 +96,7 @@ used for deconfounding.}
 \value{
 Object of class \code{SDTree} containing
 \item{predictions}{Predictions for the training set.}
-\item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}. 
+\item{tree}{The estimated tree of class \code{matrix}. 
 The tree contains the information about all the splits and the resulting estimates.}
 \item{var_names}{Names of the covariates in the training data.}
 \item{var_importance}{Variable importance of the covariates. 
@@ -119,7 +119,7 @@ similar to the original cart algorithm \insertCite{Breiman2017ClassificationTree
 Since comparing all possibilities for \eqn{\mathcal{P}} is impossible, we let a tree grow greedily. 
 Given the current tree, we iterate over all leaves and all possible splits. 
 We choose the one that reduces the spectral loss the most and estimate after each split 
-all the leave estimates
+all the leaf estimates
 \eqn{\hat{c} = \text{argmin}_{c' \in \mathbb{R}^M} \frac{||Q\mathbf{Y} - Q\mathcal{P} c'||_2^2}{n}} 
 which is just a linear regression problem. This is repeated until the loss decreases 
 less than a minimum loss decrease after a split. 

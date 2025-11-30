@@ -13,7 +13,7 @@ rpart_tree <- rpart::rpart(y ~ ., data.frame(y = Y, X),
                                                           cp = 0, 
                                                           minsplit = 10, 
                                                           xval = 0))
-pruned_tree <- prune(copy(tree), 0.1)
+pruned_tree <- prune(tree, 0.1)
 pruned_rpart_tree <- rpart::prune(rpart_tree, 0.1)
 
 # predict = predictions
@@ -25,7 +25,8 @@ expect_equal(tree$predictions, as.vector(predict(rpart_tree)))
 # equality of pruned tree and pruned rpart tree (checked using predictions)
 expect_equal(as.vector(predict(pruned_tree, data.frame(X))), predict(pruned_rpart_tree))
 
-partDependence(tree, 1, X, subSample = 10)
+mostImp <- which.max(varImp(tree))
+partDependence(tree, mostImp, X, subSample = 10)
 
 #test single variable and single prediction
 tree <- SDTree(x = X[, 1], y = Y, Q_type = 'no_deconfounding', 
@@ -49,7 +50,7 @@ rpart_tree <- rpart::rpart(y ~ ., data.frame(y = Y, X),
                                                           cp = 0, 
                                                           minsplit = 10, 
                                                           xval = 0))
-pruned_tree <- prune(copy(tree), 0.1)
+pruned_tree <- prune(tree, 0.1)
 pruned_rpart_tree <- rpart::prune(rpart_tree, 0.1)
 
 # predict = predictions

@@ -16,10 +16,12 @@ varImp <- function(object) {UseMethod("varImp")}
 #' varImp(tree)
 #' @export
 varImp.SDTree <- function(object){
-  j_dec <- object$tree[object$tree[, "leaf"] == 0, c("j", "res_dloss")]
+  j_dec <- matrix(object$tree[object$tree[, "leaf"] == 2, c("j", "res_dloss")], 
+                  ncol = 2, dimnames = list(NULL, c("j", "res_dloss")))
   var_importance <- rep(0, length(object$var_names))
   
   imp <- tapply(j_dec[, "res_dloss"], j_dec[, "j"], sum)
+
   var_importance[as.numeric(names(imp))] <- imp
   names(var_importance) <- object$var_names
   var_importance
@@ -43,7 +45,7 @@ varImp.SDTree <- function(object){
 #' varImp(fit)
 #' @export
 varImp.SDForest <- function(object){
-  rowMeans(do.call(cbind, lapply(object$forest, varImp)))
+  rowMeans(do.call(cbind, lapply(object$forest, function(tree) varImp(tree))))
 }
 
 #' Extract Variable importance for SDAM
