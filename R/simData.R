@@ -227,6 +227,8 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE, cl = -50, cu = 50)
   
   # partitions of observations
   index <- list(1:n)
+  
+  if(m > 0){
   for (i in 1:m){
     # get number of observations in each partition
     samples_per_part <- unlist(lapply(index, function(x)length(x)))
@@ -246,7 +248,7 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE, cl = -50, cu = 50)
     
     # sample covariate to split on
     j <- sample(1:p, 1)
-    js <- c(j, js)
+    js <- c(js, j)
     
     # sample split point
     potential_s <- X[index[[branch]], j]
@@ -279,6 +281,7 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE, cl = -50, cu = 50)
         c(i + 1, runif(1, cl, cu), 1/i, 1/i, length(index[[length(index)]]), 1)
       treeSize <- treeSize + 2
     }
+  }
   }
   
   # sample means per partition

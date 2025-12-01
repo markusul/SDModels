@@ -71,25 +71,17 @@ data.handler <- function(formula = NULL, data = NULL, x = NULL, y = NULL){
   }
 }
 
-predict_outsample <- function(tree, X){
-  # predict for every observation in X f(x)
-  # using the splitting rules from the tree
-  if(is.null(dim(X))){
-    return(traverse_tree(tree, X))
-  }
-  apply(X, 1, function(x)traverse_tree(tree, x))
-}
-
 #helper functions to label nodes for plotting
-split_names <- function(node, var_names = NULL){
-  if(node["leaf"] == 1) return(round(node["value"], 2))
+split_names <- function(node, var_names = NULL, digits = 2){
+  if(node["leaf"] == 1) return("")
     
   if(is.null(var_names)){
-    paste('X', node["j"], ' <= ', round(node["s"], 2), sep = '')
+    paste('X', node["j"], ' <= ', round(node["s"], digits), sep = '')
   }else{
-    paste(var_names[node["j"]], ' <= ', round(node["s"], 2), sep = '')
+    paste(var_names[node["j"]], ' <= ', round(node["s"], digits), sep = '')
   }
 }
+
 
 # finds all the reasonable spliting points in a data matrix
 find_s <- function(X, max_candidates = 100){

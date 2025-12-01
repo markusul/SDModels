@@ -78,7 +78,7 @@ Tree <- SDTree(Y ~ ., train_data, cp = 0.03)
 
 # plot the tree
 Tree
-#plot(Tree)
+plot(Tree)
 ```
 
 Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the `SDAM` function. See also the article [SDAM](https://www.markus-ulmer.ch/SDModels/articles/SDAM.html).
