@@ -5,15 +5,11 @@ Y <- rnorm(n)
 
 # fit in parallel
 set.seed(33)
-expect_no_error(
 fit <- SDForest(x = X, y = Y, Q_type = 'no_deconfounding', 
         nTree = 2, mc.cores = 2, verbose = FALSE)
-)
 
 # predict in parallel
-expect_no_error(
 pred <- predict(fit, newdata = data.frame(X), mc.cores = 2)
-)
 
 # reproducibility
 set.seed(33)
