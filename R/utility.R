@@ -113,6 +113,13 @@ find_s <- function(X, max_candidates = 100){
 }
 
 traverse_tree <- function(tree, X, m = 1){
+  if (is.null(tree) || nrow(tree) == 0) {
+    stop("Tree is empty or not constructed properly.")
+  }
+  if(m < 1 | m > nrow(tree)){
+    stop("m has to be a valid index of the tree")
+  }
+  
   if(tree[m, "leaf"] == 1) return(rep(tree[m, "value"], nrow(X)))
   
   # choose child

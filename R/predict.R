@@ -65,7 +65,7 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   if(mc.cores > 1){
     if(locatexec::is_unix()){
       preds <- parallel::mclapply(object$forest, 
-                                function(x){traverse_tree(x$tree, X)}, 
+                                function(x){traverse_tree(x[["tree"]], X)}, 
                                 mc.cores = mc.cores)
     }else{
       cl <- parallel::makeCluster(mc.cores)
@@ -75,11 +75,11 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
                                               all = TRUE)),
                               envir = as.environment(asNamespace("SDModels")))
       preds <- parallel::clusterApplyLB(cl = cl, object$forest, 
-                                      fun = function(x){traverse_tree(x$tree, X)})
+                                      fun = function(x){traverse_tree(x[["tree"]], X)})
       parallel::stopCluster(cl = cl)
     }
   }else{
-    preds <- lapply(object$forest, function(x){traverse_tree(x$tree, X)})
+    preds <- lapply(object$forest, function(x){traverse_tree(x[["tree"]], X)})
   }
   
   pred <- do.call(cbind, preds)
