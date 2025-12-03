@@ -319,7 +319,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   }
   
   if(mc.cores > 1){
-    if(!locatexec::is_windows()){
+    if(Sys.info()[["sysname"]] == "Linux"){
       if(verbose) print('mclapply')
       res_list <- parallel::mclapply(ind, worker_fun, mc.cores = mc.cores)
     }else{
