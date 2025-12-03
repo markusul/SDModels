@@ -205,7 +205,9 @@ J. Data Sci.* <https://doi.org/10.1145/3711116>.
 class="csl-entry">
 
 Ulmer, Markus, Cyrill Scheidegger, and Peter Bühlmann. 2025. “Spectrally
-Deconfounded Random Forests.” <https://arxiv.org/abs/2502.03969>.
+Deconfounded Random Forests.” *Journal of Computational and Graphical
+Statistics*. ASA Website.
+<https://doi.org/10.1080/10618600.2025.2569602>.
 
 </div>
 
