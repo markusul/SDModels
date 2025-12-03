@@ -4,6 +4,7 @@
 * This results in a substantial reduction of RAM usage and space needed to save an SDTree or SDForest. It also results in increased computational speed.
 * Removal of copy, fromList, and toList. Remove the copy arguments from all pruning involving functions.
 * New plotting of SDTree objects.
+* Improved/Robust parallelization.
 
 # SDModels 1.0.13
 
