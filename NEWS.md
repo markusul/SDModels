@@ -5,6 +5,7 @@
 * Removal of copy, fromList, and toList. Remove the copy arguments from all pruning involving functions.
 * New plotting of SDTree objects.
 * Improved/Robust parallelization.
+* Remove gpu support and dependence on GPUmatrix due to it being scheduled for archiving.
 
 # SDModels 1.0.13
 
