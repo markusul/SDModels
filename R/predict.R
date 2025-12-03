@@ -61,27 +61,41 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   colnames(X) <- object$var_names
   
   if(any(is.na(X))) stop('X must not contain missing values')
-
+  
+  worker_fun <- function(tree){
+    preds_i <- tryCatch({
+      preds <- traverse_tree(tree[["tree"]], X)
+      list(ok = TRUE, preds = preds)
+    }, error = function(e) {
+      list(ok = FALSE, error = conditionMessage(e))
+    }, warning = function(w) {
+      # convert warnings to tagged results if needed
+      list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
+    })
+    preds_i
+  }
   if(mc.cores > 1){
-    if(locatexec::is_unix()){
-      preds <- parallel::mclapply(object$forest, 
-                                function(x){traverse_tree(x[["tree"]], X)}, 
-                                mc.cores = mc.cores)
+    if(Sys.info()[["sysname"]] == "Linux"){
+      preds_list <- parallel::mclapply(object$forest, 
+                                       worker_fun, 
+                                       mc.cores = mc.cores)
     }else{
-      cl <- parallel::makeCluster(mc.cores)
-      doParallel::registerDoParallel(cl)
-      parallel::clusterExport(cl = cl, 
-                              unclass(lsf.str(envir = asNamespace("SDModels"), 
-                                              all = TRUE)),
-                              envir = as.environment(asNamespace("SDModels")))
-      preds <- parallel::clusterApplyLB(cl = cl, object$forest, 
-                                      fun = function(x){traverse_tree(x[["tree"]], X)})
-      parallel::stopCluster(cl = cl)
+      future::plan('multisession', workers = mc.cores)
+      preds_list <- future.apply::future_lapply(future.seed = TRUE, 
+                                                X = object$forest, 
+                                                worker_fun)
     }
   }else{
-    preds <- lapply(object$forest, function(x){traverse_tree(x[["tree"]], X)})
+    preds_list <- pbapply::pblapply(object$forest, worker_fun)
   }
   
+  #check worker statuses
+  failed_workers <- which(vapply(preds_list, function(z) !isTRUE(z$ok), logical(1)))
+  if (length(failed_workers) > 0) {
+    stop(sprintf("SDForest: %d worker(s) failed, first error: %s",
+                 length(failed_workers), preds_list[[failed_workers[1]]]$error))
+  }
+  preds <- lapply(preds_list, function(preds_i) preds_i$preds)
   pred <- do.call(cbind, preds)
   rowMeans(pred)
 }
