@@ -5,10 +5,10 @@ bibentry(
   title="Spectrally Deconfounded Random Forests", 
   author="Markus Ulmer and Cyrill Scheidegger and Peter B{\"u}hlmann",
   year="2025",
-  eprint="2502.03969",
-  journal="arXiv",
-  primaryClass="stat.CO",
-  url="https://arxiv.org/abs/2502.03969",
+  publisher="ASA Website",
+  journal="Journal of Computational and Graphical Statistics",
+  doi="10.1080/10618600.2025.2569602",
+  url="https://doi.org/10.1080/10618600.2025.2569602",
   textVersion = "Ulmer, Scheidegger, and Bühlmann (2025) Spectrally Deconfounded Random Forests. arXiv preprint."
 )
 
@@ -22,5 +22,7 @@ bibentry(
   url = "https://doi.org/10.1145/3711116",
   doi = "10.1145/3711116",
   journal = "ACM / IMS J. Data Sci.",
+  volume = "2",
+  number = "1",
   textVersion = "Scheidegger, Guo, and Bühlmann (2025) Spectral deconfounding for high-dimensional sparse additive models. ACM/JMS Journal of Data Science."
 )

@@ -38,11 +38,6 @@
 #' @param A Numerical Anchor of class \code{matrix}. See \code{\link{get_W}}.
 #' @param gamma Strength of distributional robustness, \eqn{\gamma \in [0, \infty]}. 
 #' See \code{\link{get_W}}.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
-#' @param mem_size Amount of split candidates that can be evaluated at once.
-#' This is a trade-off between memory and speed can be decreased if either
-#' the memory is not sufficient or the gpu is to small.
 #' @param max_candidates Maximum number of split points that are 
 #' proposed at each node for each covariate.
 #' @param nfolds Number of folds for cross-validation. 
@@ -74,10 +69,8 @@
 cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, 
                      max_leaves = NULL, cp = 0, min_sample = 5, mtry = NULL, 
                      fast = TRUE, Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, 
-                     Qf = NULL, A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, 
-                     max_candidates = 100, nfolds = 3, cp_seq = NULL, mc.cores = 1, 
-                     Q_scale = TRUE){
-  ifelse(GPUmatrix::installTorch(), gpu_type <- 'torch', gpu_type <- 'tensorflow')
+                     Qf = NULL, A = NULL, gamma = 0.5, max_candidates = 100, 
+                     nfolds = 3, cp_seq = NULL, mc.cores = 1, Q_scale = TRUE){
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -97,12 +90,6 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   if(nfolds > 5 & n < p) 
     warning('if n < p and to many folds are used, Q_validation might differ 
             to much from Q_trainig, consider using less folds')
-  
-  if(gpu && (mc.cores > 1)) {
-    mc.cores <- 1
-    warning('gpu and multicore cannot be used together, 
-            set mc.cores to 1')
-    }
 
   # estimate spectral transformation
   if(!is.null(A)){
@@ -110,16 +97,16 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     if(is.vector(A)) A <- matrix(A)
     if(!is.matrix(A)) stop('A must be a matrix')
     if(nrow(A) != n) stop('A must have n rows')
-    Wf <- get_Wf(A, gamma, gpu)
+    Wf <- get_Wf(A, gamma)
   }else {
     Wf <- function(v) v
   }
   
   if(is.null(Qf)){
     if(!is.null(A)){
-      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf(v))
+      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
     }else{
-      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, Q_scale)
     }
   }else{
     if(!is.function(Qf)) stop('Q must be a function')
@@ -130,19 +117,13 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   # to map optimal minimal loss decrease to a cp value
   E <- matrix(1, n, 1)
   E_tilde <- Qf(E)
-  if(gpu){
-    E_tilde <- gpu.matrix(E_tilde, type = gpu_type)
-  }
   Ue <- E_tilde / sqrt(sum(E_tilde ** 2))
   Y_tilde <- Qf(Y)
 
   # solve linear model
-  if(gpu_type == 'tensorflow'){
-    c_hat <- lm.fit(as.matrix(E_tilde), as.matrix(Y_tilde))$coefficients
-  }else{
-    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
-    c_hat <- as.numeric(c_hat)
-  }
+  c_hat <- qr.coef(qr(E_tilde), Y_tilde)
+  c_hat <- as.numeric(c_hat)
+  
   loss_start <- sum((Y_tilde - c_hat) ** 2) / n
   loss_start <- as.numeric(loss_start)
 
@@ -155,7 +136,6 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   if(is.null(cp_seq)){
     cp_seq <- seq(0, 0.6, 0.002)
   }
-  t_seq <- cp_seq * loss_start
 
   # estimate performance for every validation set
   perf <- lapply(test_ind, function(cv_ind){
@@ -165,15 +145,15 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       if(is.vector(A)) A <- matrix(A)
       if(!is.matrix(A)) stop('A must be a matrix')
       if(nrow(A) != n) stop('A must have n rows')
-      Wf_cv <- get_Wf(A[cv_ind, ], gamma, gpu)
+      Wf_cv <- get_Wf(A[cv_ind, ], gamma)
     }else {
       Wf_cv <- function(v) v
     }
     
     if(!is.null(A)){
-      Qf_cv <- function(v) get_Qf(Wf_cv(X[cv_ind, ]), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf_cv(v))
+      Qf_cv <- function(v) get_Qf(Wf_cv(X[cv_ind, ]), Q_type, trim_quantile, q_hat, Q_scale)(Wf_cv(v))
     }else{
-      Qf_cv <- get_Qf(X[cv_ind, ], Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf_cv <- get_Qf(X[cv_ind, ], Q_type, trim_quantile, q_hat, Q_scale)
     }
 
     X_train <- X[-cv_ind, ]
@@ -187,17 +167,17 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     res <- SDTree(x = X_train, y = Y_train, max_leaves = max_leaves, cp = 0, 
                   min_sample = min_sample, Q_type = Q_type, 
                   trim_quantile = trim_quantile, q_hat = q_hat, mtry = mtry, 
-                  A = A_train, gamma = gamma, gpu = gpu, mem_size = mem_size, 
-                  max_candidates = max_candidates, Q_scale = Q_scale)
+                  A = A_train, gamma = gamma, max_candidates = max_candidates, 
+                  Q_scale = Q_scale)
     
     # validation performance if we prune with the different ts
     if(mc.cores > 1){
-      perf <- parallel::mclapply(t_seq, function(t) 
-        pruned_loss(res$tree, X_cv, Y_cv, Qf_cv, t), 
+      perf <- parallel::mclapply(cp_seq, function(cp) 
+        pruned_loss(res, X_cv, Y_cv, Qf_cv, cp), 
         mc.cores = mc.cores, mc.preschedule = FALSE)
     }else{
-      perf <- lapply(t_seq, function(t) 
-        as.numeric(pruned_loss(res$tree, X_cv, Y_cv, Qf_cv, t)))
+      perf <- lapply(cp_seq, function(cp) 
+        as.numeric(pruned_loss(res, X_cv, Y_cv, Qf_cv, cp)))
     }
     
     return(perf)
@@ -205,7 +185,7 @@ cvSDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
 
   # collect performance for different min loss decreases
   perf <- matrix(unlist(perf), ncol = nfolds, byrow = FALSE)
-  cp_table <- matrix(c(t_seq / loss_start, apply(perf, 1, mean), 
+  cp_table <- matrix(c(cp_seq, apply(perf, 1, mean), 
                        apply(perf, 1, sd)), ncol = 3, byrow = FALSE)
   colnames(cp_table) <- c('cp', 'SDLoss mean', 'SDLoss sd')
   

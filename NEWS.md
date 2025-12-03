@@ -1,3 +1,12 @@
+# SDModels 2.0.0
+
+* Removal of data.tree dependence. Trees are now saved as a matrix.
+* This results in a substantial reduction of RAM usage and space needed to save an SDTree or SDForest. It also results in increased computational speed.
+* Removal of copy, fromList, and toList. Remove the copy arguments from all pruning involving functions.
+* New plotting of SDTree objects.
+* Improved/Robust parallelization.
+* Remove gpu support and dependence on GPUmatrix due to it being scheduled for archiving.
+
 # SDModels 1.0.13
 
 * In case of parallel processing use random number generator "L'Ecuyer-CMRG" for reproducibility

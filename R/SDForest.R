@@ -52,14 +52,9 @@
 #' See \code{\link{get_W}}.
 #' @param max_size Maximum number of observations used for a bootstrap sample.
 #' If \code{NULL} n samples with replacement are drawn.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
 #' @param return_data If \code{TRUE}, the training data is returned in the output.
 #' This is needed for \code{\link{prune.SDForest}}, \code{\link{regPath.SDForest}}, 
 #' and for \code{\link{mergeForest}}.
-#' @param mem_size Amount of split candidates that can be evaluated at once.
-#' This is a trade-off between memory and speed can be decreased if either
-#' the memory is not sufficient or the gpu is to small.
 #' @param leave_out_ind Indices of observations that should not be used for training.
 #' @param envs Vector of environments of class \code{factor} 
 #' which can be used for stratified tree fitting.
@@ -177,14 +172,11 @@
 SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 100, 
                      cp = 0, min_sample = 5, mtry = NULL, mc.cores = 1, 
                      Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, Qf = NULL, 
-                     A = NULL, gamma = 7, max_size = NULL, gpu = FALSE, 
-                     return_data = TRUE, mem_size = 1e+7, leave_out_ind = NULL, 
+                     A = NULL, gamma = 7, max_size = NULL,
+                     return_data = TRUE, leave_out_ind = NULL, 
                      envs = NULL, nTree_leave_out = NULL, nTree_env = NULL, 
                      max_candidates = 100, Q_scale = TRUE, verbose = TRUE, 
                      predictors = NULL){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -199,9 +191,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   if(n != length(Y)) stop('X and Y must have the same number of observations')
   if(!is.null(mtry) && mtry < 1) stop('mtry must be larger than 0')
   if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
-  if(gpu && (mc.cores > 1)) 
-    warning('gpu and multicore cannot be used together, 
-            no gpu is not used for tree estimations')
 
   if(!is.null(leave_out_ind) && any(leave_out_ind >= n, leave_out_ind < 1)) 
     stop('leave_out_ind must be smaller than n')
@@ -218,16 +207,16 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     if(is.vector(A)) A <- matrix(A)
     if(!is.matrix(A)) stop('A must be a matrix')
     if(nrow(A) != n) stop('A must have n rows')
-    Wf <- get_Wf(A, gamma, gpu)
+    Wf <- get_Wf(A, gamma)
   }else {
     Wf <- function(v) v
   }
 
   if(is.null(Qf)){
     if(!is.null(A)){
-      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf(v))
+      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
     }else{
-      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, Q_scale)
     }
   }else{
     if(!is.function(Qf)) stop('Q must be a function')
@@ -290,62 +279,55 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   #use random generater that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
   
+  # Worker wrapper for bagged trees
+  worker_fun <- function(i) {
+    Xi <- matrix(X[i, ], ncol = ncol(X))
+    colnames(Xi) <- colnames(X)
+    if(!is.null(A)){
+      Ai <- matrix(A[i, ], ncol = ncol(A))
+    }else{
+      Ai <- NULL
+    }
+    
+    # protect SDTree call
+    res_i <- tryCatch({
+      tree_obj <- SDTree(x = Xi, y = Y[i],
+                         cp = cp, min_sample = min_sample,
+                         Q_type = Q_type, trim_quantile = trim_quantile,
+                         q_hat = q_hat, mtry = mtry, A = Ai, gamma = gamma, 
+                         max_candidates = max_candidates, 
+                         Q_scale = Q_scale, predictors = predictors)
+      list(ok = TRUE, tree = tree_obj)
+    }, error = function(e) {
+      list(ok = FALSE, error = conditionMessage(e))
+    }, warning = function(w) {
+      # convert warnings to tagged results if needed
+      list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
+    })
+    res_i
+  }
+  
   if(mc.cores > 1){
-    if(!locatexec::is_windows()){
+    if(Sys.info()[["sysname"]] == "Linux"){
       if(verbose) print('mclapply')
-      res <- parallel::mclapply(ind, function(i) {
-        Xi <- matrix(X[i, ], ncol = ncol(X))
-        colnames(Xi) <- colnames(X)
-        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-               Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-               mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale, 
-               predictors = predictors)
-        }, 
-        mc.cores = mc.cores)
+      res_list <- parallel::mclapply(ind, worker_fun, mc.cores = mc.cores)
     }else{
       if(verbose) print('future')
       future::plan('multisession', workers = mc.cores)
-      res <- future.apply::future_lapply(future.seed = TRUE, X = ind, FUN = function(i){
-        Xi <- matrix(X[i, ], ncol = ncol(X))
-        colnames(Xi) <- colnames(X)
-        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-               Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-               mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale, 
-               predictors = predictors)
-      })
-    }#else{
-    #  if(verbose) print('makeCluster')
-    #  cl <- parallel::makeCluster(mc.cores)
-    #  doParallel::registerDoParallel(cl)
-    #  parallel::clusterExport(cl = cl, 
-    #                          unclass(lsf.str(envir = asNamespace("SDModels"), 
-    #                                          all = TRUE)),
-    #                          envir = as.environment(asNamespace("SDModels")))
-    #  res <- parallel::clusterApply(cl = cl, ind, fun = function(i){
-    #    Xi <- matrix(X[i, ], ncol = ncol(X))
-    #    colnames(Xi) <- colnames(X)
-    #    SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-    #           Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-    #           mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-    #           max_candidates = max_candidates, Q_scale = Q_scale, 
-    #           predictors = predictors)
-    #    })
-    #  parallel::stopCluster(cl = cl)
-    #}
+      res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
+    }
   }else{
-    res <- pbapply::pblapply(ind, function(i){
-      Xi <- matrix(X[i, ], ncol = ncol(X))
-      colnames(Xi) <- colnames(X)
-      SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-             Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-             mtry = mtry, A = A[i, ], gamma = gamma, gpu = gpu, 
-             mem_size = mem_size, max_candidates = max_candidates, 
-             Q_scale = Q_scale, predictors = predictors)
-    })
+    res_list <- pbapply::pblapply(ind, worker_fun)
   }
   RNGkind(ok[1])
+  
+  #check worker statuses
+  failed_workers <- which(vapply(res_list, function(z) !isTRUE(z$ok), logical(1)))
+  if (length(failed_workers) > 0) {
+    stop(sprintf("SDForest: %d worker(s) failed, first error: %s",
+                 length(failed_workers), res_list[[failed_workers[1]]]$error))
+  }
+  res <- lapply(res_list, function(res) res$tree)
   
   #selection of predictors
   if(!is.null(predictors)){
@@ -375,9 +357,9 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     if(length(oob_ind[[i]]) == 0){
       return(NA)
     }
-    xi <- X[i, ]
+    xi <- matrix(X[i, ], nrow = 1)
     predictions <- sapply(oob_ind[[i]], function(model){
-      predict_outsample(res[[model]]$tree, xi)
+      traverse_tree(res[[model]]$tree, xi)
     })
     return(mean(predictions))
   })
@@ -405,9 +387,9 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       if(length(ooEnv_ind[[i]]) == 0){
         return(NA)
       }
-      xi <- X[i, ]
+      xi <- matrix(X[i, ], nrow = 1)
       predictions <- sapply(ooEnv_ind[[i]], function(model){
-        predict_outsample(res[[model]]$tree, xi)
+        traverse_tree(res[[model]]$tree, xi)
       })
       return(mean(predictions))
     })
@@ -417,7 +399,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   }
 
   # predict with all trees
-  pred <- do.call(cbind, lapply(res, function(x){predict_outsample(x$tree, X)}))
+  pred <- do.call(cbind, lapply(res, function(x){traverse_tree(x$tree, X)}))
   
   # use mean over trees as final prediction
   f_X_hat <- rowMeans(pred)

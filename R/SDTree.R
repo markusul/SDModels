@@ -15,7 +15,7 @@
 #' Since comparing all possibilities for \eqn{\mathcal{P}} is impossible, we let a tree grow greedily. 
 #' Given the current tree, we iterate over all leaves and all possible splits. 
 #' We choose the one that reduces the spectral loss the most and estimate after each split 
-#' all the leave estimates
+#' all the leaf estimates
 #' \eqn{\hat{c} = \text{argmin}_{c' \in \mathbb{R}^M} \frac{||Q\mathbf{Y} - Q\mathcal{P} c'||_2^2}{n}} 
 #' which is just a linear regression problem. This is repeated until the loss decreases 
 #' less than a minimum loss decrease after a split. 
@@ -58,11 +58,6 @@
 #' @param A Numerical Anchor of class \code{matrix}. See \code{\link{get_W}}.
 #' @param gamma Strength of distributional robustness, \eqn{\gamma \in [0, \infty]}. 
 #' See \code{\link{get_W}}.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
-#' @param mem_size Amount of split candidates that can be evaluated at once.
-#' This is a trade-off between memory and speed can be decreased if either
-#' the memory is not sufficient or the gpu is to small.
 #' @param max_candidates Maximum number of split points that are 
 #' proposed at each node for each covariate.
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
@@ -73,7 +68,7 @@
 #' used for deconfounding.
 #' @return Object of class \code{SDTree} containing
 #' \item{predictions}{Predictions for the training set.}
-#' \item{tree}{The estimated tree of class \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}. 
+#' \item{tree}{The estimated tree of class \code{matrix}. 
 #' The tree contains the information about all the splits and the resulting estimates.}
 #' \item{var_names}{Names of the covariates in the training data.}
 #' \item{var_importance}{Variable importance of the covariates. 
@@ -122,12 +117,8 @@
 SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves = NULL, 
                    cp = 0.01, min_sample = 5, mtry = NULL, fast = TRUE,
                    Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, Qf = NULL, 
-                   A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, max_candidates = 100, 
+                   A = NULL, gamma = 0.5, max_candidates = 100, 
                    Q_scale = TRUE, predictors = NULL){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
-  
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -139,7 +130,6 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
 
   max_leaves <- max_leaves - 1
 
-  mem_size <- mem_size / n
   # check validity of input
   if(n != length(Y)) stop('X and Y must have the same number of observations')
   if(max_leaves < 0) stop('max_leaves must be larger than 1')
@@ -156,16 +146,16 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     if(is.vector(A)) A <- matrix(A)
     if(!is.matrix(A)) stop('A must be a matrix')
     if(nrow(A) != n) stop('A must have n rows')
-    Wf <- get_Wf(A, gamma, gpu)
+    Wf <- get_Wf(A, gamma)
   }else {
     Wf <- function(v) v
   }
 
   if(is.null(Qf)){
     if(!is.null(A)){
-      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf(v))
+      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
     }else{
-      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, Q_scale)
     }
   }else{
     if(!is.function(Qf)) stop('Q must be a function')
@@ -198,29 +188,25 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   # calculate first estimate
   E <- matrix(1, n, 1)
   E_tilde <- Qf(E)
-
-  if(gpu){
-    E_tilde <- gpu.matrix(E_tilde, type = gpu_type)
-  }
-
   Ue <- E_tilde / sqrt(sum(E_tilde ** 2))
   Y_tilde <- Qf(Y)
 
   # solve linear model
-  if(gpu && gpu_type == 'tensorflow'){
-    c_hat <- lm.fit(as.matrix(E_tilde), as.matrix(Y_tilde))$coefficients
-  }else{
-    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
-    c_hat <- as.numeric(c_hat)
-  }
+  c_hat <- qr.coef(qr(E_tilde), Y_tilde)
+  c_hat <- as.numeric(c_hat)
 
   loss_start <- as.numeric(sum((Y_tilde - c_hat) ** 2) / n)
   loss_temp <- loss_start
 
   # initialize tree
-  tree <- data.tree::Node$new(name = '1', value = as.numeric(c_hat), 
-                              dloss = as.numeric(loss_start), 
-                              cp = 10, n_samples = n)
+  treeInfo <- c("name", "left", "right", "j", "s", "value", "dloss", 
+                "res_dloss", "cp", "n_samples", "leaf")
+  d <- length(treeInfo)
+  
+  tree <- matrix(0, ncol = d, nrow = 1, dimnames = list(NULL, treeInfo))
+  tree[1, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+    c(1, c_hat, loss_start, 10, n, 1)
+  treeSize <- 1
 
   # memory for optimal splits
   memory <- list()
@@ -244,54 +230,37 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     
     #iterate over new to estimate splits
     for(branch in potential_splits){
+      # get samples in branch to evaluate
       E_branch <- E[, branch]
       index <- which(E_branch == 1)
       X_branch <- matrix(X[index, ], nrow = length(index))
-
+      
+      # get potential splitting candidates
       s <- find_s(X_branch, max_candidates = max_candidates)
       n_splits <- nrow(s)
-
+      
+      # remove splits resulting in to small leaves
       if(min_sample > 1) {
         s <- s[-c(0:(min_sample - 1), (n_splits - min_sample + 2):(n_splits+1)), ]
       }
       s <- matrix(s, ncol = p)
-
-      all_n_splits <- apply(s, 2, function(x) length(unique(x)))
-      all_idx <- cumsum(all_n_splits)
-
-      eval <- matrix(-Inf, nrow(s), p)
-      done_splits <- 0
-      p_top <- 0
-      while(p_top < p){
-        c_all_idx <- all_idx - done_splits
-        p_low <- p_top + 1
-        possible <- which(c_all_idx < mem_size)
-        p_top <- possible[length(possible)]
-
-        c_n_splits <- sum(all_idx[p_top], -all_idx[p_low-1])
-        E_next <- matrix(0, n, c_n_splits)
-        for(j in p_low:p_top){
-          s_j <- s[, j]
-          s_j <- unique(s_j)
-          for(i_s in 1:all_n_splits[j]){
-            E_next[index[X_branch[, j] > s_j[i_s]], sum(c_all_idx[j-1], i_s)] <- 1
-          }
-        }
-        if(gpu) E_next <- gpu.matrix(E_next, type = gpu_type)
-
+      
+      optSplits <- lapply(1:p, function(j){
+        s_j <- unique(s[, j])
+        E_next <- lapply(s_j, function(si) {
+          E_next <- matrix(0, nrow = n, ncol = 1)
+          E_next[index[X_branch[, j] > si], ] <- 1
+          E_next
+        })
+        E_next <- do.call(cbind, E_next)
         U_next_prime <- Qf_temp(E_next, Ue, Qf)
         U_next_size <- colSums(U_next_prime ** 2)
         dloss <- as.numeric(crossprod(U_next_prime, Y_tilde))**2 / U_next_size
-        dloss[is.na(dloss)] <- 0
         
-        for(m in p_low:p_top){
-          eval[1:all_n_splits[m], m] <- dloss[sum(c_all_idx[m-1], 1):c_all_idx[m]]
-        }
-        done_splits <- done_splits + c_n_splits
-      }
-      is_opt <- apply(eval, 2, which.max)
-      memory[[branch]] <- t(sapply(1:p, function(j) 
-        c(eval[is_opt[j], j], j, unique(s[, j])[is_opt[j]], branch)))
+        opt <- which.max(unlist(dloss))
+        c(dloss[[opt]], j, s_j[opt], branch)
+      })
+      memory[[branch]] <- do.call(rbind, optSplits)
     }
 
     if(i > after_mtry && !is.null(mtry)){
@@ -311,7 +280,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
       break
     }
     
-    # divide observations in leave
+    # divide observations in leaf
     index <- which(E[, best_branch] == 1)
     index_n_branches <- index[X[index, j] > s]
     
@@ -326,18 +295,14 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     })
     E_tilde <- cbind(E_tilde, matrix(E_tilde_branch - E_tilde[, best_branch]))
 
-    if(gpu && gpu_type == 'tensorflow'){
-      c_hat <- lm.fit(as.matrix(E_tilde), as.matrix(Y_tilde))$coefficients
-    }else{
-      c_hat <- qr.coef(qr(E_tilde), Y_tilde)
-    }
+    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
 
     u_next_prime <- Qf_temp(E[, i + 1], Ue, Qf)
     Ue <- cbind(Ue, u_next_prime / sqrt(sum(u_next_prime ** 2)))
     
     # check if loss decrease is larger than minimum loss decrease
     # and if linear model could be estimated
-    if(sum(is.na(as.matrix(c_hat))) > 0){
+    if(sum(is.na(as.numeric(c_hat))) > 0){
       warning('singulaer matrix QE, tree might be to large, consider increasing cp')
       break
     }
@@ -351,33 +316,29 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     # add loss decrease to variable importance
     var_imp[j] <- var_imp[j] + loss_dec
 
-    # select leave to split
-    if(tree$height == 1){
-      leave <- tree
-    }else{
-      leaves <- tree$leaves
-      leave <- leaves[[which(tree$Get('name', filterFun = data.tree::isLeaf) == best_branch)]]
-    }
-
+    # add space for the two new leaves
+    tree <- rbind(tree, matrix(0, nrow = 2, ncol = d))
+    
+    # select leaf to split
+    leaves <- tree[, "leaf"] == 1
+    toSplit <- leaves & (tree[, "name"] == best_branch)
+    if(sum(toSplit) != 1) stop("Tries to split more than one leaf")
+    
     # save split rule
-    leave$j <- j
-    leave$s <- s
-
-    leave$res_dloss <- loss_dec
-
+    tree[toSplit, c("left", "right", "j", "s", "res_dloss", "leaf")] <- 
+      c(treeSize + 1, treeSize + 2, j, s, loss_dec, 2)
+    
     # add new leaves
-    leave$AddChild(best_branch, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'yes', 
-                   n_samples = sum(E[, best_branch] == 1))
-    leave$AddChild(i + 1, value = 0, dloss = loss_dec, 
-                   cp = loss_dec / loss_start, decision = 'no', 
-                   n_samples = sum(E[, i + 1] == 1))
+    tree[treeSize + 1, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(tree[toSplit, "name"], loss_dec, loss_dec / loss_start, sum(E[, best_branch] == 1), 1)
+    tree[treeSize + 2, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(i + 1, loss_dec, loss_dec / loss_start, sum(E[, i + 1] == 1), 1)
+    treeSize <- treeSize + 2
 
     # add estimates to tree leaves
     c_hat <- as.numeric(c_hat)
-    for(l in tree$leaves){
-      l$value <- c_hat[as.numeric(l$name)]
-    }
+    # access leaf estimates by leaf names (i.e. columns of E)
+    tree[tree[, "leaf"] == 1, "value"] <- c_hat[tree[tree[, "leaf"] == 1, "name"]]
 
     # the two new partitions need to be checked for optimal splits in next iteration
     potential_splits <- c(best_branch, i + 1)
@@ -403,23 +364,22 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   }
 
   # predict the test set
-  f_X_hat <- predict_outsample(tree, X)
-
+  f_X_hat <- traverse_tree(tree, X)
+  
   var_names <- colnames(data.frame(X))
   names(var_imp) <- var_names
 
-  # labels for the nodes
-  tree$Do(split_names, filterFun = data.tree::isNotLeaf, var_names = var_names)
-  tree$Do(leave_names, filterFun = data.tree::isLeaf)
-
   # cp max of all splits after
-  tree$Do(function(node) node$cp_max <- max(node$Get('cp')))
-  tree$Do(function(node) {
-    cp_max <- data.tree::Aggregate(node, 'cp_max', max)
-    node$children[[1]]$cp_max <- cp_max
-    node$children[[2]]$cp_max <- cp_max
-    }, filterFun = data.tree::isNotLeaf
-  )
+  new_cp <- getCp_max(tree)
+  tree[new_cp[[2]], "cp"] <- new_cp[[1]]
+  
+  # use max cp over siblings to ensure binary tree
+  for(i in 1:nrow(tree)){
+    if(tree[i, c("j")] != 0){
+      tree[tree[i, c("left", "right")], "cp"] <- 
+        max(tree[tree[i, c("left", "right")], "cp"])
+    }
+  }
 
   res <- list(predictions = f_X_hat, tree = tree, 
               var_names = var_names, var_importance = var_imp)

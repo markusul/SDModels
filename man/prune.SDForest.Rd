@@ -37,10 +37,10 @@ set.seed(1)
 X <- matrix(rnorm(10 * 20), nrow = 10)
 Y <- rnorm(10)
 fit <- SDForest(x = X, y = Y, nTree = 2)
-pruned_fit <- prune(copy(fit), 0.2)
+pruned_fit <- prune(fit, 0.2)
 }
 \seealso{
-\code{\link{copy}} \code{\link{prune.SDTree}} \code{\link{regPath}}
+\code{\link{prune.SDTree}} \code{\link{regPath}}
 }
 \author{
 Markus Ulmer

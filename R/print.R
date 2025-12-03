@@ -1,27 +1,3 @@
-#' Print a SDTree
-#' 
-#' Print contents of the SDTree.
-#' @author Markus Ulmer
-#' @param x Fitted object of class \code{SDTree}.
-#' @param ... Further arguments passed to or from other methods.
-#' @return No return value, called for side effects
-#' @seealso \code{\link{SDTree}}
-#' @method print SDTree
-#' @examples
-#' 
-#' set.seed(1)
-#' n <- 10
-#' X <- matrix(rnorm(n * 5), nrow = n)
-#' y <- sign(X[, 1]) * 3 + rnorm(n)
-#' model <- SDTree(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5)
-#' print(model)
-#' @export
-print.SDTree <- function(x, ...){
-  # print function for the spectral deconfounded tree
-  if(is.list(x$tree)) return("Tree in list format use fromList()!")
-  print(x$tree, 'value', 's', 'j', 'label', 'decision', 'n_samples')
-}
-
 #' Print SDForest
 #' 
 #' Print contents of the SDForest.

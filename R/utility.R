@@ -1,7 +1,5 @@
 #' @importFrom Rdpack reprompt
-#' @import GPUmatrix
 #' @import DiagrammeR
-#' @import data.tree
 #' @import future.apply
 #' @import future
 #' @importFrom stats lm.fit
@@ -72,32 +70,17 @@ data.handler <- function(formula = NULL, data = NULL, x = NULL, y = NULL){
   }
 }
 
-predict_outsample <- function(tree, X){
-  # predict for every observation in X f(x)
-  # using the splitting rules from the tree
-  if(is.null(dim(X))){
-    return(traverse_tree(tree, X))
-  }
-  apply(X, 1, function(x)traverse_tree(tree, x))
-}
-
 #helper functions to label nodes for plotting
-
-split_names <- function(node, var_names = NULL){
+split_names <- function(node, var_names = NULL, digits = 2){
+  if(node["leaf"] == 1) return("")
+    
   if(is.null(var_names)){
-    node$label <- paste('X', node$j, ' <= ', round(node$s, 2), sep = '')
+    paste('X', node["j"], ' <= ', round(node["s"], digits), sep = '')
   }else{
-    node$label <- paste(var_names[node$j], ' <= ', round(node$s, 2), sep = '')
+    paste(var_names[node["j"]], ' <= ', round(node["s"], digits), sep = '')
   }
 }
 
-leave_names <- function(node){
-  new_name <- as.character(round(node$value, 1))
-  if(new_name %in% node$Get('name', filterFun = data.tree::isLeaf)){
-    new_name <- paste(new_name, '')
-  }
-  node$label <- new_name
-}
 
 # finds all the reasonable spliting points in a data matrix
 find_s <- function(X, max_candidates = 100){
@@ -128,45 +111,62 @@ find_s <- function(X, max_candidates = 100){
   }
 }
 
-traverse_tree <- function(tree, x){
-  # traverse the tree using the splitting rules and 
-  # returns point estimate for f(x)
-  if(tree$isLeaf){
-    return(tree$value)
+traverse_tree <- function(tree, X, m = 1){
+  if (is.null(tree) || nrow(tree) == 0) {
+    stop("Tree is empty or not constructed properly.")
   }
-  if(x[tree$j] <= tree$s){
-    traverse_tree(tree$children[[1]], x)
-  }else {
-    traverse_tree(tree$children[[2]], x)
+  if(m < 1 | m > nrow(tree)){
+    stop("m has to be a valid index of the tree")
   }
+  
+  if(tree[m, "leaf"] == 1) return(rep(tree[m, "value"], nrow(X)))
+  
+  # choose child
+  rightSamples <- X[, tree[m, "j"]] >= tree[m, "s"]
+  
+  preds <- rep(NA, nrow(X))
+  if(sum(rightSamples) > 0)
+    preds[rightSamples] <- traverse_tree(tree, matrix(X[rightSamples, ], 
+                                                      ncol = ncol(X)), 
+                                         m = tree[m, "right"])
+  if(sum(!rightSamples) > 0)
+    preds[!rightSamples] <- traverse_tree(tree, matrix(X[!rightSamples, ], 
+                                                       ncol = ncol(X)), 
+                                          m = tree[m, "left"])
+  preds
+}
+
+getCp_max <-function(tree, m = 1){
+  if(tree[m, "leaf"] == 1) return(list(tree[m, "cp"], m))
+  
+  left_cp <- getCp_max(tree, tree[m, "left"])
+  right_cp <- getCp_max(tree, tree[m, "right"])
+  
+  cp_vec <- c(max(tree[m, "cp"], left_cp[[1]], right_cp[[1]]), left_cp[[1]], right_cp[[1]])
+  m_vec <- c(m, left_cp[[2]], right_cp[[2]])
+  list(cp_vec, m_vec)
 }
 
 loss <- function(Y, f_X){
   as.numeric(sum((Y - f_X)^2) / length(Y))
 }
 
-pruned_loss <- function(tree, X_val, Y_val, Q_val, t){
+pruned_loss <- function(tree, X_val, Y_val, Q_val, cp){
   # function to prune tree using the minimum loss decrease t
   # and return spectral loss on the validation set
   
-  tree_t <- data.tree::Clone(tree)
-  
   # prune tree
-  data.tree::Prune(tree_t, function(x) x$dloss > t)
+  tree <- prune(tree, cp)
   
   # predict on test set
-  f_X_hat_val <- predict_outsample(tree_t, X_val)
+  f_X_hat_val <- traverse_tree(tree$tree, X_val)
   
   # return spectral loss
   sum((Q_val(Y_val) - Q_val(f_X_hat_val)) ** 2) / length(Y_val)
 }
 
 # more efficient transformations
-get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling = TRUE){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
-
+get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE){
   if(type == 'no_deconfounding') {
     return(function(v) v)
   }
@@ -203,8 +203,6 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling
   sv <- svd_error(X, q)
   Uq <- sv$u[, 1:q]
 
-  if(gpu) Uq <- gpu.matrix(Uq, type = gpu_type)
-
   switch(modes[type], 
          {#trim
            D_tilde <- sv$d[1:q]
@@ -232,15 +230,10 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling
   return(Qf)
 }
 
-get_Wf <- function(A, gamma, intercept = FALSE, gpu = FALSE){
+get_Wf <- function(A, gamma, intercept = FALSE){
   if(intercept) A <- cbind(1, A)
   if(ncol(A) > nrow(A)) stop('A must have full rank!')
   if(gamma < 0) stop('gamma must be non-negative')
-  
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')  
-  if(gpu) A <- gpu.matrix(A, type = gpu_type)
   
   Q_prime <- qr.Q(qr(A))
   Wf <- function(v){
@@ -253,7 +246,6 @@ Qf_temp <- function(v, Ue, Qf){
   Qfv <- Qf(v)
   Qfv - Ue %*% crossprod(Ue, Qfv)
 }
-
 
 
 
@@ -275,4 +267,5 @@ Bbasis <- function(x, breaks){
   Bx[ind_right, l + 1] <- - (x[ind_right]-breaks[l]) * slope_right
   return(Bx)
 }
+
 

@@ -11,20 +11,26 @@ prune <- function(object, ...) UseMethod('prune')
 #' @param cp Complexity parameter, the higher the value the more nodes are pruned.
 #' @param ... Further arguments passed to or from other methods.
 #' @return A pruned SDTree object
-#' @seealso \code{\link{copy}}
 #' @export
 #' @examples
 #' set.seed(1)
 #' X <- matrix(rnorm(10 * 20), nrow = 10)
 #' Y <- rnorm(10)
 #' tree <- SDTree(x = X, y = Y)
-#' pruned_tree <- prune(copy(tree), 0.2)
+#' pruned_tree <- prune(tree, 0.2)
 #' tree
 #' pruned_tree
 prune.SDTree <- function(object, cp, ...){
-  data.tree::Prune(object$tree, function(x) x$cp_max > cp)
-  # new labels for leaves
-  object$tree$Do(leave_names, filterFun = data.tree::isLeaf)
+  object$tree[, "leaf"] <- 0
+  keep <- which(object$tree[, "cp"] > cp)
+  object$tree[keep, "leaf"] <- 2
+  
+  leafNames <- unique(object$tree[keep, "name"])
+  for(l in leafNames){
+    leaves <- which(object$tree[keep, "name"] == l)
+    object$tree[keep[leaves[length(leaves)]], "leaf"] <- 1
+  }
+  
   # unknown new predictions
   object$predictions <- NULL
   # new variable importance
@@ -48,7 +54,7 @@ prune.SDTree <- function(object, cp, ...){
 #' This can set to FALSE to save computation time if only the out-of-bag statistics are needed.
 #' @param ... Further arguments passed to or from other methods.
 #' @return A pruned SDForest object
-#' @seealso \code{\link{copy}} \code{\link{prune.SDTree}} \code{\link{regPath}}
+#' @seealso \code{\link{prune.SDTree}} \code{\link{regPath}}
 #' @aliases prune
 #' @examples
 #' 
@@ -56,7 +62,7 @@ prune.SDTree <- function(object, cp, ...){
 #' X <- matrix(rnorm(10 * 20), nrow = 10)
 #' Y <- rnorm(10)
 #' fit <- SDForest(x = X, y = Y, nTree = 2)
-#' pruned_fit <- prune(copy(fit), 0.2)
+#' pruned_fit <- prune(fit, 0.2)
 #' @export
 prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE, ...){
   pruned_forest <- lapply(object$forest, function(tree){prune(tree, cp)})
@@ -92,7 +98,7 @@ prune.SDForest <- function(object, cp, X = NULL, Y = NULL, Q = NULL, pred = TRUE
     # predict with all trees
     pred <- do.call(cbind, 
                     lapply(object$forest, 
-                           function(x){matrix(predict_outsample(x$tree, X))}))
+                           function(x){matrix(traverse_tree(x$tree, X))}))
       
     # use mean over trees as final prediction
     f_X_hat <- rowMeans(pred)

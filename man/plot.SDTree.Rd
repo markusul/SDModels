@@ -4,15 +4,26 @@
 \alias{plot.SDTree}
 \title{Plot SDTree}
 \usage{
-\method{plot}{SDTree}(x, ...)
+\method{plot}{SDTree}(x, main = "", digits = 2, digits_decisions = 2, weighted = TRUE, ...)
 }
 \arguments{
 \item{x}{Fitted object of class \code{SDTree}.}
 
-\item{...}{Further arguments for DiagrammeR::render_graph()}
+\item{main}{title for the tree}
+
+\item{digits}{integer indicating the number of decimal places to round() the 
+leaf values to}
+
+\item{digits_decisions}{integer indicating the number of decimal places to 
+round() the splitting rule to.}
+
+\item{weighted}{if true, connections from parent to children is scaled with res_dloss,
+more important splits result in thicker lines.}
+
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-graph object from DiagrammeR::render_graph()
+A ggplot object
 }
 \description{
 Plot the SDTree.

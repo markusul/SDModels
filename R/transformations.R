@@ -14,8 +14,6 @@
 #' and 'no_deconfounding' to the Identity.
 #' @param trim_quantile Quantile for Trim transform, only needed for trim.
 #' @param q_hat Assumed confounding dimension, only needed for pca.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
 #' @param scaling Whether X should be scaled before calculating the spectral transformation.
 #' @return Q of class \code{matrix}, the spectral transformation matrix.
 #' @examples
@@ -25,14 +23,9 @@
 #' Q_pca <- get_Q(X, 'pca', q_hat = 5)
 #' Q_plain <- get_Q(X, 'no_deconfounding')
 #' @export
-get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling = TRUE){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
-  
+get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE){
   if(type == 'no_deconfounding') {
     Q <- diag(nrow(X))
-    if(gpu) Q <- gpu.matrix(Q, type = gpu_type)
     return(Q)
   }
   
@@ -50,7 +43,6 @@ get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling 
   if(ncol(X) == 1){
     warning('only one covariate, no deconfounding possible')
     Q <- diag(nrow(X))
-    if(gpu) Q <- gpu.matrix(Q, type = gpu_type)
     return(Q)
   }
   
@@ -69,7 +61,6 @@ get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling 
   D_tilde[is.na(D_tilde)] <- 1
   
   U <- sv$u
-  if(gpu) U <- gpu.matrix(U, type = gpu_type)
   
   switch(modes[type], 
          diag(n) - U %*% diag(1 - D_tilde) %*% t(U), # DDL_trim
@@ -100,8 +91,6 @@ get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling 
 #' @param A Numerical Anchor of class \code{matrix}.
 #' @param gamma Strength of distributional robustness, \eqn{\gamma \in [0, \infty]}.
 #' @param intercept Logical, whether to include an intercept in the anchor.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
 #' @return W of class \code{matrix}, the anchor transformation matrix.
 #' @examples
 #' set.seed(1)
@@ -111,15 +100,10 @@ get_Q <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling 
 #' W <- get_W(X, gamma = 0)
 #' resid <- W %*% Y
 #' @export
-get_W <- function(A, gamma, intercept = FALSE, gpu = FALSE){
+get_W <- function(A, gamma, intercept = FALSE){
   if(intercept) A <- cbind(1, A)
   if(ncol(A) > nrow(A)) stop('A must have full rank!')
   if(gamma < 0) stop('gamma must be non-negative')
-  
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')  
-  if(gpu) A <- gpu.matrix(A, type = gpu_type)
   
   Q_prime <- qr.Q(qr(A))
   Pi_A <- tcrossprod(Q_prime)

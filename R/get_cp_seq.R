@@ -21,7 +21,7 @@ get_cp_seq <- function(object, ...) UseMethod('get_cp_seq')
 #' get_cp_seq(model)
 #' @export
 get_cp_seq.SDTree <- function(object, ...){
-  cp_seq <- unique(object$tree$Get('cp_max'))
+  cp_seq <- unique(object$tree[, 'cp'])
   cp_seq[cp_seq > 1] <- 1
   cp_seq <- unique(ceiling(cp_seq * 1000)/1000)
   cp_seq <- c(0, cp_seq)
@@ -50,7 +50,7 @@ get_cp_seq.SDTree <- function(object, ...){
 #' get_cp_seq(model)
 #' @export
 get_cp_seq.SDForest <- function(object, ...){
-  cp_seq <- unique((unlist(lapply(object$forest, function(x) x$tree$Get('cp_max')))))
+  cp_seq <- unique((unlist(lapply(object$forest, function(x) x$tree[, "cp"]))))
   cp_seq[cp_seq > 1] <- 1
   cp_seq <- unique(ceiling(cp_seq * 1000)/1000)
   cp_seq <- c(0, cp_seq)

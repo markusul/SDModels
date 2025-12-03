@@ -152,31 +152,38 @@ f_four <- function(x, beta, js){
 #' \eqn{\Gamma \in \mathbb{R}^{q \times p}} and \eqn{\delta \in \mathbb{R}^{q}} are random coefficient vectors.
 #' For the simulation, all the above parameters are drawn from a standard normal distribution, except for 
 #' \eqn{\delta} which is drawn from a normal distribution with standard deviation 10.
-#' The leaf levels \eqn{c_k} are drawn from a uniform distribution between -50 and 50.
+#' For a split a covariate is sampled uniformly and split at a random point using a 
+#' beta distribution (with both shape parameters equal 2) on the support of the chosen covariate.
+#' The leaf levels \eqn{c_k} are drawn from a uniform distribution between \eqn{cl} and \eqn{cu}.
 #' @references
 #'  \insertAllCited{}
 #' @author Markus Ulmer
 #' @param q number of confounding covariates in H
 #' @param p number of covariates in X
 #' @param n number of observations
-#' @param m number of covariates with a causal effect on Y
+#' @param m number of splits done using a random covariate
 #' @param make_tree Whether the random regression tree should be returned.
+#' @param cl lower limit of the uniform distribution of the step levels
+#' @param cu upper limit of the uniform distribution of the step levels
 #' @return a list containing the simulated data:
 #' \item{X}{a \code{matrix} of covariates}
 #' \item{Y}{a \code{vector} of responses}
 #' \item{f_X}{a \code{vector} of the true function f(X)}
 #' \item{j}{the indices of the causal covariates in X}
 #' \item{tree}{If \code{make_tree}, the random regression tree of class 
-#' \code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}}
+#' \code{SDTree}}
 #' @seealso \code{\link{simulate_data_nonlinear}}
 #' @examples
 #' set.seed(42)
 #' # simulation of confounded data
-#' sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
+#' sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2, make_tree = TRUE)
 #' X <- sim_data$X
 #' Y <- sim_data$Y
+#' 
+#' all(predict(sim_data$tree, data.frame(X)) == sim_data$f_X)
+#' plot(regPath(sim_data$tree))
 #' @export 
-simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
+simulate_data_step <- function(q, p, n, m, make_tree = FALSE, cl = -50, cu = 50){
   # minimum number of observations for split
   min_sample <- 2
   
@@ -203,11 +210,25 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
   
   # generate tree
   if(make_tree){
-    tree <- data.tree::Node$new(name = '1', value = 0)
+    # initialize tree
+    treeInfo <- c("name", "left", "right", "j", "s", "value", "dloss", 
+                  "res_dloss", "cp", "n_samples", "leaf")
+    d <- length(treeInfo)
+    
+    tree <- matrix(0, ncol = d, nrow = 1, dimnames = list(NULL, treeInfo))
+    tree[1, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(1, runif(1, cl, cu), 10, 10, n, 1)
+    treeSize <- 1
+    
+    var_names <- paste0("X", 1:p)
+    var_imp <- rep(0, p)
+    names(var_imp) <- var_names
   }
   
   # partitions of observations
   index <- list(1:n)
+  
+  if(m > 0){
   for (i in 1:m){
     # get number of observations in each partition
     samples_per_part <- unlist(lapply(index, function(x)length(x)))
@@ -221,12 +242,13 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
       branch <- potential_splitts
     }else {
       branch <- sample(potential_splitts, 1,
-                       prob = samples_per_part[potential_splitts]/sum(samples_per_part[potential_splitts]))
+                       prob = samples_per_part[potential_splitts] / 
+                         sum(samples_per_part[potential_splitts]))
     }
     
     # sample covariate to split on
     j <- sample(1:p, 1)
-    js <- c(j, js)
+    js <- c(js, j)
     
     # sample split point
     potential_s <- X[index[[branch]], j]
@@ -238,21 +260,32 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
     
     # add split to tree
     if(make_tree){
-      if(tree$height == 1){
-        leave <- tree
-      }else{
-        leaves <- tree$leaves
-        leave <- leaves[[which(tree$Get('name', filterFun = data.tree::isLeaf) == branch)]]
-      }
-      leave$j <- j
-      leave$s <- s
-      leave$AddChild(branch, value = 0)
-      leave$AddChild(i + 1, value = 0)
+      # add space for the two new leaves
+      tree <- rbind(tree, matrix(0, nrow = 2, ncol = d))
+      
+      # select leaf to split
+      leaves <- tree[, "leaf"] == 1
+      toSplit <- leaves & (tree[, "name"] == branch)
+      if(sum(toSplit) != 1) stop("Tries to split more than one leaf")
+      
+      # save split rule
+      tree[toSplit, c("left", "right", "j", "s", "res_dloss", "leaf")] <- 
+        c(treeSize + 1, treeSize + 2, j, s, 1/i, 2)
+      var_imp[j] <- var_imp[j] + 1/i
+      
+      # add new leaves
+      tree[treeSize + 1, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+        c(tree[toSplit, "name"], runif(1, cl, cu), 
+          1/i, 1/i, length(index[[branch]]), 1)
+      tree[treeSize + 2, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+        c(i + 1, runif(1, cl, cu), 1/i, 1/i, length(index[[length(index)]]), 1)
+      treeSize <- treeSize + 2
     }
+  }
   }
   
   # sample means per partition
-  f_X_means <- runif(length(index), -50, 50)
+  f_X_means <- runif(length(index), cl, cu)
   
   # generate f_X
   f_X <- rep(0, n)
@@ -272,10 +305,11 @@ simulate_data_step <- function(q, p, n, m, make_tree = FALSE){
   # return data
   if(make_tree){
     # add leave values to tree
-    for(l in tree$leaves){
-      l$value <- f_X_means[as.numeric(l$name)]
-    }
-    return(list(X = X, Y = Y, f_X = f_X, j = js, tree = tree))
+    tree[tree[, "leaf"] == 1, "value"] <- f_X_means[tree[tree[, "leaf"] == 1, "name"]]
+    res <- list(predictions = f_X, tree = tree, 
+                var_names = var_names, var_importance = var_imp)
+    class(res) <- 'SDTree'
+    return(list(X = X, Y = Y, f_X = f_X, j = js, tree = res))
   }
   
   # return data

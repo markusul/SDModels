@@ -26,12 +26,9 @@ set.seed(1)
 X <- matrix(rnorm(10 * 20), nrow = 10)
 Y <- rnorm(10)
 tree <- SDTree(x = X, y = Y)
-pruned_tree <- prune(copy(tree), 0.2)
+pruned_tree <- prune(tree, 0.2)
 tree
 pruned_tree
-}
-\seealso{
-\code{\link{copy}}
 }
 \author{
 Markus Ulmer

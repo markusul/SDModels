@@ -4,7 +4,7 @@
 \alias{simulate_data_step}
 \title{Simulate data with linear confounding and causal effect following a step-function}
 \usage{
-simulate_data_step(q, p, n, m, make_tree = FALSE)
+simulate_data_step(q, p, n, m, make_tree = FALSE, cl = -50, cu = 50)
 }
 \arguments{
 \item{q}{number of confounding covariates in H}
@@ -13,9 +13,13 @@ simulate_data_step(q, p, n, m, make_tree = FALSE)
 
 \item{n}{number of observations}
 
-\item{m}{number of covariates with a causal effect on Y}
+\item{m}{number of splits done using a random covariate}
 
 \item{make_tree}{Whether the random regression tree should be returned.}
+
+\item{cl}{lower limit of the uniform distribution of the step levels}
+
+\item{cu}{upper limit of the uniform distribution of the step levels}
 }
 \value{
 a list containing the simulated data:
@@ -24,7 +28,7 @@ a list containing the simulated data:
 \item{f_X}{a \code{vector} of the true function f(X)}
 \item{j}{the indices of the causal covariates in X}
 \item{tree}{If \code{make_tree}, the random regression tree of class 
-\code{Node} from \insertCite{Glur2023Data.tree:Structure}{SDModels}}
+\code{SDTree}}
 }
 \description{
 Simulation of data from a confounded non-linear model. Where the non-linear function is a random regression tree.
@@ -39,14 +43,19 @@ Resulting in a random step-function with \eqn{m+1} levels, i.e. leaf-levels.
 \eqn{\Gamma \in \mathbb{R}^{q \times p}} and \eqn{\delta \in \mathbb{R}^{q}} are random coefficient vectors.
 For the simulation, all the above parameters are drawn from a standard normal distribution, except for 
 \eqn{\delta} which is drawn from a normal distribution with standard deviation 10.
-The leaf levels \eqn{c_k} are drawn from a uniform distribution between -50 and 50.
+For a split a covariate is sampled uniformly and split at a random point using a 
+beta distribution (with both shape parameters equal 2) on the support of the chosen covariate.
+The leaf levels \eqn{c_k} are drawn from a uniform distribution between \eqn{cl} and \eqn{cu}.
 }
 \examples{
 set.seed(42)
 # simulation of confounded data
-sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2)
+sim_data <- simulate_data_step(q = 2, p = 15, n = 100, m = 2, make_tree = TRUE)
 X <- sim_data$X
 Y <- sim_data$Y
+
+all(predict(sim_data$tree, data.frame(X)) == sim_data$f_X)
+plot(regPath(sim_data$tree))
 }
 \references{
 \insertAllCited{}

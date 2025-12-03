@@ -5,7 +5,7 @@
 \alias{regPath}
 \title{Calculate the regularization path of an SDForest}
 \usage{
-\method{regPath}{SDForest}(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL, copy = TRUE, ...)
+\method{regPath}{SDForest}(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL, ...)
 }
 \arguments{
 \item{object}{an SDForest object}
@@ -18,10 +18,6 @@ If NULL, the sequence is calculated automatically using only relevant values.}
 \item{Y}{The training response variable, if NULL the data from the forest object is used.}
 
 \item{Q}{The transformation matrix, if NULL the data from the forest object is used.}
-
-\item{copy}{Whether the tree should be copied for the regularization path.
-If FALSE, the pruning is done in place and will change the SDForest.
-This might be reasonable, if the SDForest is to large to copy.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

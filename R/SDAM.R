@@ -149,7 +149,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   # spectral transformation
   Qf <- get_Qf(X, type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-               gpu = FALSE, scaling = Q_scale)
+               scaling = Q_scale)
   QY <- Qf(Y)
   
   # get number of unique elements in each column of X
