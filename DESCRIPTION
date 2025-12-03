@@ -9,7 +9,6 @@ Description: Screen for and analyze non-linear sparse direct effects in the pres
 License: GPL-3
 Imports: 
     DiagrammeR,
-    doParallel,
     future.apply,
     future,
     ggplot2,
@@ -17,7 +16,6 @@ Imports:
     ggraph,
     GPUmatrix,
     gridExtra,
-    locatexec,
     parallel,
     pbapply,
     Rdpack,
