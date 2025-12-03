@@ -12,12 +12,8 @@
 <url><loc>https://markusul.github.io/SDModels/reference/SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/SDTree.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/copy.SDForest.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/copy.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/cvSDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/f_four.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/fromList.SDForest.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/fromList.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/get_Q.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/get_W.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/get_cp_seq.SDForest.html</loc></url>
@@ -37,7 +33,6 @@
 <url><loc>https://markusul.github.io/SDModels/reference/predict_individual_fj.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/print.SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/print.SDForest.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/print.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/print.partDependence.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/prune.SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/prune.SDTree.html</loc></url>
@@ -46,8 +41,6 @@
 <url><loc>https://markusul.github.io/SDModels/reference/simulate_data_nonlinear.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/simulate_data_step.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/stabilitySelection.SDForest.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/toList.SDForest.html</loc></url>
-<url><loc>https://markusul.github.io/SDModels/reference/toList.SDTree.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/varImp.SDAM.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/varImp.SDForest.html</loc></url>
 <url><loc>https://markusul.github.io/SDModels/reference/varImp.SDTree.html</loc></url>

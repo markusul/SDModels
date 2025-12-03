@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -69,6 +69,15 @@
       <small>Source: <a href="https://github.com/markusul/SDModels/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.0.0" id="sdmodels-200">SDModels 2.0.0<a class="anchor" aria-label="anchor" href="#sdmodels-200"></a></h2>
+<ul><li>Removal of data.tree dependence. Trees are now saved as a matrix.</li>
+<li>This results in a substantial reduction of RAM usage and space needed to save an SDTree or SDForest. It also results in increased computational speed.</li>
+<li>Removal of copy, fromList, and toList. Remove the copy arguments from all pruning involving functions.</li>
+<li>New plotting of SDTree objects.</li>
+<li>Improved/Robust parallelization.</li>
+<li>Remove gpu support and dependence on GPUmatrix due to it being scheduled for archiving.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.0.13" id="sdmodels-1013">SDModels 1.0.13<small>2025-06-05</small><a class="anchor" aria-label="anchor" href="#sdmodels-1013"></a></h2>
 <ul><li>In case of parallel processing use random number generator “L’Ecuyer-CMRG” for reproducibility</li>
@@ -127,7 +136,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

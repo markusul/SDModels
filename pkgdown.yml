@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   articles/AnchorForest: AnchorForest.html
@@ -7,7 +7,7 @@ articles:
   articles/SDAM: SDAM.html
   articles/SDForest: SDForest.html
   articles/SDTree: SDTree.html
-last_built: 2025-08-04T11:45Z
+last_built: 2025-12-03T16:45Z
 urls:
   reference: https://markusul.github.io/SDModels/reference
   article: https://markusul.github.io/SDModels/articles

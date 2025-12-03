@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -76,7 +76,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'SDTree'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, main <span class="op">=</span> <span class="st">""</span>, digits <span class="op">=</span> <span class="fl">2</span>, digits_decisions <span class="op">=</span> <span class="fl">2</span>, weighted <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -87,13 +87,32 @@
 <dd><p>Fitted object of class <code>SDTree</code>.</p></dd>
 
 
+<dt id="arg-main">main<a class="anchor" aria-label="anchor" href="#arg-main"></a></dt>
+<dd><p>title for the tree</p></dd>
+
+
+<dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
+<dd><p>integer indicating the number of decimal places to round() the
+leaf values to</p></dd>
+
+
+<dt id="arg-digits-decisions">digits_decisions<a class="anchor" aria-label="anchor" href="#arg-digits-decisions"></a></dt>
+<dd><p>integer indicating the number of decimal places to
+round() the splitting rule to.</p></dd>
+
+
+<dt id="arg-weighted">weighted<a class="anchor" aria-label="anchor" href="#arg-weighted"></a></dt>
+<dd><p>if true, connections from parent to children is scaled with res_dloss,
+more important splits result in thicker lines.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Further arguments for DiagrammeR::render_graph()</p></dd>
+<dd><p>Further arguments passed to or from other methods.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>graph object from DiagrammeR::render_graph()</p>
+    <p>A ggplot object</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -122,7 +141,7 @@ plot(model)</p></div>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

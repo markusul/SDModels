@@ -19,7 +19,7 @@ If you intend to keep the original tree, make a copy of it before pruning."><met
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -103,10 +103,6 @@ If you intend to keep the original tree, make a copy of it before pruning.</p>
     <h2>Value</h2>
     <p>A pruned SDTree object</p>
     </div>
-    <div id="see-also">
-    <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="copy.SDForest.html">copy</a></code></p></div>
-    </div>
     <div id="author">
     <h2>Author</h2>
     <p>Markus Ulmer</p>
@@ -118,17 +114,61 @@ If you intend to keep the original tree, make a copy of it before pruning.</p>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">20</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDTree.html">SDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pruned_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="prune.SDForest.html">prune</a></span><span class="op">(</span><span class="fu"><a href="copy.SDForest.html">copy</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span>, <span class="fl">0.2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pruned_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="prune.SDForest.html">prune</a></span><span class="op">(</span><span class="va">tree</span>, <span class="fl">0.2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tree</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   levelName      value         s  j      label decision n_samples</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     1      0.5271484 0.4918723  2 X2 &lt;= 0.49                 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      ¦--1  1.4656657        NA NA        1.5      yes         5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      °--2 -0.4113688        NA NA       -0.4       no         5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $predictions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.4113688  1.4656657  1.4656657  1.4656657 -0.4113688  1.4656657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.4656657 -0.4113688 -0.4113688 -0.4113688</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $tree</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      name left right j         s      value     dloss res_dloss         cp</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    1    2     3 2 0.4918723  0.5271484 1.4898237 0.6965944 10.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    1    0     0 0 0.0000000  1.4656657 0.6965944 0.0000000  0.4675684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    2    0     0 0 0.0000000 -0.4113688 0.6965944 0.0000000  0.4675684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      n_samples leaf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]        10    2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]         5    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]         5    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $var_names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "X1"  "X2"  "X3"  "X4"  "X5"  "X6"  "X7"  "X8"  "X9"  "X10" "X11" "X12"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "X13" "X14" "X15" "X16" "X17" "X18" "X19" "X20"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $var_importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        X1        X2        X3        X4        X5        X6        X7        X8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.6965944 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        X9       X10       X11       X12       X13       X14       X15       X16 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       X17       X18       X19       X20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "SDTree"</span>
 <span class="r-in"><span><span class="va">pruned_tree</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   levelName      value         s  j      label decision n_samples</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     1      0.5271484 0.4918723  2 X2 &lt;= 0.49                 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      ¦--1  1.4656657        NA NA        1.5      yes         5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      °--2 -0.4113688        NA NA       -0.4       no         5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $tree</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      name left right j         s      value     dloss res_dloss         cp</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    1    2     3 2 0.4918723  0.5271484 1.4898237 0.6965944 10.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    1    0     0 0 0.0000000  1.4656657 0.6965944 0.0000000  0.4675684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    2    0     0 0 0.0000000 -0.4113688 0.6965944 0.0000000  0.4675684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      n_samples leaf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]        10    2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]         5    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]         5    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $var_names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "X1"  "X2"  "X3"  "X4"  "X5"  "X6"  "X7"  "X8"  "X9"  "X10" "X11" "X12"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "X13" "X14" "X15" "X16" "X17" "X18" "X19" "X20"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $var_importance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        X1        X2        X3        X4        X5        X6        X7        X8 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.6965944 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        X9       X10       X11       X12       X13       X14       X15       X16 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       X17       X18       X19       X20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0000000 0.0000000 0.0000000 0.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "SDTree"</span>
 </code></pre></div>
     </div>
   </div>
@@ -143,7 +183,7 @@ If you intend to keep the original tree, make a copy of it before pruning.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

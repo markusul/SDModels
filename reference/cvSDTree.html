@@ -19,7 +19,7 @@ separately to ensure independence of the validation set."><meta property="og:ima
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -95,8 +95,6 @@ separately to ensure independence of the validation set.</p>
 <span>  Qf <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  A <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gamma <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  gpu <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  mem_size <span class="op">=</span> <span class="fl">1e+07</span>,</span>
 <span>  max_candidates <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  nfolds <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  cp_seq <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -189,17 +187,6 @@ it is internally estimated using <code><a href="get_Q.html">get_Q</a></code>.</p
 See <code><a href="get_W.html">get_W</a></code>.</p></dd>
 
 
-<dt id="arg-gpu">gpu<a class="anchor" aria-label="anchor" href="#arg-gpu"></a></dt>
-<dd><p>If <code>TRUE</code>, the calculations are performed on the GPU.
-If it is properly set up.</p></dd>
-
-
-<dt id="arg-mem-size">mem_size<a class="anchor" aria-label="anchor" href="#arg-mem-size"></a></dt>
-<dd><p>Amount of split candidates that can be evaluated at once.
-This is a trade-off between memory and speed can be decreased if either
-the memory is not sufficient or the gpu is to small.</p></dd>
-
-
 <dt id="arg-max-candidates">max_candidates<a class="anchor" aria-label="anchor" href="#arg-max-candidates"></a></dt>
 <dd><p>Maximum number of split points that are
 proposed at each node for each covariate.</p></dd>
@@ -274,22 +261,23 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="va">cp</span> <span class="op">&lt;-</span> <span class="fu">cvSDTree</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cp</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cp_min</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    cp </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.076 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cp </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.08 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cp_table</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          cp SDLoss mean SDLoss sd</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.044    30.89977  4.336556</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.056    30.65170  5.398475</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.058    30.60373  5.370633</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.070    31.28713  5.866639</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.076    29.12192  5.155334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.106    31.64469  3.284572</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.132    32.25506  3.564472</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.262    30.93818  5.837083</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.326    31.50641  6.333261</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.362    33.27446  3.286796</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11,] 0.600    34.64608  4.718930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.046    30.89977  4.336556</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.048    30.35224  5.243849</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.060    30.65170  5.398475</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.064    30.60373  5.370633</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.068    31.28713  5.866639</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.080    29.12192  5.155334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.110    31.64469  3.284572</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.124    32.25506  3.564472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.270    30.93818  5.837083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.308    31.50641  6.333261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11,] 0.392    33.27446  3.286796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12,] 0.600    34.64608  4.718930</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
@@ -305,7 +293,7 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

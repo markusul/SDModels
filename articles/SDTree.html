@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -109,9 +109,9 @@ Tree
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mrow><mi>S</mi><mi>D</mi><mi>T</mi><mi>r</mi><mi>e</mi><mi>e</mi></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f^{SDTree}(X)</annotation></semantics></math>
 to the classical regression tree
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mrow><mi>T</mi><mi>r</mi><mi>e</mi><mi>e</mi></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f^{Tree}(X)</annotation></semantics></math><span class="citation">(Breiman et al. 2017)</span> using simulated data
-from a confounded process. We simulate the data similar to
-<code><a href="../reference/simulate_data_nonlinear.html">simulate_data_nonlinear()</a></code> but with a random regression
-tree, i.e. step-function for the direct relationship
+from a confounded process. We simulate the data with
+<code><a href="../reference/simulate_data_step.html">simulate_data_step()</a></code> with a random regression tree,
+i.e. step-function for the direct relationship
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(X)</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.markus-ulmer.ch/SDModels/" class="external-link">SDModels</a></span><span class="op">)</span></span>
@@ -119,27 +119,30 @@ tree, i.e. step-function for the direct relationship
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># number of confounding covariates in H</span></span>
-<span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
-<span></span>
+<span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fl">15</span></span>
 <span><span class="co"># number of covariates in X</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
-<span></span>
 <span><span class="co"># number of observations</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
-<span></span>
-<span><span class="co"># number of non-zero coefficients in beta</span></span>
+<span><span class="co"># number of random splits in the regression tree</span></span>
 <span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
+<span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_data_step.html">simulate_data_step</a></span><span class="op">(</span><span class="va">q</span>, <span class="va">p</span>, <span class="va">n</span>, <span class="va">m</span>, make_tree <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Given the data, we can estimate both the SDTree and the classical
-regression tree. Here we estimate both trees with the default
-parameters. One could choose, for example, the regularization parameter
-cp in a more principled way than just setting it to 0.01,
-e.g. <code><a href="../reference/cvSDTree.html">cvSDTree()</a></code> or <code><a href="../reference/regPath.SDTree.html">regPath.SDTree()</a></code>. But 0.01
-seem like a good first try and is also the default value in <a href="https://cran.r-project.org/web/packages/rpart/index.html" class="external-link">rpart</a>
-<span class="citation">(Therneau and Atkinson 2022)</span>.</p>
+regression tree. For both, we choose the cost complexity parameter
+<code>cp</code> by cross-validation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dec_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDTree.html">SDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, cp <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="va">plain_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDTree.html">SDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span>, cp <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># estimation of deconfounded regression tree</span></span>
+<span><span class="va">cpTable_dec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cvSDTree.html">cvSDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span><span class="op">)</span></span>
+<span><span class="va">cp_opt_dec</span> <span class="op">&lt;-</span> <span class="va">cpTable_dec</span><span class="op">$</span><span class="va">cp_min</span></span>
+<span></span>
+<span><span class="va">dec_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDTree.html">SDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, cp <span class="op">=</span> <span class="va">cp_opt_dec</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># estimation of classical regression tree</span></span>
+<span><span class="va">cpTable_plain</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cvSDTree.html">cvSDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span><span class="op">)</span></span>
+<span><span class="va">cp_opt_plain</span> <span class="op">&lt;-</span> <span class="va">cpTable_plain</span><span class="op">$</span><span class="va">cp_min</span></span>
+<span></span>
+<span><span class="va">plain_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDTree.html">SDTree</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span>, y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span>, cp <span class="op">=</span> <span class="va">cp_opt_plain</span><span class="op">)</span></span></code></pre></div>
 <p>Let us observe, what the different trees predict, by comparing the
 predictions to the true function and the observed response. On top, we
 show the underlying true step function
@@ -153,49 +156,66 @@ predicts almost the same response as the true underlying function. The
 plain classical regression tree, on the other hand, results in a
 prediction close to the observed
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐘</mi><annotation encoding="application/x-tex">\mathbf{Y}</annotation></semantics></math>.</p>
-<p><img src="SDTree_files/figure-html/pred-1.png" width="700"></p>
-<p>Now, we can directly look at the estimated tree structures. On top is
-the true underlying random regression tree, and below are the two tree
-estimates. In the middle is the SDTree and on the bottom is the plain
-classical regression tree. The nodes that choose a covariate for a
-split, that is also used in the true underlying causal function, are
-marked in <span style="color: #b0193c;">red</span>. Besides
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>320</mn></msub><annotation encoding="application/x-tex">X_{320}</annotation></semantics></math>,
-the SDTree uses all the parents of
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">f_X_tree</span> <span class="op">&lt;-</span> <span class="va">plain_tree</span><span class="op">$</span><span class="va">predictions</span></span>
+<span><span class="va">f_X_tree_deconfounded</span> <span class="op">&lt;-</span> <span class="va">dec_tree</span><span class="op">$</span><span class="va">predictions</span></span>
+<span></span>
+<span><span class="co"># gather results</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">Y</span>, f_X <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">f_X</span>, f_X_tree <span class="op">=</span> <span class="va">f_X_tree</span>,</span>
+<span>                      f_X_tree_deconfounded <span class="op">=</span> <span class="va">f_X_tree_deconfounded</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">X_j</span>  <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">[</span>, <span class="va">dat</span><span class="op">$</span><span class="va">j</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X_j</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">j</span></span>
+<span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">results</span>, <span class="va">X_j</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html" class="external-link">gather</a></span><span class="op">(</span><span class="va">results</span>, key <span class="op">=</span> <span class="st">"method"</span>, value <span class="op">=</span> <span class="st">"pred"</span>, <span class="va">Y</span>, <span class="va">f_X</span>, </span>
+<span>    <span class="va">f_X_tree</span>, <span class="va">f_X_tree_deconfounded</span><span class="op">)</span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/gather.html" class="external-link">gather</a></span><span class="op">(</span><span class="va">results</span>, key <span class="op">=</span> <span class="st">'j'</span>, value <span class="op">=</span> <span class="st">'X'</span>, <span class="op">-</span><span class="va">method</span>, <span class="op">-</span><span class="va">pred</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">method</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">method</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f^0*(X)'</span>, <span class="st">'f^Tree*(X)'</span>, <span class="st">'f^SDTree*(X)'</span>, <span class="st">'Y'</span><span class="op">)</span></span>
+<span><span class="va">results</span><span class="op">$</span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">method</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'f^0*(X)'</span>, <span class="st">'f^SDTree*(X)'</span>, </span>
+<span>                                                    <span class="st">'f^Tree*(X)'</span>, <span class="st">'Y'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gg_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">results</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">pred</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="va">method</span><span class="op">~</span><span class="va">j</span>, labeller <span class="op">=</span> <span class="va">label_parsed</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu">widehat</span><span class="op">(</span><span class="fu">f</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gg_res</span></span></code></pre></div>
+<p><img src="SDTree_files/figure-html/pred-1.png" class="r-plt" width="700"></p>
+<p>Now, we can directly look at the estimated trees. On top is the true
+underlying random regression tree, and below are the two estimated
+trees. In the middle is the SDTree and on the bottom is the plain
+classical regression tree. The SDTree uses all the causal parents of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
-for splits. Since
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>320</mn></msub><annotation encoding="application/x-tex">X_{320}</annotation></semantics></math>
-only splits three observations into the node with a response level of
-49.6, it seems reasonable that the noise and confounding in the observed
-data overshadow this effect. The order of the splits in the SDTree is
-partially different from the true function.
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>369</mn></msub><annotation encoding="application/x-tex">X_{369}</annotation></semantics></math>
-is used too early resulting in having to split with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>250</mn></msub><annotation encoding="application/x-tex">X_{250}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>89</mn></msub><annotation encoding="application/x-tex">X_{89}</annotation></semantics></math>
-in both following subtrees. Estimating the partitions using no
-deconfounding results in the regression tree on the bottom. Here, we
-only find two of the parents of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
-Especially problematic is that the not deconfounded regression tree
-first splits with a few irrelevant covariates. Therefore, if an
-observation has
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>486</mn></msub><mo>&gt;</mo><mn>0.07</mn></mrow><annotation encoding="application/x-tex">X_{486} &gt; 0.07</annotation></semantics></math>
-or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mn>430</mn></msub><mo>≤</mo><mo>−</mo><mn>2.66</mn></mrow><annotation encoding="application/x-tex">X_{430} \leq -2.66</annotation></semantics></math>,
-which has no meaning in the underlying function, no relevant split is
-left in the sub-tree.</p>
-<p><img src="SDTree_files/figure-html/plot_tree-1.png" width="700"><img src="SDTree_files/figure-html/plot_tree-2.png" width="700"><img src="SDTree_files/figure-html/plot_tree-3.png" width="700"></p>
+for the first few splits. In addition to a tree that results in a
+similar partition as the true causal function one of the leaves is split
+using the spurious covariate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mn>458</mn></msub><annotation encoding="application/x-tex">X_{458}</annotation></semantics></math>.
+The classical regression tree on the other hand uses no causal variable
+at all, but only spurious covariates. This might result in a more
+predictive estimation, but has no causal meaning and would predict
+completely wrong in interventional settings.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">tree</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="op">{</span><span class="va">f</span><span class="op">^</span><span class="fl">0</span><span class="op">}</span> <span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="SDTree_files/figure-html/plot_tree-1.png" class="r-plt" width="700"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dec_tree</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="op">{</span><span class="va">f</span><span class="op">^</span><span class="va">SDTree</span><span class="op">}</span> <span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="SDTree_files/figure-html/plot_tree-2.png" class="r-plt" width="700"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">plain_tree</span>, <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="op">{</span><span class="va">f</span><span class="op">^</span><span class="va">classicalTree</span><span class="op">}</span> <span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="SDTree_files/figure-html/plot_tree-3.png" class="r-plt" width="700"></p>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Breiman2017ClassificationTrees" class="csl-entry">
 Breiman, Leo, Jerome H. Friedman, Richard A. Olshen, and Charles J.
 Stone. 2017. <em><span>Classification And Regression Trees</span></em>.
 Routledge. <a href="https://doi.org/10.1201/9781315139470" class="external-link">https://doi.org/10.1201/9781315139470</a>.
-</div>
-<div id="ref-Therneau2022Rpart:Trees" class="csl-entry">
-Therneau, Terry, and Beth Atkinson. 2022. <span>“<span class="nocase">rpart: Recursive Partitioning and Regression
-Trees</span>.”</span> <a href="https://CRAN.R-project.org/package=rpart" class="external-link">https://CRAN.R-project.org/package=rpart</a>.
 </div>
 </div>
   </div>
@@ -215,7 +235,7 @@ Trees</span>.”</span> <a href="https://CRAN.R-project.org/package=rpart" class
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@ $$\widehat{f(X)} = \frac{1}{N_{tree}} \sum_{t = 1}^{N_{tree}} SDTree_t(X)$$"><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.13</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -124,9 +124,7 @@ $$\widehat{f(X)} = \frac{1}{N_{tree}} \sum_{t = 1}^{N_{tree}} SDTree_t(X)$$</p>
 <span>  A <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gamma <span class="op">=</span> <span class="fl">7</span>,</span>
 <span>  max_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gpu <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_data <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  mem_size <span class="op">=</span> <span class="fl">1e+07</span>,</span>
 <span>  leave_out_ind <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  envs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nTree_leave_out <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -227,21 +225,10 @@ See <code><a href="get_W.html">get_W</a></code>.</p></dd>
 If <code>NULL</code> n samples with replacement are drawn.</p></dd>
 
 
-<dt id="arg-gpu">gpu<a class="anchor" aria-label="anchor" href="#arg-gpu"></a></dt>
-<dd><p>If <code>TRUE</code>, the calculations are performed on the GPU.
-If it is properly set up.</p></dd>
-
-
 <dt id="arg-return-data">return_data<a class="anchor" aria-label="anchor" href="#arg-return-data"></a></dt>
 <dd><p>If <code>TRUE</code>, the training data is returned in the output.
 This is needed for <code><a href="prune.SDForest.html">prune.SDForest</a></code>, <code><a href="regPath.SDForest.html">regPath.SDForest</a></code>,
 and for <code><a href="mergeForest.html">mergeForest</a></code>.</p></dd>
-
-
-<dt id="arg-mem-size">mem_size<a class="anchor" aria-label="anchor" href="#arg-mem-size"></a></dt>
-<dd><p>Amount of split candidates that can be evaluated at once.
-This is a trade-off between memory and speed can be decreased if either
-the memory is not sufficient or the gpu is to small.</p></dd>
 
 
 <dt id="arg-leave-out-ind">leave_out_ind<a class="anchor" aria-label="anchor" href="#arg-leave-out-ind"></a></dt>
@@ -394,14 +381,20 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">SDForest</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span>, nTree <span class="op">=</span> <span class="fl">5</span>, cp <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -1.680850  2.056027 -1.680850  2.056027  2.056027 -1.680850  2.056027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8]  2.056027  2.056027 -1.680850  2.056027  2.056027 -1.680850 -1.680850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15]  2.056027 -1.680850 -1.680850  2.056027  2.056027  2.056027  2.056027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [22]  2.056027  2.056027 -1.680850  2.056027 -1.680850 -1.680850 -1.680850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [29] -1.680850  2.056027  2.056027 -1.680850  2.056027 -1.680850 -1.680850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [36] -1.680850 -1.680850 -1.680850  2.056027  2.056027 -1.680850 -1.680850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [43]  2.056027  2.056027 -1.680850 -1.680850  2.056027  2.056027 -1.680850</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [50]  2.056027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 -1.680850  2.056027  2.056027 -1.680850  2.056027  2.056027 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027 -1.680850 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027  2.056027  2.056027  2.056027  2.056027  2.056027 -1.680850 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 -1.680850 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027  2.056027 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###### subset of predictors</span></span></span>
 <span class="r-in"><span><span class="co"># if we know, that only the first covariate has an effect on y,</span></span></span>
@@ -429,8 +422,8 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of trees:  100 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of covariates:  150 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OOB loss:  0.6749145 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OOB spectral loss:  0.07387959 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> OOB loss:  0.6746847 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> OOB spectral loss:  0.0739706 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># we can plot the fit to see whether the number of trees is high enough</span></span></span>
 <span class="r-in"><span><span class="co"># if the performance stabilizes, we have enough trees otherwise one can fit</span></span></span>
@@ -489,7 +482,7 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>
