@@ -290,62 +290,55 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   #use random generater that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
   
+  # Worker wrapper for bagged trees
+  worker_fun <- function(i) {
+    Xi <- matrix(X[i, ], ncol = ncol(X))
+    colnames(Xi) <- colnames(X)
+    if(!is.null(A)){
+      Ai <- matrix(A[i, ], ncol = ncol(A))
+    }else{
+      Ai <- NULL
+    }
+    
+    # protect SDTree call
+    res_i <- tryCatch({
+      tree_obj <- SDTree(x = Xi, y = Y[i],
+                         cp = cp, min_sample = min_sample,
+                         Q_type = Q_type, trim_quantile = trim_quantile,
+                         q_hat = q_hat, mtry = mtry, A = Ai, gamma = gamma, 
+                         mem_size = mem_size, max_candidates = max_candidates, 
+                         Q_scale = Q_scale, predictors = predictors)
+      list(ok = TRUE, tree = tree_obj)
+    }, error = function(e) {
+      list(ok = FALSE, error = conditionMessage(e))
+    }, warning = function(w) {
+      # convert warnings to tagged results if needed
+      list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
+    })
+    res_i
+  }
+  
   if(mc.cores > 1){
     if(!locatexec::is_windows()){
       if(verbose) print('mclapply')
-      res <- parallel::mclapply(ind, function(i) {
-        Xi <- matrix(X[i, ], ncol = ncol(X))
-        colnames(Xi) <- colnames(X)
-        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-               Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-               mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale, 
-               predictors = predictors)
-        }, 
-        mc.cores = mc.cores)
+      res_list <- parallel::mclapply(ind, worker_fun, mc.cores = mc.cores)
     }else{
       if(verbose) print('future')
       future::plan('multisession', workers = mc.cores)
-      res <- future.apply::future_lapply(future.seed = TRUE, X = ind, FUN = function(i){
-        Xi <- matrix(X[i, ], ncol = ncol(X))
-        colnames(Xi) <- colnames(X)
-        SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-               Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-               mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-               max_candidates = max_candidates, Q_scale = Q_scale, 
-               predictors = predictors)
-      })
-    }#else{
-    #  if(verbose) print('makeCluster')
-    #  cl <- parallel::makeCluster(mc.cores)
-    #  doParallel::registerDoParallel(cl)
-    #  parallel::clusterExport(cl = cl, 
-    #                          unclass(lsf.str(envir = asNamespace("SDModels"), 
-    #                                          all = TRUE)),
-    #                          envir = as.environment(asNamespace("SDModels")))
-    #  res <- parallel::clusterApply(cl = cl, ind, fun = function(i){
-    #    Xi <- matrix(X[i, ], ncol = ncol(X))
-    #    colnames(Xi) <- colnames(X)
-    #    SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-    #           Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-    #           mtry = mtry, A = A[i, ], gamma = gamma, mem_size = mem_size, 
-    #           max_candidates = max_candidates, Q_scale = Q_scale, 
-    #           predictors = predictors)
-    #    })
-    #  parallel::stopCluster(cl = cl)
-    #}
+      res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
+    }
   }else{
-    res <- pbapply::pblapply(ind, function(i){
-      Xi <- matrix(X[i, ], ncol = ncol(X))
-      colnames(Xi) <- colnames(X)
-      SDTree(x = Xi, y = Y[i], cp = cp, min_sample = min_sample, 
-             Q_type = Q_type, trim_quantile = trim_quantile, q_hat = q_hat, 
-             mtry = mtry, A = A[i, ], gamma = gamma, gpu = gpu, 
-             mem_size = mem_size, max_candidates = max_candidates, 
-             Q_scale = Q_scale, predictors = predictors)
-    })
+    res_list <- pbapply::pblapply(ind, worker_fun)
   }
   RNGkind(ok[1])
+  
+  #check worker statuses
+  failed_workers <- which(vapply(res_list, function(z) !isTRUE(z$ok), logical(1)))
+  if (length(failed_workers) > 0) {
+    stop(sprintf("SDForest: %d worker(s) failed, first error: %s",
+                 length(failed_workers), res_list[[failed_workers[1]]]$error))
+  }
+  res <- lapply(res_list, function(res) res$tree)
   
   #selection of predictors
   if(!is.null(predictors)){
