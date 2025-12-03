@@ -20,8 +20,6 @@ SDTree(
   Qf = NULL,
   A = NULL,
   gamma = 0.5,
-  gpu = FALSE,
-  mem_size = 1e+07,
   max_candidates = 100,
   Q_scale = TRUE,
   predictors = NULL
@@ -74,13 +72,6 @@ it is internally estimated using \code{\link{get_Q}}.}
 
 \item{gamma}{Strength of distributional robustness, \eqn{\gamma \in [0, \infty]}. 
 See \code{\link{get_W}}.}
-
-\item{gpu}{If \code{TRUE}, the calculations are performed on the GPU. 
-If it is properly set up.}
-
-\item{mem_size}{Amount of split candidates that can be evaluated at once.
-This is a trade-off between memory and speed can be decreased if either
-the memory is not sufficient or the gpu is to small.}
 
 \item{max_candidates}{Maximum number of split points that are 
 proposed at each node for each covariate.}

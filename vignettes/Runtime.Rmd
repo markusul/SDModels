@@ -36,15 +36,6 @@ fit <- SDForest(x = X, y = Y, mc.cores = 22)
 model <- SDAM(X, Y, cv_k = 5, mc.cores = 5)
 ```
 
-### GPU
-
-Especially if we have many observations, it might be reasonable to perform the matrix multiplications on a GPU. We can evaluate many potential splits simultaneously by multiplying an n times n matrix with an n times potential split matrix on a GPU. We use [GPUmatrix](https://CRAN.R-project.org/package=GPUmatrix) [@Lobato-Fernandez2024GPUmatrix:GPU] to do the calculations on the GPU. We also refer to their website to set up your GPU properly. The number of splits that can be evaluated in parallel in this way highly depends on your GPU size and can be controlled using the `mem_size` parameter. The default value of 1e+7 should not result in a memory overflow on a GPU with 24G VRAM. For us, this worked well on a GeForce RTX 3090.
-
-```{r gpu, eval=FALSE}
-# runs the matrix operations on a gpu if available
-fit <- SDForest(x = X, y = Y, gpu = T, mem_size = 1e+7)
-tree <- SDTree(x = X, y = Y, gpu = T, mem_size = 1e+7)
-```
 
 ## Approximations
 

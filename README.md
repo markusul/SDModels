@@ -76,8 +76,8 @@ fit
 #> 
 #> Number of trees:  100 
 #> Number of covariates:  50 
-#> OOB loss:  0.1555105 
-#> OOB spectral loss:  0.05230598
+#> OOB loss:  0.1556413 
+#> OOB spectral loss:  0.05254942
 ```
 
 You can also estimate just one Spectrally Deconfounded Regression Tree

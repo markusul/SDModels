@@ -58,11 +58,6 @@
 #' @param A Numerical Anchor of class \code{matrix}. See \code{\link{get_W}}.
 #' @param gamma Strength of distributional robustness, \eqn{\gamma \in [0, \infty]}. 
 #' See \code{\link{get_W}}.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
-#' @param mem_size Amount of split candidates that can be evaluated at once.
-#' This is a trade-off between memory and speed can be decreased if either
-#' the memory is not sufficient or the gpu is to small.
 #' @param max_candidates Maximum number of split points that are 
 #' proposed at each node for each covariate.
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
@@ -122,12 +117,8 @@
 SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves = NULL, 
                    cp = 0.01, min_sample = 5, mtry = NULL, fast = TRUE,
                    Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, Qf = NULL, 
-                   A = NULL, gamma = 0.5, gpu = FALSE, mem_size = 1e+7, max_candidates = 100, 
+                   A = NULL, gamma = 0.5, max_candidates = 100, 
                    Q_scale = TRUE, predictors = NULL){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
-  
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -139,7 +130,6 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
 
   max_leaves <- max_leaves - 1
 
-  mem_size <- mem_size / n
   # check validity of input
   if(n != length(Y)) stop('X and Y must have the same number of observations')
   if(max_leaves < 0) stop('max_leaves must be larger than 1')
@@ -156,16 +146,16 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     if(is.vector(A)) A <- matrix(A)
     if(!is.matrix(A)) stop('A must be a matrix')
     if(nrow(A) != n) stop('A must have n rows')
-    Wf <- get_Wf(A, gamma, gpu)
+    Wf <- get_Wf(A, gamma)
   }else {
     Wf <- function(v) v
   }
 
   if(is.null(Qf)){
     if(!is.null(A)){
-      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf(v))
+      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
     }else{
-      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, Q_scale)
     }
   }else{
     if(!is.function(Qf)) stop('Q must be a function')
@@ -198,21 +188,12 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
   # calculate first estimate
   E <- matrix(1, n, 1)
   E_tilde <- Qf(E)
-
-  if(gpu){
-    E_tilde <- gpu.matrix(E_tilde, type = gpu_type)
-  }
-
   Ue <- E_tilde / sqrt(sum(E_tilde ** 2))
   Y_tilde <- Qf(Y)
 
   # solve linear model
-  if(gpu && gpu_type == 'tensorflow'){
-    c_hat <- lm.fit(as.matrix(E_tilde), as.matrix(Y_tilde))$coefficients
-  }else{
-    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
-    c_hat <- as.numeric(c_hat)
-  }
+  c_hat <- qr.coef(qr(E_tilde), Y_tilde)
+  c_hat <- as.numeric(c_hat)
 
   loss_start <- as.numeric(sum((Y_tilde - c_hat) ** 2) / n)
   loss_temp <- loss_start
@@ -249,54 +230,37 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     
     #iterate over new to estimate splits
     for(branch in potential_splits){
+      # get samples in branch to evaluate
       E_branch <- E[, branch]
       index <- which(E_branch == 1)
       X_branch <- matrix(X[index, ], nrow = length(index))
-
+      
+      # get potential splitting candidates
       s <- find_s(X_branch, max_candidates = max_candidates)
       n_splits <- nrow(s)
-
+      
+      # remove splits resulting in to small leaves
       if(min_sample > 1) {
         s <- s[-c(0:(min_sample - 1), (n_splits - min_sample + 2):(n_splits+1)), ]
       }
       s <- matrix(s, ncol = p)
-
-      all_n_splits <- apply(s, 2, function(x) length(unique(x)))
-      all_idx <- cumsum(all_n_splits)
-
-      eval <- matrix(-Inf, nrow(s), p)
-      done_splits <- 0
-      p_top <- 0
-      while(p_top < p){
-        c_all_idx <- all_idx - done_splits
-        p_low <- p_top + 1
-        possible <- which(c_all_idx < mem_size)
-        p_top <- possible[length(possible)]
-
-        c_n_splits <- sum(all_idx[p_top], -all_idx[p_low-1])
-        E_next <- matrix(0, n, c_n_splits)
-        for(j in p_low:p_top){
-          s_j <- s[, j]
-          s_j <- unique(s_j)
-          for(i_s in 1:all_n_splits[j]){
-            E_next[index[X_branch[, j] > s_j[i_s]], sum(c_all_idx[j-1], i_s)] <- 1
-          }
-        }
-        if(gpu) E_next <- gpu.matrix(E_next, type = gpu_type)
-
+      
+      optSplits <- lapply(1:p, function(j){
+        s_j <- unique(s[, j])
+        E_next <- lapply(s_j, function(si) {
+          E_next <- matrix(0, nrow = n, ncol = 1)
+          E_next[index[X_branch[, j] > si], ] <- 1
+          E_next
+        })
+        E_next <- do.call(cbind, E_next)
         U_next_prime <- Qf_temp(E_next, Ue, Qf)
         U_next_size <- colSums(U_next_prime ** 2)
         dloss <- as.numeric(crossprod(U_next_prime, Y_tilde))**2 / U_next_size
-        dloss[is.na(dloss)] <- 0
         
-        for(m in p_low:p_top){
-          eval[1:all_n_splits[m], m] <- dloss[sum(c_all_idx[m-1], 1):c_all_idx[m]]
-        }
-        done_splits <- done_splits + c_n_splits
-      }
-      is_opt <- apply(eval, 2, which.max)
-      memory[[branch]] <- t(sapply(1:p, function(j) 
-        c(eval[is_opt[j], j], j, unique(s[, j])[is_opt[j]], branch)))
+        opt <- which.max(unlist(dloss))
+        c(dloss[[opt]], j, s_j[opt], branch)
+      })
+      memory[[branch]] <- do.call(rbind, optSplits)
     }
 
     if(i > after_mtry && !is.null(mtry)){
@@ -331,11 +295,7 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
     })
     E_tilde <- cbind(E_tilde, matrix(E_tilde_branch - E_tilde[, best_branch]))
 
-    if(gpu && gpu_type == 'tensorflow'){
-      c_hat <- lm.fit(as.matrix(E_tilde), as.matrix(Y_tilde))$coefficients
-    }else{
-      c_hat <- qr.coef(qr(E_tilde), Y_tilde)
-    }
+    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
 
     u_next_prime <- Qf_temp(E[, i + 1], Ue, Qf)
     Ue <- cbind(Ue, u_next_prime / sqrt(sum(u_next_prime ** 2)))

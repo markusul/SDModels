@@ -52,14 +52,9 @@
 #' See \code{\link{get_W}}.
 #' @param max_size Maximum number of observations used for a bootstrap sample.
 #' If \code{NULL} n samples with replacement are drawn.
-#' @param gpu If \code{TRUE}, the calculations are performed on the GPU. 
-#' If it is properly set up.
 #' @param return_data If \code{TRUE}, the training data is returned in the output.
 #' This is needed for \code{\link{prune.SDForest}}, \code{\link{regPath.SDForest}}, 
 #' and for \code{\link{mergeForest}}.
-#' @param mem_size Amount of split candidates that can be evaluated at once.
-#' This is a trade-off between memory and speed can be decreased if either
-#' the memory is not sufficient or the gpu is to small.
 #' @param leave_out_ind Indices of observations that should not be used for training.
 #' @param envs Vector of environments of class \code{factor} 
 #' which can be used for stratified tree fitting.
@@ -177,14 +172,11 @@
 SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 100, 
                      cp = 0, min_sample = 5, mtry = NULL, mc.cores = 1, 
                      Q_type = 'trim', trim_quantile = 0.5, q_hat = 0, Qf = NULL, 
-                     A = NULL, gamma = 7, max_size = NULL, gpu = FALSE, 
-                     return_data = TRUE, mem_size = 1e+7, leave_out_ind = NULL, 
+                     A = NULL, gamma = 7, max_size = NULL,
+                     return_data = TRUE, leave_out_ind = NULL, 
                      envs = NULL, nTree_leave_out = NULL, nTree_env = NULL, 
                      max_candidates = 100, Q_scale = TRUE, verbose = TRUE, 
                      predictors = NULL){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
   input_data <- data.handler(formula = formula, data = data, x = x, y = y)
   X <- input_data$X
   Y <- input_data$Y
@@ -199,9 +191,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   if(n != length(Y)) stop('X and Y must have the same number of observations')
   if(!is.null(mtry) && mtry < 1) stop('mtry must be larger than 0')
   if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
-  if(gpu && (mc.cores > 1)) 
-    warning('gpu and multicore cannot be used together, 
-            no gpu is not used for tree estimations')
 
   if(!is.null(leave_out_ind) && any(leave_out_ind >= n, leave_out_ind < 1)) 
     stop('leave_out_ind must be smaller than n')
@@ -218,16 +207,16 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     if(is.vector(A)) A <- matrix(A)
     if(!is.matrix(A)) stop('A must be a matrix')
     if(nrow(A) != n) stop('A must have n rows')
-    Wf <- get_Wf(A, gamma, gpu)
+    Wf <- get_Wf(A, gamma)
   }else {
     Wf <- function(v) v
   }
 
   if(is.null(Qf)){
     if(!is.null(A)){
-      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, gpu, Q_scale)(Wf(v))
+      Qf <- function(v) get_Qf(Wf(X), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
     }else{
-      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, gpu, Q_scale)
+      Qf <- get_Qf(X, Q_type, trim_quantile, q_hat, Q_scale)
     }
   }else{
     if(!is.function(Qf)) stop('Q must be a function')
@@ -306,7 +295,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                          cp = cp, min_sample = min_sample,
                          Q_type = Q_type, trim_quantile = trim_quantile,
                          q_hat = q_hat, mtry = mtry, A = Ai, gamma = gamma, 
-                         mem_size = mem_size, max_candidates = max_candidates, 
+                         max_candidates = max_candidates, 
                          Q_scale = Q_scale, predictors = predictors)
       list(ok = TRUE, tree = tree_obj)
     }, error = function(e) {

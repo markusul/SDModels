@@ -1,5 +1,4 @@
 #' @importFrom Rdpack reprompt
-#' @import GPUmatrix
 #' @import DiagrammeR
 #' @import future.apply
 #' @import future
@@ -167,11 +166,7 @@ pruned_loss <- function(tree, X_val, Y_val, Q_val, cp){
 }
 
 # more efficient transformations
-get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling = TRUE){
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')
-
+get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE){
   if(type == 'no_deconfounding') {
     return(function(v) v)
   }
@@ -208,8 +203,6 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling
   sv <- svd_error(X, q)
   Uq <- sv$u[, 1:q]
 
-  if(gpu) Uq <- gpu.matrix(Uq, type = gpu_type)
-
   switch(modes[type], 
          {#trim
            D_tilde <- sv$d[1:q]
@@ -237,15 +230,10 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling
   return(Qf)
 }
 
-get_Wf <- function(A, gamma, intercept = FALSE, gpu = FALSE){
+get_Wf <- function(A, gamma, intercept = FALSE){
   if(intercept) A <- cbind(1, A)
   if(ncol(A) > nrow(A)) stop('A must have full rank!')
   if(gamma < 0) stop('gamma must be non-negative')
-  
-  if(gpu) ifelse(GPUmatrix::installTorch(), 
-                 gpu_type <- 'torch', 
-                 gpu_type <- 'tensorflow')  
-  if(gpu) A <- gpu.matrix(A, type = gpu_type)
   
   Q_prime <- qr.Q(qr(A))
   Wf <- function(v){

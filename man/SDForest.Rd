@@ -21,9 +21,7 @@ SDForest(
   A = NULL,
   gamma = 7,
   max_size = NULL,
-  gpu = FALSE,
   return_data = TRUE,
-  mem_size = 1e+07,
   leave_out_ind = NULL,
   envs = NULL,
   nTree_leave_out = NULL,
@@ -85,16 +83,9 @@ See \code{\link{get_W}}.}
 \item{max_size}{Maximum number of observations used for a bootstrap sample.
 If \code{NULL} n samples with replacement are drawn.}
 
-\item{gpu}{If \code{TRUE}, the calculations are performed on the GPU. 
-If it is properly set up.}
-
 \item{return_data}{If \code{TRUE}, the training data is returned in the output.
 This is needed for \code{\link{prune.SDForest}}, \code{\link{regPath.SDForest}}, 
 and for \code{\link{mergeForest}}.}
-
-\item{mem_size}{Amount of split candidates that can be evaluated at once.
-This is a trade-off between memory and speed can be decreased if either
-the memory is not sufficient or the gpu is to small.}
 
 \item{leave_out_ind}{Indices of observations that should not be used for training.}
 

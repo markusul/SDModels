@@ -4,7 +4,7 @@
 \alias{get_Q}
 \title{Estimation of spectral transformation}
 \usage{
-get_Q(X, type, trim_quantile = 0.5, q_hat = 0, gpu = FALSE, scaling = TRUE)
+get_Q(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE)
 }
 \arguments{
 \item{X}{Numerical covariates of class \code{matrix}.}
@@ -18,9 +18,6 @@ and 'no_deconfounding' to the Identity.}
 \item{trim_quantile}{Quantile for Trim transform, only needed for trim.}
 
 \item{q_hat}{Assumed confounding dimension, only needed for pca.}
-
-\item{gpu}{If \code{TRUE}, the calculations are performed on the GPU. 
-If it is properly set up.}
 
 \item{scaling}{Whether X should be scaled before calculating the spectral transformation.}
 }
