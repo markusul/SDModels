@@ -141,76 +141,11 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of trees:  100 </span></span>
 <span><span class="co">#&gt; Number of covariates:  50 </span></span>
-<span><span class="co">#&gt; OOB loss:  0.1556413 </span></span>
-<span><span class="co">#&gt; OOB spectral loss:  0.05254942</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB loss:  0.1554798 </span></span>
+<span><span class="co">#&gt; OOB spectral loss:  0.05246865</span></span></code></pre></div>
 <p>You can also estimate just one Spectrally Deconfounded Regression Tree using the <code>SDTree</code> function. See also the article <a href="https://www.markus-ulmer.ch/SDModels/articles/SDTree.html" class="external-link">SDTree</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDTree.html">SDTree</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span>, cp <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># plot the tree</span></span>
-<span><span class="va">Tree</span></span>
-<span><span class="co">#&gt; $predictions</span></span>
-<span><span class="co">#&gt;   [1] 0.6609876 0.6609876 0.6609876 1.0367566 0.6609876 0.6609876 0.6609876</span></span>
-<span><span class="co">#&gt;   [8] 0.1522660 0.6609876 0.6609876 0.6609876 0.6609876 1.0367566 1.4551242</span></span>
-<span><span class="co">#&gt;  [15] 1.4551242 0.6609876 0.6609876 1.4551242 1.0367566 0.6609876 0.1522660</span></span>
-<span><span class="co">#&gt;  [22] 0.6609876 1.0367566 0.6609876 1.0367566 1.0367566 0.6609876 0.6609876</span></span>
-<span><span class="co">#&gt;  [29] 0.1522660 1.4551242 0.1522660 1.4551242 1.4551242 1.0367566 1.4551242</span></span>
-<span><span class="co">#&gt;  [36] 0.6609876 0.6609876 1.4551242 1.0367566 0.6609876 1.4551242 1.0367566</span></span>
-<span><span class="co">#&gt;  [43] 1.0367566 0.6609876 1.0367566 0.6609876 0.6609876 1.4551242 0.1522660</span></span>
-<span><span class="co">#&gt;  [50] 0.6609876 0.6609876 0.6609876 1.0367566 0.6609876 1.4551242 0.6609876</span></span>
-<span><span class="co">#&gt;  [57] 1.0367566 0.6609876 0.6609876 0.1522660 1.0367566 0.6609876 1.0367566</span></span>
-<span><span class="co">#&gt;  [64] 0.1522660 0.6609876 0.6609876 1.4551242 0.6609876 0.6609876 1.4551242</span></span>
-<span><span class="co">#&gt;  [71] 1.4551242 0.6609876 0.6609876 1.0367566 0.6609876 1.4551242 0.6609876</span></span>
-<span><span class="co">#&gt;  [78] 0.6609876 0.6609876 1.0367566 0.6609876 0.6609876 1.4551242 0.6609876</span></span>
-<span><span class="co">#&gt;  [85] 0.6609876 0.6609876 0.6609876 0.6609876 0.6609876 0.1522660 0.6609876</span></span>
-<span><span class="co">#&gt;  [92] 1.0367566 1.4551242 1.4551242 0.6609876 0.6609876 0.1522660 0.6609876</span></span>
-<span><span class="co">#&gt;  [99] 1.0367566 0.6609876</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tree</span></span>
-<span><span class="co">#&gt;      name left right  j          s     value      dloss  res_dloss         cp</span></span>
-<span><span class="co">#&gt; [1,]    1    2     3 24  0.5186858 0.8295434 0.09719892 0.03323101 10.0000000</span></span>
-<span><span class="co">#&gt; [2,]    1    4     5 25 -2.0062213 0.6418912 0.03323101 0.01140406  0.3418866</span></span>
-<span><span class="co">#&gt; [3,]    2    6     7 24  1.5229617 1.1821439 0.03323101 0.01261921  0.3418866</span></span>
-<span><span class="co">#&gt; [4,]    1    0     0  0  0.0000000 0.1522660 0.01140406 0.00000000  0.1173270</span></span>
-<span><span class="co">#&gt; [5,]    3    0     0  0  0.0000000 0.6609876 0.01140406 0.00000000  0.1173270</span></span>
-<span><span class="co">#&gt; [6,]    2    0     0  0  0.0000000 1.0367566 0.01261921 0.00000000  0.1298287</span></span>
-<span><span class="co">#&gt; [7,]    4    0     0  0  0.0000000 1.4551242 0.01261921 0.00000000  0.1298287</span></span>
-<span><span class="co">#&gt;      n_samples leaf</span></span>
-<span><span class="co">#&gt; [1,]       100    2</span></span>
-<span><span class="co">#&gt; [2,]        63    2</span></span>
-<span><span class="co">#&gt; [3,]        37    2</span></span>
-<span><span class="co">#&gt; [4,]         9    1</span></span>
-<span><span class="co">#&gt; [5,]        54    1</span></span>
-<span><span class="co">#&gt; [6,]        19    1</span></span>
-<span><span class="co">#&gt; [7,]        18    1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $var_names</span></span>
-<span><span class="co">#&gt;  [1] "X1"  "X2"  "X3"  "X4"  "X5"  "X6"  "X7"  "X8"  "X9"  "X10" "X11" "X12"</span></span>
-<span><span class="co">#&gt; [13] "X13" "X14" "X15" "X16" "X17" "X18" "X19" "X20" "X21" "X22" "X23" "X24"</span></span>
-<span><span class="co">#&gt; [25] "X25" "X26" "X27" "X28" "X29" "X30" "X31" "X32" "X33" "X34" "X35" "X36"</span></span>
-<span><span class="co">#&gt; [37] "X37" "X38" "X39" "X40" "X41" "X42" "X43" "X44" "X45" "X46" "X47" "X48"</span></span>
-<span><span class="co">#&gt; [49] "X49" "X50"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $var_importance</span></span>
-<span><span class="co">#&gt;         X1         X2         X3         X4         X5         X6         X7 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;         X8         X9        X10        X11        X12        X13        X14 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X15        X16        X17        X18        X19        X20        X21 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X22        X23        X24        X25        X26        X27        X28 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.04585022 0.01140406 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X29        X30        X31        X32        X33        X34        X35 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X36        X37        X38        X39        X40        X41        X42 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X43        X44        X45        X46        X47        X48        X49 </span></span>
-<span><span class="co">#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000 </span></span>
-<span><span class="co">#&gt;        X50 </span></span>
-<span><span class="co">#&gt; 0.00000000 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "SDTree"</span></span>
+<code class="sourceCode R"><span><span class="va">Tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDTree.html">SDTree</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span>, cp <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Tree</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-SDTree-1.png" width="100%"></p>
 <p>Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the <code>SDAM</code> function. See also the article <a href="https://www.markus-ulmer.ch/SDModels/articles/SDAM.html" class="external-link">SDAM</a>.</p>
@@ -218,7 +153,6 @@
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
 <span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
-<span></span>
 <span><span class="va">model</span></span>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>
