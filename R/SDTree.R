@@ -250,9 +250,11 @@ SDTree <- function(formula = NULL, data = NULL, x = NULL, y = NULL, max_leaves =
         E_next <- lapply(s_j, function(si) {
           E_next <- matrix(0, nrow = n, ncol = 1)
           E_next[index[X_branch[, j] > si], ] <- 1
+          if(sum(E_next) == 0)return(NULL)
           E_next
         })
         E_next <- do.call(cbind, E_next)
+        if(is.null(E_next)) return(c(-10, j, 0, branch))
         U_next_prime <- Qf_temp(E_next, Ue, Qf)
         U_next_size <- colSums(U_next_prime ** 2)
         dloss <- as.numeric(crossprod(U_next_prime, Y_tilde))**2 / U_next_size

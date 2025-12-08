@@ -1,3 +1,7 @@
+# SDModels 2.0.1
+
+* Fix bug in SDTree and SDForest where an error occurred, if X had columns with only one unique value.
+
 # SDModels 2.0.0
 
 * Removal of data.tree dependence. Trees are now saved as a matrix.
