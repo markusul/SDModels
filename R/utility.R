@@ -82,7 +82,7 @@ split_names <- function(node, var_names = NULL, digits = 2){
 }
 
 
-# finds all the reasonable spliting points in a data matrix
+# finds all the reasonable splitting points in a data matrix
 find_s <- function(X, max_candidates = 100){
   p <- ncol(X)
   if(p == 1){
@@ -268,4 +268,266 @@ Bbasis <- function(x, breaks){
   return(Bx)
 }
 
+estimate_tree <- function(boot_index, Y, X, A, max_leaves, cp, min_sample, mtry, fast,
+                          Q_type, trim_quantile, q_hat, Qf, gamma, max_candidates, 
+                          Q_scale, predictors){
+  if(is.null(boot_index)){
+    boot_index <- 1:nrow(X)
+    tree_in_forest <- FALSE
+  }else{
+    tree_in_forest <- TRUE
+  }
+  n <- length(boot_index)
+  
+  # estimate spectral transformation
+  if(!is.null(A)){
+    if(is.null(gamma)) stop('gamma must be provided if A is provided')
+    if(is.vector(A)) A <- matrix(A)
+    if(!is.matrix(A)) stop('A must be a matrix')
+    if(nrow(A) != nrow(X)) stop('A must have n rows')
+    Wf <- get_Wf(matrix(A[boot_index, ], ncol = ncol(A)), gamma)
+  }else {
+    Wf <- function(v) v
+  }
 
+  if(is.null(Qf)){
+    if(!is.null(A)){
+      Qf <- function(v) get_Qf(Wf(X[boot_index, ]), Q_type, trim_quantile, q_hat, Q_scale)(Wf(v))
+    }else{
+      Qf <- get_Qf(X[boot_index, ], Q_type, trim_quantile, q_hat, Q_scale)
+    }
+  }else{
+    if(!is.function(Qf)) stop('Q must be a function')
+    if(length(Qf(rnorm(n))) == n) stop('Q must map from n to n')
+  }
+  
+  #selection of predictors
+  if(!is.null(predictors)){
+    if(is.character(predictors)){
+      if(!all(predictors %in% colnames(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+      predictors <- which(colnames(X) %in% predictors)
+    }
+    if(is.numeric(predictors)){
+      if(!all(predictors > 0 & predictors <= ncol(X)))
+        stop("predictors must either be numeric columne index or in colnames of X")
+    }
+    pred_names <- colnames(X)
+    X <- matrix(X[, predictors], ncol = length(predictors))
+    if(!is.null(pred_names)){
+      colnames(X) <- pred_names[predictors]
+    }
+  }
+  
+  # number of covariates
+  p <- ncol(X)
+  if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
+  
+  # calculate first estimate
+  E <- matrix(1, n, 1)
+  E_tilde <- Qf(E)
+  Ue <- E_tilde / sqrt(sum(E_tilde ** 2))
+  Y_tilde <- Qf(Y[boot_index])
+  
+  # solve linear model
+  c_hat <- qr.coef(qr(E_tilde), Y_tilde)
+  c_hat <- as.numeric(c_hat)
+  
+  loss_start <- as.numeric(sum((Y_tilde - c_hat) ** 2) / n)
+  loss_temp <- loss_start
+  
+  # initialize tree
+  treeInfo <- c("name", "left", "right", "j", "s", "value", "dloss", 
+                "res_dloss", "cp", "n_samples", "leaf")
+  d <- length(treeInfo)
+  
+  tree <- matrix(0, ncol = d, nrow = 1, dimnames = list(NULL, treeInfo))
+  tree[1, c("name", "value", "dloss", "cp", "n_samples", "leaf")] <- 
+    c(1, c_hat, loss_start, 10, n, 1)
+  treeSize <- 1
+  
+  # memory for optimal splits
+  memory <- list()
+  potential_splits <- 1
+  
+  # variable importance
+  var_imp <- rep(0, p)
+  names(var_imp) <- colnames(X)
+  
+  after_mtry <- 0
+  
+  for(i in 1:max_leaves){
+    # iterate over all possible splits every time
+    # for slow but slightly better solution
+    if(!fast){
+      potential_splits <- 1:i
+      to_small <- sapply(potential_splits, 
+                         function(x){sum(E[, x]) < min_sample*2})
+      potential_splits <- potential_splits[!to_small]
+    }
+    
+    #iterate over new to estimate splits
+    for(branch in potential_splits){
+      # get samples in branch to evaluate
+      E_branch <- E[, branch]
+      index <- which(E_branch == 1)
+      X_branch <- matrix(X[boot_index[index], ], nrow = length(index))
+      
+      # get potential splitting candidates
+      s <- find_s(X_branch, max_candidates = max_candidates)
+      n_splits <- nrow(s)
+      
+      # remove splits resulting in to small leaves
+      if(min_sample > 1) {
+        s <- s[-c(0:(min_sample - 1), (n_splits - min_sample + 2):(n_splits+1)), ]
+      }
+      s <- matrix(s, ncol = p)
+      
+      optSplits <- lapply(1:p, function(j){
+        s_j <- unique(s[, j])
+        E_next <- lapply(s_j, function(si) {
+          E_next <- matrix(0, nrow = n, ncol = 1)
+          E_next[index[X_branch[, j] > si], ] <- 1
+          if(sum(E_next) == 0)return(NULL)
+          E_next
+        })
+        E_next <- do.call(cbind, E_next)
+        if(is.null(E_next)) return(c(-10, j, 0, branch))
+        U_next_prime <- Qf_temp(E_next, Ue, Qf)
+        U_next_size <- colSums(U_next_prime ** 2)
+        dloss <- as.numeric(crossprod(U_next_prime, Y_tilde))**2 / U_next_size
+        
+        opt <- which.max(unlist(dloss))
+        c(dloss[[opt]], j, s_j[opt], branch)
+      })
+      memory[[branch]] <- do.call(rbind, optSplits)
+    }
+    
+    if(i > after_mtry && !is.null(mtry)){
+      Losses_dec <- lapply(memory, function(branch){
+        branch[sample(1:p, mtry), ]})
+      Losses_dec <- do.call(rbind, Losses_dec)
+    }else {
+      Losses_dec <- do.call(rbind, memory)
+    }
+    
+    loc <- which.max(Losses_dec[, 1])
+    best_branch <- Losses_dec[loc, 4]
+    j <- Losses_dec[loc, 2]
+    s <- Losses_dec[loc, 3]
+    
+    if(Losses_dec[loc, 1] <= 0){
+      break
+    }
+    
+    # divide observations in leaf
+    index <- which(E[, best_branch] == 1)
+    index_n_branches <- index[X[boot_index[index], j] > s]
+    
+    # new indicator matrix
+    E <- cbind(E, matrix(0, n, 1))
+    E[index_n_branches, best_branch] <- 0
+    E[index_n_branches, i+1] <- 1
+    
+    E_tilde_branch <- E_tilde[, best_branch]
+    suppressWarnings({
+      E_tilde[, best_branch] <- Qf(E[, best_branch])
+    })
+    E_tilde <- cbind(E_tilde, matrix(E_tilde_branch - E_tilde[, best_branch]))
+    
+    c_hat <- qr.coef(qr(E_tilde), Y_tilde)
+    
+    u_next_prime <- Qf_temp(E[, i + 1], Ue, Qf)
+    Ue <- cbind(Ue, u_next_prime / sqrt(sum(u_next_prime ** 2)))
+    
+    # check if loss decrease is larger than minimum loss decrease
+    # and if linear model could be estimated
+    if(sum(is.na(as.numeric(c_hat))) > 0){
+      warning('singulaer matrix QE, tree might be to large, consider increasing cp')
+      break
+    }
+    
+    loss_dec <- as.numeric(loss_temp - loss(Y_tilde, E_tilde %*% c_hat))
+    loss_temp <- loss_temp - loss_dec
+    
+    if(loss_dec <= cp * loss_start){
+      break
+    }
+    # add loss decrease to variable importance
+    var_imp[j] <- var_imp[j] + loss_dec
+    
+    # add space for the two new leaves
+    tree <- rbind(tree, matrix(0, nrow = 2, ncol = d))
+    
+    # select leaf to split
+    leaves <- tree[, "leaf"] == 1
+    toSplit <- leaves & (tree[, "name"] == best_branch)
+    if(sum(toSplit) != 1) stop("Tries to split more than one leaf")
+    
+    # save split rule
+    tree[toSplit, c("left", "right", "j", "s", "res_dloss", "leaf")] <- 
+      c(treeSize + 1, treeSize + 2, j, s, loss_dec, 2)
+    
+    # add new leaves
+    tree[treeSize + 1, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(tree[toSplit, "name"], loss_dec, loss_dec / loss_start, sum(E[, best_branch] == 1), 1)
+    tree[treeSize + 2, c("name", "dloss", "cp", "n_samples", "leaf")] <- 
+      c(i + 1, loss_dec, loss_dec / loss_start, sum(E[, i + 1] == 1), 1)
+    treeSize <- treeSize + 2
+    
+    # add estimates to tree leaves
+    c_hat <- as.numeric(c_hat)
+    # access leaf estimates by leaf names (i.e. columns of E)
+    tree[tree[, "leaf"] == 1, "value"] <- c_hat[tree[tree[, "leaf"] == 1, "name"]]
+    
+    # the two new partitions need to be checked for optimal splits in next iteration
+    potential_splits <- c(best_branch, i + 1)
+    
+    # a partition with less than min_sample observations or unique samples 
+    # are not available for further splits
+    to_small <- sapply(potential_splits, function(x){
+      new_samples <- nrow(unique(matrix(X[boot_index[as.logical(E[, x])],], nrow = sum(E[, x]))))
+      if(is.null(new_samples)) new_samples <- 0
+      (new_samples < min_sample * 2)
+    })
+    if(sum(to_small) > 0){
+      for(el in potential_splits[to_small]){
+        # to small partitions cannot decrease the loss
+        memory[[el]] <- matrix(0, p, 4)
+      }
+      potential_splits <- potential_splits[!to_small]
+    }
+  }
+  
+  if(i == max_leaves){
+    warning('maximum number of iterations was reached, consider increasing m!')
+  }
+  
+  # predict the test set
+  if(tree_in_forest){
+    f_X_hat <- NULL
+  }else{
+    f_X_hat <- traverse_tree(tree, X)
+  }
+  
+  
+  var_names <- colnames(data.frame(X))
+  names(var_imp) <- var_names
+  
+  # cp max of all splits after
+  new_cp <- getCp_max(tree)
+  tree[new_cp[[2]], "cp"] <- new_cp[[1]]
+  
+  # use max cp over siblings to ensure binary tree
+  for(i in 1:nrow(tree)){
+    if(tree[i, c("j")] != 0){
+      tree[tree[i, c("left", "right")], "cp"] <- 
+        max(tree[tree[i, c("left", "right")], "cp"])
+    }
+  }
+  
+  res <- list(predictions = f_X_hat, tree = tree, 
+              var_names = var_names, var_importance = var_imp)
+  class(res) <- 'SDTree'
+  res
+}
