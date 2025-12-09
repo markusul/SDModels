@@ -276,27 +276,21 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       ind <- do.call(c, ind)
   }
   
-  #use random generater that works with multiprocessing
+  #use random generator that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
-  
+
   # Worker wrapper for bagged trees
   worker_fun <- function(i) {
-    Xi <- matrix(X[i, ], ncol = ncol(X))
-    colnames(Xi) <- colnames(X)
-    if(!is.null(A)){
-      Ai <- matrix(A[i, ], ncol = ncol(A))
-    }else{
-      Ai <- NULL
-    }
-    
     # protect SDTree call
     res_i <- tryCatch({
-      tree_obj <- SDTree(x = Xi, y = Y[i],
-                         cp = cp, min_sample = min_sample,
+      tree_obj <- estimate_tree(X = X, Y = Y, Qf = NULL,
+                         cp = cp, min_sample = min_sample, max_leaves = n,
                          Q_type = Q_type, trim_quantile = trim_quantile,
-                         q_hat = q_hat, mtry = mtry, A = Ai, gamma = gamma, 
-                         max_candidates = max_candidates, 
-                         Q_scale = Q_scale, predictors = predictors)
+                         q_hat = q_hat, mtry = mtry, A = A, gamma = gamma, 
+                         max_candidates = max_candidates, fast = TRUE,
+                         Q_scale = Q_scale, predictors = predictors, 
+                         boot_index = i)
+      
       list(ok = TRUE, tree = tree_obj)
     }, error = function(e) {
       list(ok = FALSE, error = conditionMessage(e))
@@ -304,30 +298,28 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       # convert warnings to tagged results if needed
       list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
     })
+    p(sprintf("i=%g", i))
+    
     res_i
   }
   
+  state <- progressr::handlers(global = NA)
+  if(verbose & !state) progressr::handlers(global = TRUE)
+  p <- progressr::progressor(along = ind)
   if(mc.cores > 1){
-    if(Sys.info()[["sysname"]] == "Linux"){
-      if(verbose) print('mclapply')
-      res_list <- parallel::mclapply(ind, worker_fun, mc.cores = mc.cores)
-    }else{
-      if(verbose) print('future')
-      future::plan('multisession', workers = mc.cores)
-      res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
-    }
-  }else{
-    res_list <- pbapply::pblapply(ind, worker_fun)
+    plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+    with(future::plan(plan, workers = mc.cores), local = TRUE)
   }
-  RNGkind(ok[1])
+  res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
   
-  #check worker statuses
+  # check worker statuses
   failed_workers <- which(vapply(res_list, function(z) !isTRUE(z$ok), logical(1)))
   if (length(failed_workers) > 0) {
     stop(sprintf("SDForest: %d worker(s) failed, first error: %s",
                  length(failed_workers), res_list[[failed_workers[1]]]$error))
   }
   res <- lapply(res_list, function(res) res$tree)
+  if(verbose & !state) progressr::handlers(global = FALSE)
   
   #selection of predictors
   if(!is.null(predictors)){
@@ -437,6 +429,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     output$ooEnv_predictions <- ooEnv_predictions
   }
 
+  RNGkind(ok[1])
   class(output) <- 'SDForest'
   output
 }
