@@ -34,6 +34,14 @@ tree <- SDTree(x = X[, 1], y = Y, Q_type = 'no_deconfounding',
 expect_equal(tree$predictions, as.vector(predict(tree, data.frame(X = X[, 1]))))
 expect_equal(tree$predictions[1], predict(tree, data.frame(X = X[1, 1])))
 
+
+#test tree with bootstrap sample
+boot_index <- sample(1:50, 30, replace = T)
+estimate_tree(Y = Y, X = X, A = NULL, max_leaves = 100, cp = 0, min_sample = 1, 
+              mtry = NULL, fast = TRUE, Q_type = "trim", trim_quantile = 0.7, 
+              q_hat = 3, Qf = NULL, gamma = NULL, max_candidates = 200, 
+              Q_scale = TRUE, predictors = NULL, boot_index = boot_index)
+
              
 #### does it work with only one covariate?
 set.seed(1)
