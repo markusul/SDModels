@@ -74,6 +74,13 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
     })
     preds_i
   }
+  #if(mc.cores > 1){
+  #  plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+  #  with(future::plan(plan, workers = mc.cores), local = TRUE)
+  #}
+  #preds_list <- future.apply::future_lapply(future.seed = TRUE, 
+  #                                          X = object$forest, worker_fun)
+  
   if(mc.cores > 1){
     if(Sys.info()[["sysname"]] == "Linux"){
       preds_list <- parallel::mclapply(object$forest, 
