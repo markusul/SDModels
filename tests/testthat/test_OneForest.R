@@ -3,7 +3,7 @@ set.seed(1)
 n <- 10
 X <- matrix(rnorm(n * 1), nrow = n)
 y <- sign(X[, 1]) * 3 + rnorm(n)
-model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.1, nTree = 1)
+model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0, nTree = 1, min_sample = 1)
 
 # does varImp work
 expect_equal(model$var_importance, varImp(model))
