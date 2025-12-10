@@ -21,7 +21,9 @@ Imports:
     tidyr,
     fda,
     grplasso,
-    rlang
+    rlang, 
+    progressr, 
+    parallelly
 Suggests: 
     plotly,
     datasets,
