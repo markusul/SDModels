@@ -44,7 +44,7 @@ plot.SDTree <- function(x, main = "", digits = 2, digits_decisions = 2,
   if(weighted){
     #res_dloss <- edges$res_dloss
     #re scale edge weights
-    edges$res_dloss <- (edges$res_dloss - min(edges$res_dloss)) / (max(edges$res_dloss) - min(edges$res_dloss)) * 2 + 0.5
+    edges$res_dloss <- (edges$res_dloss - min(edges$res_dloss)) / ((max(edges$res_dloss) - min(edges$res_dloss)) * 2 + 0.1) + 0.5
   }else{
     edges$res_dloss <- 0.5
   }
@@ -66,7 +66,8 @@ plot.SDTree <- function(x, main = "", digits = 2, digits_decisions = 2,
     ggplot2::annotate("segment", x = nLeaves*1.02, y = depth*0.98, xend = nLeaves*1.1, yend = depth*0.98, 
                       arrow = ggplot2::arrow(length = ggplot2::unit(0.1, "inches")), color = "black") +
     ggplot2::annotate("text", x = nLeaves * 1.05, y = depth, label = "no", size = 4) + 
-    ggplot2::ggtitle(main)
+    ggplot2::ggtitle(main) +
+    ggplot2::ylim(-0.1*depth, depth*1.1)
 }
 
 #' Plot performance of SDForest against number of trees
@@ -75,6 +76,8 @@ plot.SDTree <- function(x, main = "", digits = 2, digits_decisions = 2,
 #' not stabilize one can fit another SDForest and merge the two.
 #' @author Markus Ulmer
 #' @param x Fitted object of class \code{SDForest}.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param ... Further arguments passed to or from other methods.
 #' @return A ggplot object
 #' @seealso \code{\link{SDForest}}
@@ -85,26 +88,31 @@ plot.SDTree <- function(x, main = "", digits = 2, digits_decisions = 2,
 #' model <- SDForest(x = X, y = y, Q_type = 'no_deconfounding', cp = 0.5, nTree = 500)
 #' plot(model)
 #' @export
-plot.SDForest <- function(x, ...){
+plot.SDForest <- function(x, verbose = TRUE, ...){
   Y_ <- x$Q(x$Y)
   
   # iterate over observations
-  preds <- pbapply::pblapply(1:length(x$Y), function(i){
-    if(length(x$oob_ind[[i]]) == 0){
-      return(NA)
-    }
-    xi <- matrix(x$X[i, ], nrow = 1)
-    
-    # predict for each tree
-    pred <- rep(NA, length(x$forest))
-    model_idx <- x$oob_ind[[i]]
-    model_idx <- model_idx[model_idx <= length(x$forest)]
-    predictions <- sapply(model_idx, function(model){
-      traverse_tree(x$forest[[model]]$tree, xi)
+  progressr::with_progress({
+    p <- progressr::progressor(along = 1:length(x$Y), enable = verbose)
+    preds <- lapply(1:length(x$Y), function(i){
+      if(length(x$oob_ind[[i]]) == 0){
+        return(NA)
+      }
+      xi <- matrix(x$X[i, ], nrow = 1)
+      
+      # predict for each tree
+      pred <- rep(NA, length(x$forest))
+      model_idx <- x$oob_ind[[i]]
+      model_idx <- model_idx[model_idx <= length(x$forest)]
+      predictions <- sapply(model_idx, function(model){
+        traverse_tree(x$forest[[model]]$tree, xi)
+      })
+      pred[model_idx] <- predictions
+      p()
+      pred
     })
-    pred[model_idx] <- predictions
-    pred
   })
+
   
   preds <- do.call(rbind, preds)
   

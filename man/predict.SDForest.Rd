@@ -4,7 +4,7 @@
 \alias{predict.SDForest}
 \title{Predictions for the SDForest}
 \usage{
-\method{predict}{SDForest}(object, newdata, mc.cores = 1, ...)
+\method{predict}{SDForest}(object, newdata, mc.cores = 1, verbose = FALSE, ...)
 }
 \arguments{
 \item{object}{Fitted object of class \code{SDForest}.}
@@ -12,8 +12,12 @@
 \item{newdata}{New test data of class \code{data.frame} containing
 the covariates for which to predict the response.}
 
-\item{mc.cores}{Number of cores to use for parallel processing,
-if \code{mc.cores > 1} the trees predict in parallel.}
+\item{mc.cores}{Number of cores to use for parallel computation `vignette("Runtime")`. 
+The `future` package is used for parallel processing. 
+To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).}
+
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

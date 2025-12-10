@@ -57,8 +57,9 @@ A split is only performed if both resulting leaves have at least
 if \code{NULL} half of the covariates are available for each split. 
 \eqn{\text{mtry} = \lfloor \frac{p}{2} \rfloor}}
 
-\item{mc.cores}{Number of cores to use for parallel processing,
-if \code{mc.cores > 1} the trees are estimated in parallel.}
+\item{mc.cores}{Number of cores to use for parallel computation `vignette("Runtime")`. 
+The `future` package is used for parallel processing. 
+To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).}
 
 \item{Q_type}{Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
@@ -105,7 +106,8 @@ proposed at each node for each covariate.}
 Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 and we do not know of a scenario where this hurts.}
 
-\item{verbose}{If \code{TRUE} fitting information is shown.}
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
 
 \item{predictors}{Subset of colnames(X) or numerical indices of the covariates 
 for which an effect on y should be estimated. All the other covariates are only

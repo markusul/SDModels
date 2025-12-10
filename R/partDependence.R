@@ -17,8 +17,11 @@
 #' If NULL, tries to extract the dataset from the model object.
 #' @param subSample Number of samples to draw from the original data for the empirical 
 #' partial dependence. If NULL, all the observations are used.
-#' @param mc.cores Number of cores to use for parallel computation. 
-#' Parallel computing is only supported for unix.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/)
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
 #' @return An object of class \code{partDependence} containing
 #' \item{preds_mean}{The average prediction for each value of the variable of interest.}
 #' \item{x_seq}{The sequence of values for the variable of interest.}
@@ -34,7 +37,8 @@
 #' plot(pd)
 #' @seealso \code{\link{SDForest}}, \code{\link{SDTree}}
 #' @export
-partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
+partDependence <- function(object, j, X = NULL, subSample = NULL, 
+                           verbose = TRUE, mc.cores = 1){
   j_name <- j
 
   if(is.null(X)){
@@ -58,21 +62,22 @@ partDependence <- function(object, j, X = NULL, subSample = NULL, mc.cores = 1){
   
   x_seq <- seq(min(X[, j]), max(X[, j]), length.out = 100)
   
-  if(mc.cores > 1){
-    preds <- parallel::mclapply(x_seq, function(x){
-      X_new <- X
-      X_new[, j] <- x
-      pred <- predict(object, newdata = X_new)
-      return(pred)
-    }, mc.cores = mc.cores)
-  }else{
-    preds <- pbapply::pblapply(x_seq, function(x){
-      X_new <- X
-      X_new[, j] <- x
-      pred <- predict(object, newdata = X_new)
-      return(pred)
-    })
-  }
+  progressr::with_progress({
+    p <- progressr::progressor(along = x_seq, enable = verbose)
+    if(mc.cores > 1){
+      plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+      with(future::plan(plan, workers = mc.cores), local = TRUE)
+    }
+    preds <- future.apply::future_lapply(future.seed = TRUE, 
+                                         X = x_seq, 
+            function(x){
+              X_new <- X
+              X_new[, j] <- x
+              pred <- predict(object, newdata = X_new)
+              p(sprintf("x=%g", x))
+              return(pred)
+            })
+  })
   preds <- do.call(rbind, preds)
   preds_mean <- rowMeans(preds)
   

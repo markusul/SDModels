@@ -34,8 +34,9 @@
 #' @param mtry Number of randomly selected covariates to consider for a split, 
 #' if \code{NULL} half of the covariates are available for each split. 
 #' \eqn{\text{mtry} = \lfloor \frac{p}{2} \rfloor}
-#' @param mc.cores Number of cores to use for parallel processing,
-#' if \code{mc.cores > 1} the trees are estimated in parallel.
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
 #' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
 #' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
 #' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
@@ -67,7 +68,8 @@
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 #' and we do not know of a scenario where this hurts.
-#' @param verbose If \code{TRUE} fitting information is shown.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param predictors Subset of colnames(X) or numerical indices of the covariates 
 #' for which an effect on y should be estimated. All the other covariates are only
 #' used for deconfounding.
@@ -298,19 +300,19 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       # convert warnings to tagged results if needed
       list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
     })
-    p(sprintf("i=%g", i))
+    p()
     
     res_i
   }
   
-  state <- progressr::handlers(global = NA)
-  if(verbose & !state) progressr::handlers(global = TRUE)
-  p <- progressr::progressor(along = ind)
+  progressr::with_progress({
+  p <- progressr::progressor(along = ind, enable = verbose)
   if(mc.cores > 1){
     plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
     with(future::plan(plan, workers = mc.cores), local = TRUE)
   }
   res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
+  })
   
   # check worker statuses
   failed_workers <- which(vapply(res_list, function(z) !isTRUE(z$ok), logical(1)))
@@ -319,7 +321,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                  length(failed_workers), res_list[[failed_workers[1]]]$error))
   }
   res <- lapply(res_list, function(res) res$tree)
-  if(verbose & !state) progressr::handlers(global = FALSE)
   
   #selection of predictors
   if(!is.null(predictors)){
