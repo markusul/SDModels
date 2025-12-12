@@ -1,3 +1,9 @@
+# SDModels 2.0.2
+
+* Switch all the parallelization to futures. See `vignette("Runtime")`
+* Switch all the progress updates to progressr. Progress updates are now also available for parallel processing and are customizable.
+* Process are much more RAM efficient now.
+
 # SDModels 2.0.1
 
 * Fix bug in SDTree and SDForest where an error occurred, if X had columns with only one unique value.

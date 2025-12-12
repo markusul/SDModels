@@ -4,10 +4,13 @@
 \alias{plot.SDForest}
 \title{Plot performance of SDForest against number of trees}
 \usage{
-\method{plot}{SDForest}(x, ...)
+\method{plot}{SDForest}(x, verbose = TRUE, ...)
 }
 \arguments{
 \item{x}{Fitted object of class \code{SDForest}.}
+
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

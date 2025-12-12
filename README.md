@@ -76,8 +76,8 @@ fit
 #> 
 #> Number of trees:  100 
 #> Number of covariates:  50 
-#> OOB loss:  0.1554798 
-#> OOB spectral loss:  0.05246865
+#> OOB loss:  0.1617913 
+#> OOB spectral loss:  0.05095329
 ```
 
 You can also estimate just one Spectrally Deconfounded Regression Tree
@@ -86,10 +86,8 @@ using the `SDTree` function. See also the article
 
 ``` r
 Tree <- SDTree(Y ~ ., train_data, cp = 0.01)
-plot(Tree)
+#plot(Tree)
 ```
-
-<img src="man/figures/README-SDTree-1.png" width="100%" />
 
 Or you can estimate a Spectrally Deconfounded Additive Model, with
 theoretical guarantees, using the `SDAM` function. See also the article
@@ -97,13 +95,11 @@ theoretical guarantees, using the `SDAM` function. See also the article
 
 ``` r
 model <- SDAM(Y ~ ., train_data)
-#> [1] "Initial cross-validation"
-#> [1] "Second stage cross-validation"
 model
 #> SDAM result
 #> 
 #> Number of covariates:  50 
-#> Number of active covariates:  4
+#> Number of active covariates:  3
 ```
 
 <div id="refs" class="references csl-bib-body hanging-indent"

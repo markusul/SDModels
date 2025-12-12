@@ -34,8 +34,9 @@
 #' @param mtry Number of randomly selected covariates to consider for a split, 
 #' if \code{NULL} half of the covariates are available for each split. 
 #' \eqn{\text{mtry} = \lfloor \frac{p}{2} \rfloor}
-#' @param mc.cores Number of cores to use for parallel processing,
-#' if \code{mc.cores > 1} the trees are estimated in parallel.
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
 #' @param Q_type Type of deconfounding, one of 'trim', 'pca', 'no_deconfounding'. 
 #' 'trim' corresponds to the Trim transform \insertCite{Cevid2020SpectralModels}{SDModels} 
 #' as implemented in the Doubly debiased lasso \insertCite{Guo2022DoublyConfounding}{SDModels}, 
@@ -67,7 +68,8 @@
 #' @param Q_scale Should data be scaled to estimate the spectral transformation? 
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates, 
 #' and we do not know of a scenario where this hurts.
-#' @param verbose If \code{TRUE} fitting information is shown.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param predictors Subset of colnames(X) or numerical indices of the covariates 
 #' for which an effect on y should be estimated. All the other covariates are only
 #' used for deconfounding.
@@ -127,6 +129,8 @@
 #' # comparison to classical random forest
 #' fit_ranger <- ranger::ranger(Y ~ ., train_data, importance = 'impurity')
 #' 
+#' # you can customize the progress bar see parameter verbose
+#' progressr::handlers("cli")
 #' fit <- SDForest(x = X, y = Y, nTree = 100, Q_type = 'pca', q_hat = 2)
 #' fit <- SDForest(Y ~ ., nTree = 100, train_data)
 #' fit
@@ -137,6 +141,7 @@
 #' plot(fit)
 #' 
 #' # a few more might be helpfull
+#' progressr::handlers(progressr::handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 #' fit2 <- SDForest(Y ~ ., nTree = 50, train_data) 
 #' fit <- mergeForest(fit, fit2)
 #' 
@@ -276,27 +281,21 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       ind <- do.call(c, ind)
   }
   
-  #use random generater that works with multiprocessing
+  #use random generator that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
-  
+
   # Worker wrapper for bagged trees
   worker_fun <- function(i) {
-    Xi <- matrix(X[i, ], ncol = ncol(X))
-    colnames(Xi) <- colnames(X)
-    if(!is.null(A)){
-      Ai <- matrix(A[i, ], ncol = ncol(A))
-    }else{
-      Ai <- NULL
-    }
-    
     # protect SDTree call
     res_i <- tryCatch({
-      tree_obj <- SDTree(x = Xi, y = Y[i],
-                         cp = cp, min_sample = min_sample,
+      tree_obj <- estimate_tree(X = X, Y = Y, Qf = NULL,
+                         cp = cp, min_sample = min_sample, max_leaves = n,
                          Q_type = Q_type, trim_quantile = trim_quantile,
-                         q_hat = q_hat, mtry = mtry, A = Ai, gamma = gamma, 
-                         max_candidates = max_candidates, 
-                         Q_scale = Q_scale, predictors = predictors)
+                         q_hat = q_hat, mtry = mtry, A = A, gamma = gamma, 
+                         max_candidates = max_candidates, fast = TRUE,
+                         Q_scale = Q_scale, predictors = predictors, 
+                         boot_index = i)
+      
       list(ok = TRUE, tree = tree_obj)
     }, error = function(e) {
       list(ok = FALSE, error = conditionMessage(e))
@@ -304,24 +303,21 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       # convert warnings to tagged results if needed
       list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
     })
+    p()
+    
     res_i
   }
   
+  progressr::with_progress({
+  p <- progressr::progressor(along = ind, enable = verbose)
   if(mc.cores > 1){
-    if(Sys.info()[["sysname"]] == "Linux"){
-      if(verbose) print('mclapply')
-      res_list <- parallel::mclapply(ind, worker_fun, mc.cores = mc.cores)
-    }else{
-      if(verbose) print('future')
-      future::plan('multisession', workers = mc.cores)
-      res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
-    }
-  }else{
-    res_list <- pbapply::pblapply(ind, worker_fun)
+    plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+    with(future::plan(plan, workers = mc.cores), local = TRUE)
   }
-  RNGkind(ok[1])
+  res_list <- future.apply::future_lapply(future.seed = TRUE, X = ind, worker_fun)
+  })
   
-  #check worker statuses
+  # check worker statuses
   failed_workers <- which(vapply(res_list, function(z) !isTRUE(z$ok), logical(1)))
   if (length(failed_workers) > 0) {
     stop(sprintf("SDForest: %d worker(s) failed, first error: %s",
@@ -437,6 +433,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     output$ooEnv_predictions <- ooEnv_predictions
   }
 
+  RNGkind(ok[1])
   class(output) <- 'SDForest'
   output
 }

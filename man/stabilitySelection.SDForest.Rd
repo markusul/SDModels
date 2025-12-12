@@ -5,13 +5,16 @@
 \alias{stabilitySelection}
 \title{Calculate the stability selection of an SDForest}
 \usage{
-\method{stabilitySelection}{SDForest}(object, cp_seq = NULL, ...)
+\method{stabilitySelection}{SDForest}(object, cp_seq = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{object}{an SDForest object}
 
 \item{cp_seq}{A sequence of complexity parameters.
 If NULL, the sequence is calculated automatically using only relevant values.}
+
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

@@ -35,8 +35,11 @@ predict.SDTree <- function(object, newdata, ...){
 #' @param object Fitted object of class \code{SDForest}.
 #' @param newdata New test data of class \code{data.frame} containing
 #' the covariates for which to predict the response.
-#' @param mc.cores Number of cores to use for parallel processing,
-#' if \code{mc.cores > 1} the trees predict in parallel.
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param ... Further arguments passed to or from other methods.
 #' @return A vector of predictions for the new data.
 #' @examples
@@ -48,7 +51,7 @@ predict.SDTree <- function(object, newdata, ...){
 #' predict(model, newdata = data.frame(X))
 #' @seealso \code{\link{SDForest}}
 #' @export
-predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
+predict.SDForest <- function(object, newdata, mc.cores = 1, verbose = FALSE, ...){
   # predict function for the spectral deconfounded random forest
   # using the mean over all trees as the prediction
   # check data type
@@ -62,9 +65,9 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
   
   if(any(is.na(X))) stop('X must not contain missing values')
   
-  worker_fun <- function(tree){
+  worker_fun <- function(i){
     preds_i <- tryCatch({
-      preds <- traverse_tree(tree[["tree"]], X)
+      preds <- traverse_tree(object$forest[[i]][["tree"]], X)
       list(ok = TRUE, preds = preds)
     }, error = function(e) {
       list(ok = FALSE, error = conditionMessage(e))
@@ -74,21 +77,14 @@ predict.SDForest <- function(object, newdata, mc.cores = 1, ...){
     })
     preds_i
   }
-  if(mc.cores > 1){
-    if(Sys.info()[["sysname"]] == "Linux"){
-      preds_list <- parallel::mclapply(object$forest, 
-                                       worker_fun, 
-                                       mc.cores = mc.cores)
-    }else{
-      future::plan('multisession', workers = mc.cores)
-      preds_list <- future.apply::future_lapply(future.seed = TRUE, 
-                                                X = object$forest, 
-                                                worker_fun)
-    }
-  }else{
-    preds_list <- pbapply::pblapply(object$forest, worker_fun)
-  }
   
+  if(mc.cores > 1){
+    plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+    with(future::plan(plan, workers = mc.cores), local = TRUE)
+  }
+  preds_list <- future.apply::future_lapply(future.seed = TRUE, 
+                                            X = 1:length(object$forest), 
+                                            worker_fun)
   #check worker statuses
   failed_workers <- which(vapply(preds_list, function(z) !isTRUE(z$ok), logical(1)))
   if (length(failed_workers) > 0) {

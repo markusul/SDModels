@@ -58,6 +58,11 @@ regPath.SDTree <- function(object, cp_seq = NULL, ...){
 #' @param X The training data, if NULL the data from the forest object is used.
 #' @param Y The training response variable, if NULL the data from the forest object is used.
 #' @param Q The transformation matrix, if NULL the data from the forest object is used.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
 #' @param ... Further arguments passed to or from other methods.
 #' @return An object of class \code{paths} containing
 #' \item{cp}{The sequence of complexity parameters.}
@@ -84,21 +89,29 @@ regPath.SDTree <- function(object, cp_seq = NULL, ...){
 #' 
 #' @export
 regPath.SDForest <- function(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL, 
-                             ...){
+                             verbose = TRUE, mc.cores = 1, ...){
   if(is.null(cp_seq)) cp_seq <- get_cp_seq(object)
   cp_seq <- sort(cp_seq)
 
-  res <- pbapply::pblapply(cp_seq, function(cp){
-    pruned_object <- prune(object, cp, X, Y, Q, pred = FALSE)
-    return(list(var_importance = pruned_object$var_importance, 
-                oob_SDloss = pruned_object$oob_SDloss, 
-                oob_loss = pruned_object$oob_loss))})
+  progressr::with_progress({
+    p <- progressr::progressor(along = cp_seq, enable = verbose)
+    if(mc.cores > 1){
+      plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+      with(future::plan(plan, workers = mc.cores), local = TRUE)
+    }
+    res <- future.apply::future_lapply(future.seed = TRUE, 
+                                       X = cp_seq, 
+                    function(cp){
+                      pruned_object <- prune(object, cp, X, Y, Q, pred = FALSE)
+                      p(sprintf("cp=%g", cp))
+                      return(list(var_importance = pruned_object$var_importance, 
+                                  oob_SDloss = pruned_object$oob_SDloss, 
+                                  oob_loss = pruned_object$oob_loss))})
+  })
 
-  #varImp_path <- t(sapply(res, function(x)x$var_importance))
   varImp_path <- do.call(rbind, lapply(res, function(x)x$var_importance))
   colnames(varImp_path) <- object$var_names
 
-  #loss_path <- t(sapply(res, function(x) c(x$oob_SDloss, x$oob_loss)))
   loss_path <- do.call(rbind, lapply(res, function(x) c(x$oob_SDloss, x$oob_loss)))
   colnames(loss_path) <- c('oob SDE', 'oob MSE')
   paths <- list(cp = cp_seq, varImp_path = varImp_path, loss_path = loss_path,
@@ -125,6 +138,8 @@ stabilitySelection <- function(object, ...) UseMethod('stabilitySelection')
 #' @param object an SDForest object
 #' @param cp_seq A sequence of complexity parameters.
 #' If NULL, the sequence is calculated automatically using only relevant values.
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param ... Further arguments passed to or from other methods.
 #' @return An object of class \code{paths} containing
 #' \item{cp}{The sequence of complexity parameters.}
@@ -145,11 +160,22 @@ stabilitySelection <- function(object, ...) UseMethod('stabilitySelection')
 #' plot(paths, plotly = TRUE)
 #' }
 #' @export
-stabilitySelection.SDForest <- function(object, cp_seq = NULL, ...){
+stabilitySelection.SDForest <- function(object, cp_seq = NULL, 
+                                        verbose = TRUE, ...){
   if(is.null(cp_seq)) cp_seq <- get_cp_seq(object)
   cp_seq <- sort(cp_seq)
-
-  imp <- pbapply::pblapply(object$forest, function(x)regPath(x, cp_seq)$varImp_path > 0)
+  
+  progressr::with_progress({
+    p <- progressr::progressor(along = 1:length(object$forest), enable = verbose)
+    imp <- lapply(1:length(object$forest), 
+                  function(i){
+                    path <- regPath(object$forest[[i]], 
+                                    cp_seq, vebose = FALSE)$varImp_path > 0
+                    p()
+                    path
+    })
+  })
+  
 
   imp <- lapply(imp, function(x)matrix(as.numeric(x), ncol = ncol(x)))
   imp <- Reduce('+', imp) / length(object$forest)

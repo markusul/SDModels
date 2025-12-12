@@ -1,5 +1,5 @@
 set.seed(1)
-n <- 50
+n <- 20
 X <- matrix(rnorm(n * 20), nrow = n)
 Y <- rnorm(n)
 

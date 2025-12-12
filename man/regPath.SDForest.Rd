@@ -5,7 +5,16 @@
 \alias{regPath}
 \title{Calculate the regularization path of an SDForest}
 \usage{
-\method{regPath}{SDForest}(object, cp_seq = NULL, X = NULL, Y = NULL, Q = NULL, ...)
+\method{regPath}{SDForest}(
+  object,
+  cp_seq = NULL,
+  X = NULL,
+  Y = NULL,
+  Q = NULL,
+  verbose = TRUE,
+  mc.cores = 1,
+  ...
+)
 }
 \arguments{
 \item{object}{an SDForest object}
@@ -18,6 +27,13 @@ If NULL, the sequence is calculated automatically using only relevant values.}
 \item{Y}{The training response variable, if NULL the data from the forest object is used.}
 
 \item{Q}{The transformation matrix, if NULL the data from the forest object is used.}
+
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
+
+\item{mc.cores}{Number of cores to use for parallel computation `vignette("Runtime")`. 
+The `future` package is used for parallel processing. 
+To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

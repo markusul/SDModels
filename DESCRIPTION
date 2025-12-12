@@ -1,6 +1,6 @@
 Package: SDModels
 Title: Spectrally Deconfounded Models
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(
   person("Markus", "Ulmer", email = "markus.ulmer@stat.math.ethz.ch", 
          role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0001-7783-8475")), 
@@ -16,12 +16,13 @@ Imports:
     ggraph,
     gridExtra,
     parallel,
-    pbapply,
     Rdpack,
     tidyr,
     fda,
     grplasso,
-    rlang
+    rlang, 
+    progressr, 
+    parallelly
 Suggests: 
     plotly,
     datasets,
@@ -31,6 +32,7 @@ Suggests:
     ranger,
     HDclassif,
     qpdf,
+    cli,
     testthat (>= 3.0.0)
 RdMacros: Rdpack
 Encoding: UTF-8

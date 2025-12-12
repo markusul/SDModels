@@ -36,9 +36,11 @@
 #' Default is \code{TRUE} to not reduce the signal of high variance covariates.
 #' @param ind_lin A vector of indices specifying which covariates to model linearly (i.e. not expanded into basis function).
 #'  Default is `NULL`.
-#' @param mc.cores  Number of cores to use for parallel processing, if \code{mc.cores > 1}
-#' the cross validation is parallelized. Default is `1`. (only supported for unix)
-#' @param verbose If \code{TRUE} fitting information is shown.
+#' @param mc.cores Number of cores to use for parallel computation `vignette("Runtime")`. 
+#' The `future` package is used for parallel processing. 
+#' To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).
+#' @param verbose If \code{TRUE} progress updates are shown using the `progressr` package. 
+#' To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)
 #' @param notRegularized A vector of indices specifying which covariates not to regularize.
 #'  Default is `NULL`.
 #' @return An object of class `SDAM` containing the following elements:
@@ -98,7 +100,8 @@
 #' # predict 
 #' predict(model, newdata = wine[42, ])
 #' 
-#' ## alternative function call
+#' ## alternative function call with customized progress bar
+#' progressr::handlers(progressr::handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 #' mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
 #'                  Q_type = "no_deconfounding", nfolds = 2, n_K = 4, 
 #'                  n_lambda1 = 4, n_lambda2 = 8)
@@ -156,8 +159,15 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   n_unique_X <- apply(X, 2, function(x){length(unique(x))})
   
   # Generate the design and model parameters for every K in vK
-  lmodK <- list()
-  for (i in 1:length(vK)){
+  progressr::with_progress({
+    pr <- progressr::progressor(along = 1:(n_K), enable = verbose)
+    pr(sprintf("Design generation"), amount = 0, class = "sticky")
+    if(mc.cores > 1){
+      plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+      with(future::plan(plan, workers = min(mc.cores, n_K)), local = TRUE)
+    }
+    
+  lmodK <- future.apply::future_lapply(future.seed = TRUE, 1:length(vK), function(i){
     K <- vK[i]
     # effective number of basis functions for each Xj, j = 1,..., p
     # K_eff[j] can be at most equal to the number of unique values of Xj
@@ -213,9 +223,11 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       lambda <- rep(0, n_lambda1)
       index <- rep(1, length(index))
     }
-    lmodK[[i]] <- list(Rlist = Rlist, lbreaks = lbreaks, index = index, B = B, 
-                       QB = QB, lambda = lambda, K = K, K_eff = K_eff)
-  }
+    pr()
+    list(Rlist = Rlist, lbreaks = lbreaks, index = index, 
+         QB = QB, lambda = lambda, K = K, K_eff = K_eff)
+  })
+  })
   
   # generate folds for CV
   ind <- sample(rep(1:nfolds, length.out = n), replace = FALSE)
@@ -236,20 +248,34 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
 
     QYpred <- predict(mod, newdata = listK$QB[test, ])
     mse <- apply(QYpred, 2, function(y){mean((y - QY[test])^2)})
+    pr()
     return(mse)
   }
   
   mse_fold <- function(l){
-    MSEl <- lapply(lmodK, function(listK){mse_fold_K(l, listK)})
+    MSEl <- future.apply::future_lapply(future.seed = TRUE, lmodK, 
+                                        mse_fold_K, 
+                                        l = l)
     return(unname(do.call(rbind, MSEl)))
   }
   
-  if(verbose) print("Initial cross-validation")
-  if(mc.cores == 1){
-    MSES <- pbapply::pblapply(1:nfolds, mse_fold) 
-  } else {
-    MSES <- parallel::mclapply(1:nfolds, mse_fold, mc.cores = mc.cores)
-  }
+  #use random generator that works with multiprocessing
+  ok <- RNGkind("L'Ecuyer-CMRG")
+  progressr::with_progress({
+    pr <- progressr::progressor(along = 1:(nfolds * n_K), enable = verbose)
+    pr(sprintf("Initial cross-validation"), amount = 0, class = "sticky")
+    if(mc.cores > 1){
+      plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+      with(future::plan(plan, workers = min(mc.cores, nfolds)), local = TRUE)
+    }
+    MSES <- lapply(X = 1:nfolds, mse_fold)
+  })
+  
+  #if(mc.cores == 1){
+  #  MSES <- pbapply::pblapply(1:nfolds, mse_fold) 
+  #} else {
+  #  MSES <- parallel::mclapply(1:nfolds, mse_fold, mc.cores = mc.cores)
+  #}
   
   # aggregate MSEs over folds
   MSES.agg <- Reduce("+", MSES) / nfolds
@@ -267,13 +293,25 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
                                length.out = n_lambda2))
   }
   
-  if(verbose) print("Second stage cross-validation")
-  if(mc.cores == 1){
-    MSES1 <- pbapply::pblapply(1:nfolds, mse_fold_K, listK = modK.min)
-  } else {
-    MSES1 <- parallel::mclapply(1:nfolds, mse_fold_K, listK = modK.min, 
-                                mc.cores = mc.cores)
-  }
+  progressr::with_progress({
+    pr <- progressr::progressor(along = 1:nfolds, enable = verbose)
+    pr(sprintf("Second stage cross-validation"), amount = 0, class = "sticky")
+    if(mc.cores > 1){
+      plan <- if (parallelly::supportsMulticore()) "multicore" else "multisession"
+      with(future::plan(plan, workers = min(mc.cores, nfolds)), local = TRUE)
+    }
+    MSES1 <- future.apply::future_lapply(future.seed = TRUE, 
+                                         X = 1:nfolds, 
+                                         mse_fold_K, 
+                                         listK = modK.min)
+  })
+  #if(verbose) print("Second stage cross-validation")
+  #if(mc.cores == 1){
+  #  MSES1 <- pbapply::pblapply(1:nfolds, mse_fold_K, listK = modK.min)
+  #} else {
+  #  MSES1 <- parallel::mclapply(1:nfolds, mse_fold_K, listK = modK.min, 
+  #                              mc.cores = mc.cores)
+  #}
   
   MSES1 <- do.call(rbind, MSES1)
   MSE1.agg <- apply(MSES1, 2, mean)
@@ -339,6 +377,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   # estimated active set
   lreturn$active <- active
   class(lreturn) <- "SDAM"
+  RNGkind(ok[1])
   return(lreturn)
 }
 

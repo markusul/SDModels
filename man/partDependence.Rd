@@ -4,7 +4,14 @@
 \alias{partDependence}
 \title{Partial dependence}
 \usage{
-partDependence(object, j, X = NULL, subSample = NULL, mc.cores = 1)
+partDependence(
+  object,
+  j,
+  X = NULL,
+  subSample = NULL,
+  verbose = TRUE,
+  mc.cores = 1
+)
 }
 \arguments{
 \item{object}{A model object that has a predict method that takes newdata as argument 
@@ -20,8 +27,12 @@ If NULL, tries to extract the dataset from the model object.}
 \item{subSample}{Number of samples to draw from the original data for the empirical 
 partial dependence. If NULL, all the observations are used.}
 
-\item{mc.cores}{Number of cores to use for parallel computation. 
-Parallel computing is only supported for unix.}
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/)}
+
+\item{mc.cores}{Number of cores to use for parallel computation `vignette("Runtime")`. 
+The `future` package is used for parallel processing. 
+To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).}
 }
 \value{
 An object of class \code{partDependence} containing

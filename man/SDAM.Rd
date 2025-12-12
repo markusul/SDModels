@@ -66,10 +66,12 @@ Default is \code{TRUE} to not reduce the signal of high variance covariates.}
 \item{ind_lin}{A vector of indices specifying which covariates to model linearly (i.e. not expanded into basis function).
 Default is `NULL`.}
 
-\item{mc.cores}{Number of cores to use for parallel processing, if \code{mc.cores > 1}
-the cross validation is parallelized. Default is `1`. (only supported for unix)}
+\item{mc.cores}{Number of cores to use for parallel computation `vignette("Runtime")`. 
+The `future` package is used for parallel processing. 
+To use custom processing plans mc.cores has to be <= 1, see [`future` package](https://future.futureverse.org/).}
 
-\item{verbose}{If \code{TRUE} fitting information is shown.}
+\item{verbose}{If \code{TRUE} progress updates are shown using the `progressr` package. 
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)}
 
 \item{notRegularized}{A vector of indices specifying which covariates not to regularize.
 Default is `NULL`.}
@@ -139,7 +141,8 @@ plot(partDependence(model, mostImp))
 # predict 
 predict(model, newdata = wine[42, ])
 
-## alternative function call
+## alternative function call with customized progress bar
+progressr::handlers(progressr::handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
                  Q_type = "no_deconfounding", nfolds = 2, n_K = 4, 
                  n_lambda1 = 4, n_lambda2 = 8)
