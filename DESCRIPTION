@@ -15,15 +15,14 @@ Imports:
     igraph, 
     ggraph,
     gridExtra,
-    parallel,
     Rdpack,
     tidyr,
     fda,
     grplasso,
     rlang, 
-    progressr, 
-    parallelly
+    progressr
 Suggests: 
+    parallelly,
     plotly,
     datasets,
     rpart,
