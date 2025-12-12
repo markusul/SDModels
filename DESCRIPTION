@@ -32,6 +32,7 @@ Suggests:
     ranger,
     HDclassif,
     qpdf,
+    cli,
     testthat (>= 3.0.0)
 RdMacros: Rdpack
 Encoding: UTF-8

@@ -75,7 +75,7 @@ You can also estimate just one Spectrally Deconfounded Regression Tree using the
 
 ```{r SDTree, fig.height=7}
 Tree <- SDTree(Y ~ ., train_data, cp = 0.01)
-plot(Tree)
+#plot(Tree)
 ```
 
 Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the `SDAM` function. See also the article [SDAM](https://www.markus-ulmer.ch/SDModels/articles/SDAM.html).

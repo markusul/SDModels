@@ -141,7 +141,7 @@
 #' plot(fit)
 #' 
 #' # a few more might be helpfull
-#' progressr::handlers(handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
+#' progressr::handlers(progressr::handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 #' fit2 <- SDForest(Y ~ ., nTree = 50, train_data) 
 #' fit <- mergeForest(fit, fit2)
 #' 
