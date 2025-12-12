@@ -101,7 +101,7 @@
 #' predict(model, newdata = wine[42, ])
 #' 
 #' ## alternative function call with customized progress bar
-#' progressr::handlers(handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
+#' progressr::handlers(progressr::handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 #' mod_none <- SDAM(x = as.matrix(wine[1:10, -c(1, 2)]), y = wine$alcohol[1:10], 
 #'                  Q_type = "no_deconfounding", nfolds = 2, n_K = 4, 
 #'                  n_lambda1 = 4, n_lambda2 = 8)
