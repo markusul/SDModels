@@ -20,22 +20,35 @@ For this package, we have written methods to estimate regressions trees and rand
 $$\hat{f} = \text{argmin}_{f' \in \mathcal{F}} \frac{||Q(\mathbf{Y} - f'(\mathbf{X}))||_2^2}{n}$$
 The package is currently fully written in @RCoreTeam2024R:Computing for now and it gets quite slow for larger sample sizes. There might be a faster cpp version in the future, but for now, there are a few ways to increase the computations if you apply the methods to larger data sets.
 
-## Computations
+## Parallel Processing
 
-Some speedup can be achieved by taking advantage of modern hardware.
+Many of our functions support parallel processing using the parameter `mc.cores` to control the number of cores used. 
 
-### Multicore
-
-When estimating an SDForest, the most obvious way to increase the computations is to fit the individual trees on different cores in parallel. Parallel computing is supported for both Unix and Windows. Depending on how your system is set up, some linear algebra libraries might already run in parallel. In this case, the speed improvement from choosing more than one core to run on might not be that large. Be aware of potential RAM-overflows.
-
-```{r core, eval=FALSE}
+```{r core1, eval=FALSE}
 # fits the individual SDTrees in parallel on 22 cores
 fit <- SDForest(x = X, y = Y, mc.cores = 22)
+
+# predicts with the individual SDTrees in parallel
+predict(fit, newdata = data.frame(X), mc.cores = 10)
+
+# evaluates different strengths of regularization in parallel
+paths <- regPath(fit, mc.cores = 10)
+
+# predicts potential outcomes for different values of covariate one in parallel
+pd <- partDependence(model, 1, mc.cores = 10)
 
 # performs cross validation in parallel
 model <- SDAM(X, Y, cv_k = 5, mc.cores = 5)
 ```
 
+To support parallelization, we use the R package [future](https://future.futureverse.org/) @RJ-2021-048. If `mc.cores` is larger than one, `multicore` (forking of processes) is used if possible, and `multisession` otherwise. If `mc.cores` is smaller than two, we process sequentially or use a pre-specified plan. This way, a user can freely choose and set up any [backend](https://future.futureverse.org/articles/future-2b-backend.html).
+
+```{r core2, eval=FALSE}
+# predefined plan
+future::plan(multisession, workers = 2)
+# fits the individual SDTrees in parallel on 2 cores
+fit <- SDForest(x = X, y = Y)
+```
 
 ## Approximations
 

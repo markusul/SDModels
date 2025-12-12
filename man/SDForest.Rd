@@ -185,6 +185,8 @@ sim_data$j
 # comparison to classical random forest
 fit_ranger <- ranger::ranger(Y ~ ., train_data, importance = 'impurity')
 
+# you can customize the progress bar see parameter verbose
+progressr::handlers("cli")
 fit <- SDForest(x = X, y = Y, nTree = 100, Q_type = 'pca', q_hat = 2)
 fit <- SDForest(Y ~ ., nTree = 100, train_data)
 fit
@@ -195,6 +197,7 @@ fit
 plot(fit)
 
 # a few more might be helpfull
+progressr::handlers(handler_txtprogressbar(char = cli::col_red(cli::symbol$heart)))
 fit2 <- SDForest(Y ~ ., nTree = 50, train_data) 
 fit <- mergeForest(fit, fit2)
 
