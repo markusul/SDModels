@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -143,11 +143,7 @@ using the trim transformation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.markus-ulmer.ch/SDModels/" class="external-link">SDModels</a></span><span class="op">)</span></span>
 <span><span class="va">fit_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"no_deconfounding"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
-<span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
-<span><span class="va">fit_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
-<span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span></code></pre></div>
+<span><span class="va">fit_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SDAM.html">SDAM</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span><span class="op">)</span></span></code></pre></div>
 <p>For both models, we compare the predicted values to the true function
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
 by calculating the mean squared error on the training data.</p>
@@ -156,7 +152,7 @@ by calculating the mean squared error on the training data.</p>
 <span><span class="va">pred_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_trim</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">MSE_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu">f</span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">-</span> <span class="va">pred_standard</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 10.00365</span></span>
+<span><span class="co">#&gt; [1] 9.838668</span></span>
 <span><span class="op">(</span><span class="va">MSE_trim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu">f</span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">-</span> <span class="va">pred_trim</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.73134</span></span></code></pre></div>
 <p>We see that the mean squared error when using the deconfounding is
@@ -181,7 +177,7 @@ when using deconfounding, we get a smaller set of active variables.</p>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of covariates:  200 </span></span>
-<span><span class="co">#&gt; Number of active covariates:  85</span></span>
+<span><span class="co">#&gt; Number of active covariates:  70</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit_trim</span><span class="op">)</span></span>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>

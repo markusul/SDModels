@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -70,11 +70,18 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="2.0.2" id="sdmodels-202">SDModels 2.0.2<a class="anchor" aria-label="anchor" href="#sdmodels-202"></a></h2>
+<ul><li>Switch all the parallelization to futures. See <code><a href="../articles/Runtime.html">vignette("Runtime")</a></code>
+</li>
+<li>Switch all the progress updates to progressr. Progress updates are now also available for parallel processing and are customizable.</li>
+<li>Process are much more RAM efficient now.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.1" id="sdmodels-201">SDModels 2.0.1<a class="anchor" aria-label="anchor" href="#sdmodels-201"></a></h2>
 <ul><li>Fix bug in SDTree and SDForest where an error occurred, if X had columns with only one unique value.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="2.0.0" id="sdmodels-200">SDModels 2.0.0<a class="anchor" aria-label="anchor" href="#sdmodels-200"></a></h2>
+<h2 class="page-header" data-toc-text="2.0.0" id="sdmodels-200">SDModels 2.0.0<small>2025-12-04</small><a class="anchor" aria-label="anchor" href="#sdmodels-200"></a></h2>
 <ul><li>Removal of data.tree dependence. Trees are now saved as a matrix.</li>
 <li>This results in a substantial reduction of RAM usage and space needed to save an SDTree or SDForest. It also results in increased computational speed.</li>
 <li>Removal of copy, fromList, and toList. Remove the copy arguments from all pruning involving functions.</li>

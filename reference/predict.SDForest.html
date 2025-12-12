@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -76,7 +76,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'SDForest'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">newdata</span>, mc.cores <span class="op">=</span> <span class="fl">1</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">newdata</span>, mc.cores <span class="op">=</span> <span class="fl">1</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -93,8 +93,14 @@ the covariates for which to predict the response.</p></dd>
 
 
 <dt id="arg-mc-cores">mc.cores<a class="anchor" aria-label="anchor" href="#arg-mc-cores"></a></dt>
-<dd><p>Number of cores to use for parallel processing,
-if <code>mc.cores &gt; 1</code> the trees predict in parallel.</p></dd>
+<dd><p>Number of cores to use for parallel computation `vignette("Runtime")`.
+The `future` package is used for parallel processing.
+To use custom processing plans mc.cores has to be &lt;= 1, see [`future` package](https://future.futureverse.org/).</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>If <code>TRUE</code> progress updates are shown using the `progressr` package.
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -122,20 +128,22 @@ if <code>mc.cores &gt; 1</code> the trees predict in parallel.</p></dd>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="SDForest.html">SDForest</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span>, nTree <span class="op">=</span> <span class="fl">5</span>, cp <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 -1.680850  2.056027  2.056027 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027  2.056027  2.056027  2.056027  2.056027  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384  1.5436239 -0.8600384  1.5436239  1.5436239 -0.8600384  1.5436239 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384  1.5436239  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239 -0.8600384 -0.8600384  1.5436239  1.5436239  1.5436239  1.5436239 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384  1.5436239 -0.8600384 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384  1.5436239  1.5436239 -0.8600384  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384 -0.8600384 -0.8600384  1.5436239  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384 -0.8600384  1.5436239  1.5436239 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239 </span>
 </code></pre></div>
     </div>
   </div>

@@ -23,7 +23,7 @@ chosen by cross validation."><meta property="og:image" content="https://markusul
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -185,12 +185,14 @@ Default is `NULL`.</p></dd>
 
 
 <dt id="arg-mc-cores">mc.cores<a class="anchor" aria-label="anchor" href="#arg-mc-cores"></a></dt>
-<dd><p>Number of cores to use for parallel processing, if <code>mc.cores &gt; 1</code>
-the cross validation is parallelized. Default is `1`. (only supported for unix)</p></dd>
+<dd><p>Number of cores to use for parallel computation `vignette("Runtime")`.
+The `future` package is used for parallel processing.
+To use custom processing plans mc.cores has to be &lt;= 1, see [`future` package](https://future.futureverse.org/).</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>If <code>TRUE</code> fitting information is shown.</p></dd>
+<dd><p>If <code>TRUE</code> progress updates are shown using the `progressr` package.
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)</p></dd>
 
 
 <dt id="arg-notregularized">notRegularized<a class="anchor" aria-label="anchor" href="#arg-notregularized"></a></dt>
@@ -264,14 +266,10 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span>  <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">SDAM</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, nfold <span class="op">=</span> <span class="fl">2</span>, n_K <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># if we know that the first covariate one is relevant, we can also choose to not regularize it</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">SDAM</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, Q_type <span class="op">=</span> <span class="st">"trim"</span>, trim_quantile <span class="op">=</span> <span class="fl">0.5</span>, nfold <span class="op">=</span> <span class="fl">2</span>, </span></span>
 <span class="r-in"><span>              n_K <span class="op">=</span> <span class="fl">1</span>, notRegularized <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">22</span><span class="op">)</span></span></span>
@@ -286,15 +284,13 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="co"># estimate model</span></span></span>
 <span class="r-in"><span><span class="co"># do not use class in the model and restrict proline to be linear </span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">SDAM</span><span class="op">(</span><span class="va">alcohol</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">class</span>, <span class="va">wine</span>, ind_lin <span class="op">=</span> <span class="st">"proline"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># extract variable importance</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="varImp.SDForest.html">varImp</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       malicAcid             ash   alcalinityAsh       magnesium      totPhenols </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2.211114e-06    4.626919e-06    0.000000e+00    0.000000e+00    0.000000e+00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1.151293e-05    1.237159e-05    0.000000e+00    0.000000e+00    0.000000e+00 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      flavanoids  nonFlavPhenols proanthocyanins       colIntens             hue </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1.000657e-06    3.530140e-06    0.000000e+00    3.331735e-04    0.000000e+00 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    5.480240e-06    1.072846e-05    2.162911e-06    4.960476e-04    0.000000e+00 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              OD         proline </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    0.000000e+00    0.000000e+00 </span>
 <span class="r-in"><span></span></span>
@@ -317,14 +313,13 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># predict </span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model</span>, newdata <span class="op">=</span> <span class="va">wine</span><span class="op">[</span><span class="fl">42</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.56437</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.565642</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## alternative function call</span></span></span>
+<span class="r-in"><span><span class="co">## alternative function call with customized progress bar</span></span></span>
+<span class="r-in"><span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handler_txtprogressbar.html" class="external-link">handler_txtprogressbar</a></span><span class="op">(</span>char <span class="op">=</span> <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span><span class="op">(</span><span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/symbol.html" class="external-link">symbol</a></span><span class="op">$</span><span class="va">heart</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mod_none</span> <span class="op">&lt;-</span> <span class="fu">SDAM</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">wine</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">wine</span><span class="op">$</span><span class="va">alcohol</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, </span></span>
 <span class="r-in"><span>                 Q_type <span class="op">=</span> <span class="st">"no_deconfounding"</span>, nfolds <span class="op">=</span> <span class="fl">2</span>, n_K <span class="op">=</span> <span class="fl">4</span>, </span></span>
 <span class="r-in"><span>                 n_lambda1 <span class="op">=</span> <span class="fl">4</span>, n_lambda2 <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Initial cross-validation"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Second stage cross-validation"</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

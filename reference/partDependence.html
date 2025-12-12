@@ -20,7 +20,7 @@ of all predictions. (Friedman 2001)"><meta property="og:image" content="https://
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -81,7 +81,14 @@ of all predictions. (Friedman 2001)</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">partDependence</span><span class="op">(</span><span class="va">object</span>, <span class="va">j</span>, X <span class="op">=</span> <span class="cn">NULL</span>, subSample <span class="op">=</span> <span class="cn">NULL</span>, mc.cores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">partDependence</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">j</span>,</span>
+<span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  subSample <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  mc.cores <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -109,9 +116,15 @@ If NULL, tries to extract the dataset from the model object.</p></dd>
 partial dependence. If NULL, all the observations are used.</p></dd>
 
 
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>If <code>TRUE</code> progress updates are shown using the `progressr` package.
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/)</p></dd>
+
+
 <dt id="arg-mc-cores">mc.cores<a class="anchor" aria-label="anchor" href="#arg-mc-cores"></a></dt>
-<dd><p>Number of cores to use for parallel computation.
-Parallel computing is only supported for unix.</p></dd>
+<dd><p>Number of cores to use for parallel computation `vignette("Runtime")`.
+The `future` package is used for parallel processing.
+To use custom processing plans mc.cores has to be &lt;= 1, see [`future` package](https://future.futureverse.org/).</p></dd>
 
 </dl></div>
     <div id="value">

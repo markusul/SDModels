@@ -33,7 +33,7 @@ $$\widehat{f(X)} = \frac{1}{N_{tree}} \sum_{t = 1}^{N_{tree}} SDTree_t(X)$$"><me
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -181,8 +181,9 @@ if <code>NULL</code> half of the covariates are available for each split.
 
 
 <dt id="arg-mc-cores">mc.cores<a class="anchor" aria-label="anchor" href="#arg-mc-cores"></a></dt>
-<dd><p>Number of cores to use for parallel processing,
-if <code>mc.cores &gt; 1</code> the trees are estimated in parallel.</p></dd>
+<dd><p>Number of cores to use for parallel computation `vignette("Runtime")`.
+The `future` package is used for parallel processing.
+To use custom processing plans mc.cores has to be &lt;= 1, see [`future` package](https://future.futureverse.org/).</p></dd>
 
 
 <dt id="arg-q-type">Q_type<a class="anchor" aria-label="anchor" href="#arg-q-type"></a></dt>
@@ -262,7 +263,8 @@ and we do not know of a scenario where this hurts.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>If <code>TRUE</code> fitting information is shown.</p></dd>
+<dd><p>If <code>TRUE</code> progress updates are shown using the `progressr` package.
+To customize the progress bar, see [`progressr` package](https://progressr.futureverse.org/articles/progressr-intro.html)</p></dd>
 
 
 <dt id="arg-predictors">predictors<a class="anchor" aria-label="anchor" href="#arg-predictors"></a></dt>
@@ -381,20 +383,22 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">SDForest</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">y</span>, Q_type <span class="op">=</span> <span class="st">'no_deconfounding'</span>, nTree <span class="op">=</span> <span class="fl">5</span>, cp <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">model</span>, newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 -1.680850  2.056027  2.056027 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027  2.056027  2.056027  2.056027  2.056027  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 -1.680850 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.056027 -1.680850 -1.680850 -1.680850 -1.680850 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value     value     value     value     value     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850 -1.680850  2.056027  2.056027 -1.680850 -1.680850  2.056027  2.056027 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value     value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.680850  2.056027 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384  1.5436239 -0.8600384  1.5436239  1.5436239 -0.8600384  1.5436239 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384  1.5436239  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239 -0.8600384 -0.8600384  1.5436239  1.5436239  1.5436239  1.5436239 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384  1.5436239 -0.8600384 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384  1.5436239  1.5436239 -0.8600384  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8600384 -0.8600384 -0.8600384  1.5436239  1.5436239 -0.8600384 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value      value      value      value      value      value      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239  1.5436239 -0.8600384 -0.8600384  1.5436239  1.5436239 -0.8600384 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5436239 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">###### subset of predictors</span></span></span>
 <span class="r-in"><span><span class="co"># if we know, that only the first covariate has an effect on y,</span></span></span>
@@ -415,6 +419,8 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-in"><span><span class="co"># comparison to classical random forest</span></span></span>
 <span class="r-in"><span><span class="va">fit_ranger</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="fu">::</span><span class="fu"><a href="http://imbs-hl.github.io/ranger/reference/ranger.html" class="external-link">ranger</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span>, importance <span class="op">=</span> <span class="st">'impurity'</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># you can customize the progress bar see parameter verbose</span></span></span>
+<span class="r-in"><span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span><span class="st">"cli"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">SDForest</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Y</span>, nTree <span class="op">=</span> <span class="fl">100</span>, Q_type <span class="op">=</span> <span class="st">'pca'</span>, q_hat <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">SDForest</span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, nTree <span class="op">=</span> <span class="fl">100</span>, <span class="va">train_data</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
@@ -422,8 +428,8 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of trees:  100 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of covariates:  150 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OOB loss:  0.6746847 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> OOB spectral loss:  0.0739706 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> OOB loss:  0.6872859 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> OOB spectral loss:  0.07095043 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># we can plot the fit to see whether the number of trees is high enough</span></span></span>
 <span class="r-in"><span><span class="co"># if the performance stabilizes, we have enough trees otherwise one can fit</span></span></span>
@@ -432,6 +438,7 @@ ISSN 0090-5364, <a href="https://doi.org/10.1214/009053607000000578" class="exte
 <span class="r-plt img"><img src="SDForest-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a few more might be helpfull</span></span></span>
+<span class="r-in"><span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handlers.html" class="external-link">handlers</a></span><span class="op">(</span><span class="fu">progressr</span><span class="fu">::</span><span class="fu"><a href="https://progressr.futureverse.org/reference/handler_txtprogressbar.html" class="external-link">handler_txtprogressbar</a></span><span class="op">(</span>char <span class="op">=</span> <span class="fu">cli</span><span class="fu">::</span><span class="fu"><a href="https://cli.r-lib.org/reference/ansi-styles.html" class="external-link">col_red</a></span><span class="op">(</span><span class="fu">cli</span><span class="fu">::</span><span class="va"><a href="https://cli.r-lib.org/reference/symbol.html" class="external-link">symbol</a></span><span class="op">$</span><span class="va">heart</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu">SDForest</span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, nTree <span class="op">=</span> <span class="fl">50</span>, <span class="va">train_data</span><span class="op">)</span> </span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="mergeForest.html">mergeForest</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

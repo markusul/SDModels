@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SDModels</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -141,23 +141,20 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of trees:  100 </span></span>
 <span><span class="co">#&gt; Number of covariates:  50 </span></span>
-<span><span class="co">#&gt; OOB loss:  0.1554798 </span></span>
-<span><span class="co">#&gt; OOB spectral loss:  0.05246865</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB loss:  0.1617913 </span></span>
+<span><span class="co">#&gt; OOB spectral loss:  0.05095329</span></span></code></pre></div>
 <p>You can also estimate just one Spectrally Deconfounded Regression Tree using the <code>SDTree</code> function. See also the article <a href="https://www.markus-ulmer.ch/SDModels/articles/SDTree.html" class="external-link">SDTree</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDTree.html">SDTree</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span>, cp <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Tree</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-SDTree-1.png" width="100%"></p>
+<span><span class="co">#plot(Tree)</span></span></code></pre></div>
 <p>Or you can estimate a Spectrally Deconfounded Additive Model, with theoretical guarantees, using the <code>SDAM</code> function. See also the article <a href="https://www.markus-ulmer.ch/SDModels/articles/SDAM.html" class="external-link">SDAM</a>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/SDAM.html">SDAM</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">.</span>, <span class="va">train_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Initial cross-validation"</span></span>
-<span><span class="co">#&gt; [1] "Second stage cross-validation"</span></span>
 <span><span class="va">model</span></span>
 <span><span class="co">#&gt; SDAM result</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Number of covariates:  50 </span></span>
-<span><span class="co">#&gt; Number of active covariates:  4</span></span></code></pre></div>
+<span><span class="co">#&gt; Number of active covariates:  3</span></span></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-Cevid2020SpectralModels" class="csl-entry">
 Ćevid, Domagoj, Peter Bühlmann, and Nicolai Meinshausen. 2020. “<span class="nocase">Spectral Deconfounding via Perturbed Sparse Linear Models</span>.” <em>J. Mach. Learn. Res.</em> 21 (1). <a href="http://jmlr.org/papers/v21/19-545.html" class="external-link uri">http://jmlr.org/papers/v21/19-545.html</a>.
