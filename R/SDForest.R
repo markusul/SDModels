@@ -83,7 +83,8 @@
 #' The variable importance is calculated as the sum of the decrease in the loss function 
 #' resulting from all splits that use a covariate for each tree. 
 #' The mean of the variable importance of all trees results in the variable importance for the forest.}
-#' \item{oob_ind}{List of indices of trees that did not contain the observation in the training set.}
+#' \item{in_bag}{Logical matrix with one row per observation and one column per tree, 
+#' \code{TRUE} if the observation was in the bootstrap sample of the tree.}
 #' \item{oob_predictions}{Out-of-bag predictions.}
 #' If \code{return_data} is \code{TRUE} the following are also returned:
 #' \item{X}{Matrix of covariates.}
@@ -92,8 +93,6 @@
 #' If \code{envs} is provided the following are also returned:
 #' \item{envs}{Vector of environments.}
 #' \item{nTree_env}{Number of trees for each environment.}
-#' \item{ooEnv_ind}{List of indices of trees that did not contain the observation or the same environment in the training set
-#' for each observation.}
 #' \item{ooEnv_loss}{Out-of-bag loss using only trees that did not contain the observation or the same environment.}
 #' \item{ooEnv_SDloss}{Out-of-bag loss using the spectral transformation and only trees that did not contain the observation
 #' or the same environment.}
@@ -345,57 +344,38 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
 
   # ensemble predictions for each observation
   # but only with the trees that did not contain the observation in the training set
-  oob_ind <- lapply(1:n, function(i) which(unlist(lapply(lapply(ind, 
-                         function(train)c(1:n)[-train]), 
-                         function(x) any(x == i)))))
+  in_bag <- matrix(FALSE, nrow = n, ncol = length(ind))
+  for (t in seq_along(ind)) in_bag[ind[[t]], t] <- TRUE
 
-  oob_predictions <- sapply(1:n, function(i){
-    if(length(oob_ind[[i]]) == 0){
-      return(NA)
-    }
-    xi <- matrix(X[i, ], nrow = 1)
-    predictions <- sapply(oob_ind[[i]], function(model){
-      traverse_tree(res[[model]]$tree, xi)
-    })
-    return(mean(predictions))
-  })
+  pred_all <- do.call(cbind, lapply(res, function(x) traverse_tree(x$tree, X)))
+  
+  oob_mat <- pred_all
+  oob_mat[in_bag] <- NA
+  n_oob <- rowSums(!in_bag)
+  oob_predictions <- unname(rowMeans(oob_mat, na.rm = TRUE))
+  oob_predictions[n_oob == 0] <- NA
 
   Y_tilde <- Qf(Y)
   oob_SDloss <- loss(Y_tilde, Qf(oob_predictions))
   oob_loss <- loss(Y, oob_predictions)
 
-
-  if(!is.null(envs)){
-    # oob predictions only with model not trained on the same environment
-    if(!is.null(nTree_leave_out)){
-      ooEnv_ind <- lapply(1:n, function(i){
-        idx <- oob_ind[[i]]
-        idx[tree_env[idx] == envs[i]]
-      })
-    }else{
-      ooEnv_ind <- lapply(1:n, function(i){
-        idx <- oob_ind[[i]]
-        idx[tree_env[idx] != envs[i]]
-      })
-    }
-
-    ooEnv_predictions <- sapply(1:n, function(i){
-      if(length(ooEnv_ind[[i]]) == 0){
-        return(NA)
-      }
-      xi <- matrix(X[i, ], nrow = 1)
-      predictions <- sapply(ooEnv_ind[[i]], function(model){
-        traverse_tree(res[[model]]$tree, xi)
-      })
-      return(mean(predictions))
-    })
-
+  if (!is.null(envs)) {
+    # Same masking, one logical matrix instead of a per-observation lapply.
+    same_env <- outer(as.character(envs), as.character(tree_env), "==")
+    keep <- if (!is.null(nTree_leave_out)) (!in_bag) & same_env
+    else                           (!in_bag) & !same_env
+    
+    ooEnv_mat <- pred_all
+    ooEnv_mat[!keep] <- NA
+    ooEnv_predictions <- unname(rowMeans(ooEnv_mat, na.rm = TRUE))
+    ooEnv_predictions[rowSums(keep) == 0] <- NA 
+    
     ooEnv_SDloss <- loss(Y_tilde, Qf(ooEnv_predictions))
     ooEnv_loss <- loss(Y, ooEnv_predictions)
   }
 
   # predict with all trees
-  pred <- do.call(cbind, lapply(res, function(x){traverse_tree(x$tree, X)}))
+  pred <- pred_all
   
   # use mean over trees as final prediction
   f_X_hat <- rowMeans(pred)
@@ -410,7 +390,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                  oob_loss = oob_loss, 
                  oob_SDloss = oob_SDloss, 
                  var_importance = var_imp, 
-                 oob_ind = oob_ind, 
+                 in_bag = in_bag,
                  oob_predictions = oob_predictions)
   
   if(return_data){
@@ -427,7 +407,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     }
     output$tree_env <- nTree_env
     output$envs <- envs
-    output$ooEnv_ind <- ooEnv_ind
     output$ooEnv_loss <- ooEnv_loss
     output$ooEnv_SDloss <- ooEnv_SDloss
     output$ooEnv_predictions <- ooEnv_predictions

@@ -124,7 +124,8 @@ Object of class \code{SDForest} containing:
 The variable importance is calculated as the sum of the decrease in the loss function 
 resulting from all splits that use a covariate for each tree. 
 The mean of the variable importance of all trees results in the variable importance for the forest.}
-\item{oob_ind}{List of indices of trees that did not contain the observation in the training set.}
+\item{in_bag}{Logical matrix with one row per observation and one column per tree, 
+\code{TRUE} if the observation was in the bootstrap sample of the tree.}
 \item{oob_predictions}{Out-of-bag predictions.}
 If \code{return_data} is \code{TRUE} the following are also returned:
 \item{X}{Matrix of covariates.}
@@ -133,8 +134,6 @@ If \code{return_data} is \code{TRUE} the following are also returned:
 If \code{envs} is provided the following are also returned:
 \item{envs}{Vector of environments.}
 \item{nTree_env}{Number of trees for each environment.}
-\item{ooEnv_ind}{List of indices of trees that did not contain the observation or the same environment in the training set
-for each observation.}
 \item{ooEnv_loss}{Out-of-bag loss using only trees that did not contain the observation or the same environment.}
 \item{ooEnv_SDloss}{Out-of-bag loss using the spectral transformation and only trees that did not contain the observation
 or the same environment.}
