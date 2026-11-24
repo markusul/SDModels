@@ -531,3 +531,13 @@ estimate_tree <- function(boot_index, Y, X, A, max_leaves, cp, min_sample, mtry,
   class(res) <- 'SDTree'
   res
 }
+
+
+# in_bag matrix of an SDForest, rebuilt from oob_ind for objects fitted with SDModels <= 2.0.2
+get_in_bag <- function(object){
+  if(!is.null(object$in_bag)) return(object$in_bag)
+  n <- length(object$oob_ind)
+  in_bag <- matrix(TRUE, n, length(object$forest))
+  for(i in seq_len(n)) in_bag[i, object$oob_ind[[i]]] <- FALSE
+  in_bag
+}

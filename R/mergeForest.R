@@ -25,6 +25,9 @@ mergeForest <- function(fit1, fit2){
   len_2 <- length(fit2$forest)
   len_new <- len_1 + len_2
 
+  in_bag_1 <- get_in_bag(fit1)
+  in_bag_2 <- get_in_bag(fit2)
+  
   # combine trees
   fit1$forest <- c(fit1$forest, fit2$forest)
 
@@ -39,11 +42,11 @@ mergeForest <- function(fit1, fit2){
          !is.null(fit1$X), !is.null(fit1$Y), !is.null(fit1$Q))){
     
     # weighted average of predictions
-    fit1$predictions <- (fit1$predictions * length(fit1$forest) + 
-      fit2$predictions * length(fit2$forest)) / len_new
+    fit1$predictions <- (fit1$predictions * len_1 + 
+                           fit2$predictions * len_2) / len_new
 
-    oob_weights_1 <- sapply(fit1$oob_ind, length)
-    oob_weights_2 <- sapply(fit2$oob_ind, length)
+    oob_weights_1 <- rowSums(!in_bag_1)
+    oob_weights_2 <- rowSums(!in_bag_2)
     oob_weights_new <- oob_weights_1 + oob_weights_2
 
     oob_predictions_1 <- fit1$oob_predictions * oob_weights_1
@@ -52,11 +55,11 @@ mergeForest <- function(fit1, fit2){
     fit1$oob_predictions <- rowSums(cbind(oob_predictions_1, oob_predictions_2), 
                                     na.rm = T)
     fit1$oob_predictions <- fit1$oob_predictions / oob_weights_new
+    fit1$oob_predictions[oob_weights_new == 0] <- NA
     
     # combine what trees are available for oob_i
-    fit1$oob_ind <- lapply(1:length(fit1$Y), function(i){
-      c(fit1$oob_ind[[i]], fit2$oob_ind[[i]] + len_1)
-    })
+    fit1$in_bag <- cbind(in_bag_1, in_bag_2)
+    fit1$oob_ind <- NULL
 
     # calculate oob_loss and oob_SDloss
     fit1$oob_SDloss <- loss(fit1$Q(fit1$Y), fit1$Q(fit1$oob_predictions))
@@ -66,8 +69,9 @@ mergeForest <- function(fit1, fit2){
     fit1$X <- NULL
     fit1$Y <- NULL
     fit1$Q <- NULL
+    fit1$in_bag <- NULL
     fit1$predictions <- NULL
-    fit1$oob_prediction <- NULL
+    fit1$oob_predictions <- NULL
     fit1$oob_ind <- NULL
     fit1$oob_loss <- NULL
     fit1$oob_SDloss <- NULL
