@@ -170,6 +170,10 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE){
   if(type == 'no_deconfounding') {
     return(function(v) v)
   }
+  
+  # columns constant in the sample carry no information on the confounding
+  X <- as.matrix(X)
+  X <- X[, apply(X, 2, function(x) min(x) < max(x)), drop = FALSE]
   X <- scale(X, center = TRUE, scale = scaling)
   
   svd_error <- function(X, q, f = 1, count = 1){
@@ -181,7 +185,7 @@ get_Qf <- function(X, type, trim_quantile = 0.5, q_hat = 0, scaling = TRUE){
       return(svd_error(X, q, 1 + 0.0000000000000001 * 10 ^ count, count + 1))})
   }
   
-  if(ncol(X) == 1){
+  if(ncol(X) <= 1){
     warning('only one covariate, no deconfounding possible')
     return(function(v) v)
   }
