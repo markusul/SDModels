@@ -224,6 +224,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
       index <- rep(1, length(index))
     }
     pr()
+    # one entry per covariate, NULL for the linear ones
+    length(lbreaks) <- p
     list(Rlist = Rlist, lbreaks = lbreaks, index = index, 
          QB = QB, lambda = lambda, K = K, K_eff = K_eff)
   })
