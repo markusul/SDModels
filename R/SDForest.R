@@ -196,8 +196,8 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   if(!is.null(mtry) && mtry < 1) stop('mtry must be larger than 0')
   if(!is.null(mtry) && mtry > p) stop('mtry must be at most p')
 
-  if(!is.null(leave_out_ind) && any(leave_out_ind >= n, leave_out_ind < 1)) 
-    stop('leave_out_ind must be smaller than n')
+  if(!is.null(leave_out_ind) && any(leave_out_ind > n, leave_out_ind < 1)) 
+    stop('leave_out_ind must be between 1 and n')
   if(!is.null(envs) && any(length(envs) != n, !is.factor(envs)))
     stop('envs must be a factor of length n')
   if(!is.null(envs) && !is.null(nTree_leave_out) && !is.null(nTree_env))
