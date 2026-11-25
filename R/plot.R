@@ -91,30 +91,11 @@ plot.SDTree <- function(x, main = "", digits = 2, digits_decisions = 2,
 plot.SDForest <- function(x, verbose = TRUE, ...){
   Y_ <- x$Q(x$Y)
   
-  # iterate over observations
-  progressr::with_progress({
-    p <- progressr::progressor(along = 1:length(x$Y), enable = verbose)
-    preds <- lapply(1:length(x$Y), function(i){
-      if(length(x$oob_ind[[i]]) == 0){
-        return(NA)
-      }
-      xi <- matrix(x$X[i, ], nrow = 1)
-      
-      # predict for each tree
-      pred <- rep(NA, length(x$forest))
-      model_idx <- x$oob_ind[[i]]
-      model_idx <- model_idx[model_idx <= length(x$forest)]
-      predictions <- sapply(model_idx, function(model){
-        traverse_tree(x$forest[[model]]$tree, xi)
-      })
-      pred[model_idx] <- predictions
-      p()
-      pred
-    })
-  })
-
-  
-  preds <- do.call(rbind, preds)
+  # predictions of each tree, NA where the observation was in the bag
+  in_bag <- get_in_bag(x)[, seq_len(length(x$forest)), drop = FALSE]
+  preds <- do.call(cbind, lapply(x$forest, 
+                                 function(tree) traverse_tree(tree$tree, x$X)))
+  preds[in_bag] <- NA
   
   # aggregate tree predictions
   preds <- apply(preds, 1, function(pred){
