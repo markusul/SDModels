@@ -158,6 +158,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   # get number of unique elements in each column of X
   n_unique_X <- apply(X, 2, function(x){length(unique(x))})
   
+  if(all(n_unique_X == 1)) stop('all covariates are constant')
+  
   # Generate the design and model parameters for every K in vK
   progressr::with_progress({
     pr <- progressr::progressor(along = 1:(n_K), enable = verbose)
@@ -178,6 +180,9 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     K_eff <- pmin(K_eff, n_unique_X)
     K_eff[K_eff < 4] <- 1
     
+    # a covariate that is constant in the data gets no basis function
+    K_eff[n_unique_X == 1] <- 0
+    
     # first column is intercept
     #B <- cbind(rep(1, n), matrix(nrow = n, ncol = sum(K_eff)))
     B <- matrix(1, nrow = n, ncol = 1)
@@ -188,6 +193,7 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
     #index <- c(NA, rep(1:p, times = K_eff))
     index <- NA
     for (j in 1:p){
+      if(K_eff[j] == 0) next
       # number of breaks is number of basis functions minus order (4 by default) + 2
       if(K_eff[j] >= 4){
         breaks <- quantile(X[,j], probs=seq(0, 1, length.out = K_eff[j]-2))
