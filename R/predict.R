@@ -126,21 +126,15 @@ predictOOB <- function(object, X = NULL){
     stop("The number of covariates has to correspond to the data used for training the forest.")
   }
 
-  oob_ind <- object$oob_ind
-
-  sapply(1:n, function(i){
-    if(length(oob_ind[[i]]) == 0){
-      return(NA)
-    }
-    xi <- matrix(X[i, ], nrow = 1)
-    
-    model_idx <- oob_ind[[i]]
-    model_idx <- model_idx[model_idx <= length(object$forest)]
-    predictions <- sapply(model_idx, function(model){
-      traverse_tree(object$forest[[model]]$tree, xi)
-    })
-    mean(predictions)
-  })
+  in_bag <- get_in_bag(object)[, seq_len(length(object$forest)), drop = FALSE]
+  if(nrow(in_bag) != n) stop('X must be the data used for training the forest')
+  
+  pred_all <- do.call(cbind, lapply(object$forest, 
+                                    function(x) traverse_tree(x$tree, X)))
+  pred_all[in_bag] <- NA
+  oob_predictions <- unname(rowMeans(pred_all, na.rm = TRUE))
+  oob_predictions[rowSums(!in_bag) == 0] <- NA
+  oob_predictions
 }
 
 
