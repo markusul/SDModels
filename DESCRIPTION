@@ -10,7 +10,7 @@ License: GPL-3
 Imports: 
     DiagrammeR,
     future.apply,
-    future,
+    future (>= 1.40.0),
     ggplot2,
     igraph, 
     ggraph,
