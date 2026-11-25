@@ -282,6 +282,7 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   
   #use random generator that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
+  on.exit(RNGkind(ok[1]), add = TRUE)
 
   # Worker wrapper for bagged trees
   worker_fun <- function(i) {
@@ -422,7 +423,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
     output$ooEnv_predictions <- ooEnv_predictions
   }
 
-  RNGkind(ok[1])
   class(output) <- 'SDForest'
   output
 }

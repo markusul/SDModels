@@ -269,6 +269,8 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   
   #use random generator that works with multiprocessing
   ok <- RNGkind("L'Ecuyer-CMRG")
+  on.exit(RNGkind(ok[1]), add = TRUE)
+  
   progressr::with_progress({
     pr <- progressr::progressor(along = 1:(nfolds * n_K), enable = verbose)
     pr(sprintf("Initial cross-validation"), amount = 0, class = "sticky")
@@ -385,7 +387,6 @@ SDAM <- function(formula = NULL, data = NULL, x = NULL, y = NULL,
   # estimated active set
   lreturn$active <- active
   class(lreturn) <- "SDAM"
-  RNGkind(ok[1])
   return(lreturn)
 }
 
