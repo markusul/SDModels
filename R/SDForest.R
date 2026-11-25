@@ -286,7 +286,8 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   # Worker wrapper for bagged trees
   worker_fun <- function(i) {
     # protect SDTree call
-    res_i <- tryCatch({
+    warn <- character(0)
+    res_i <- tryCatch(withCallingHandlers({
       tree_obj <- estimate_tree(X = X, Y = Y, Qf = NULL,
                          cp = cp, min_sample = min_sample, max_leaves = n,
                          Q_type = Q_type, trim_quantile = trim_quantile,
@@ -296,12 +297,14 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                          boot_index = i)
       
       list(ok = TRUE, tree = tree_obj)
-    }, error = function(e) {
-      list(ok = FALSE, error = conditionMessage(e))
     }, warning = function(w) {
-      # convert warnings to tagged results if needed
-      list(ok = TRUE, tree = NULL, warning = conditionMessage(w))
+      # keep the tree, collect the warning
+      warn <<- c(warn, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }), error = function(e) {
+      list(ok = FALSE, error = conditionMessage(e))
     })
+    res_i$warnings <- unique(warn)
     p()
     
     res_i
@@ -323,6 +326,13 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
                  length(failed_workers), res_list[[failed_workers[1]]]$error))
   }
   res <- lapply(res_list, function(res) res$tree)
+  
+  # report each distinct warning once
+  tree_warnings <- table(unlist(lapply(res_list, function(z) z$warnings)))
+  for(w in names(tree_warnings)){
+    warning(sprintf('%s (in %d of %d trees)', w, tree_warnings[[w]], length(res_list)), 
+            call. = FALSE)
+  }
   
   #selection of predictors
   if(!is.null(predictors)){

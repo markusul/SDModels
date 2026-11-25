@@ -443,7 +443,7 @@ estimate_tree <- function(boot_index, Y, X, A, max_leaves, cp, min_sample, mtry,
     # check if loss decrease is larger than minimum loss decrease
     # and if linear model could be estimated
     if(sum(is.na(as.numeric(c_hat))) > 0){
-      warning('singulaer matrix QE, tree might be to large, consider increasing cp')
+      warning('singular matrix QE, tree might be too large, consider increasing cp')
       break
     }
     
