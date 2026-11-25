@@ -1,20 +1,23 @@
-citHeader("To cite package ‘SDModels’ in publications use Ulmer, Scheidegger, and Bühlmann (2025) for Spectrally Deconfounded Random Forests (SDForest) and Scheidegger, Guo, and Bühlmann (2025) for Spectrally Deconfounded Additive Models (SDAMs).")
+citHeader("To cite package ‘SDModels’ in publications use Ulmer, Scheidegger, and Bühlmann (2026) for Spectrally Deconfounded Random Forests (SDForest) and Scheidegger, Guo, and Bühlmann (2025) for Spectrally Deconfounded Additive Models (SDAMs).")
 
 bibentry(
   bibtype="Article",
   title="Spectrally Deconfounded Random Forests", 
-  author="Markus Ulmer and Cyrill Scheidegger and Peter B{\"u}hlmann",
-  year="2025",
+  author="Markus Ulmer and Cyrill Scheidegger and Peter Bühlmann",
+  year="2026",
   publisher="ASA Website",
   journal="Journal of Computational and Graphical Statistics",
+  volume="35",
+  number="2",
+  pages="758--768",
   doi="10.1080/10618600.2025.2569602",
   url="https://doi.org/10.1080/10618600.2025.2569602",
-  textVersion = "Ulmer, Scheidegger, and Bühlmann (2025) Spectrally Deconfounded Random Forests. arXiv preprint."
+  textVersion = "Ulmer, Scheidegger, and Bühlmann (2026) Spectrally Deconfounded Random Forests. Journal of Computational and Graphical Statistics 35(2), 758-768."
 )
 
 bibentry(
   bibtype= "Article",
-  author = "Scheidegger, Cyrill and Guo, Zijian and B\"{u}hlmann, Peter",
+  author = "Scheidegger, Cyrill and Guo, Zijian and Bühlmann, Peter",
   title = "Spectral Deconfounding for High-Dimensional Sparse Additive Models",
   year = "2025",
   publisher = "Association for Computing Machinery",
@@ -24,5 +27,5 @@ bibentry(
   journal = "ACM / IMS J. Data Sci.",
   volume = "2",
   number = "1",
-  textVersion = "Scheidegger, Guo, and Bühlmann (2025) Spectral deconfounding for high-dimensional sparse additive models. ACM/JMS Journal of Data Science."
+  textVersion = "Scheidegger, Guo, and Bühlmann (2025) Spectral deconfounding for high-dimensional sparse additive models. ACM/IMS Journal of Data Science."
 )
