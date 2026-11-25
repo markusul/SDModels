@@ -237,8 +237,6 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
   all_ind <- 1:n
   if(!is.null(leave_out_ind)){
     all_ind <- all_ind[-leave_out_ind]
-    if(!is.null(envs)){
-      envs <- envs[-leave_out_ind]
     }
   }
   
@@ -270,10 +268,10 @@ SDForest <- function(formula = NULL, data = NULL, x = NULL, y = NULL, nTree = 10
       lapply(1:nTree_env[env_l], function(x) {
       if(!is.null(nTree_leave_out)){
         # not use leave out environment for training
-        all_ind_env <- all_ind[envs != env_l]
+        all_ind_env <- all_ind[envs[all_ind] != env_l]
       }else{
         # use only specific environment for training
-        all_ind_env <- all_ind[envs == env_l]
+        all_ind_env <- all_ind[envs[all_ind] == env_l]
       }
       sample(all_ind_env, min(length(all_ind_env), max_size), replace = TRUE)
       })})
